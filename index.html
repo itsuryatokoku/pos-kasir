@@ -1047,7 +1047,7 @@
             { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'percentage', value: 10, min_purchase: 0, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 1, get_qty: 1, max_discount: 15000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
-        // Helper for Rounding Up Prices (Round Up)
+        // Helper for Rounding Up Prices (Round Up via Math.ceil)
         function roundPrice(val) {
             if (!val || isNaN(val)) return 0;
             return Math.ceil(val);
@@ -1147,7 +1147,7 @@
 
         async function connectBluetoothPrinter() {
             if (!navigator.bluetooth) {
-                showNotification("Web Bluetooth tidak didukung/diblokir di iframe sandbox ini. Buka aplikasi di tab mandiri browser (HTTPS).", "error");
+                showNotification("Web Bluetooth dibatasi di sandbox preview. Gunakan tombol 'Print Thermal' di nota untuk cetak via sistem.", "info");
                 return;
             }
             try {
@@ -1191,8 +1191,8 @@
                 showNotification("Printer Bluetooth berhasil terhubung!", "success");
             } catch (e) {
                 console.warn('Bluetooth connection error:', e);
-                document.getElementById('bt-printer-status').innerText = 'BT Gagal';
-                showNotification("Gagal terhubung ke printer Bluetooth. Pastikan Bluetooth aktif dan berikan izin.", "error");
+                document.getElementById('bt-printer-status').innerText = 'Print Manual';
+                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan tombol 'Print Thermal' pada nota.", "info");
             }
         }
 
@@ -1214,7 +1214,6 @@
 
         async function printBluetoothReceipt(tx) {
             if (!bluetoothCharacteristic || !bluetoothDevice || !bluetoothDevice.gatt.connected) {
-                showNotification("Printer Bluetooth belum terhubung. Mencetak via sistem...", "info");
                 printReceipt();
                 return;
             }
@@ -1270,7 +1269,6 @@
                 showNotification("Nota berhasil dicetak via Bluetooth!", "success");
             } catch (err) {
                 console.error("Bluetooth print error:", err);
-                showNotification("Gagal mencetak Bluetooth. Menggunakan cetak browser...", "error");
                 printReceipt();
             }
         }
