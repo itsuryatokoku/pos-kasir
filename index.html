@@ -110,7 +110,7 @@
         </nav>
 
         <div class="flex items-center space-x-2 sm:space-x-3">
-            <!-- MULTI CABANG SELECTOR (FASE 11) -->
+            <!-- MULTI CABANG SELECTOR -->
             <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
                 <i class="fa-solid fa-store text-amber-400 ml-1.5 mr-1 text-xs"></i>
                 <select id="branch-select" onchange="changeBranch()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
@@ -129,7 +129,7 @@
                 </select>
             </div>
 
-            <!-- WEB BLUETOOTH PRINTER CONNECTOR (FASE 11) -->
+            <!-- WEB BLUETOOTH PRINTER CONNECTOR -->
             <button 
                 onclick="connectBluetoothPrinter()"
                 id="bt-printer-btn"
@@ -198,7 +198,7 @@
                             type="text" 
                             id="search-input"
                             onkeyup="handleSearch(event)"
-                            placeholder="Ketik nama produk atau scan barcode (Tekan Enter)..." 
+                            placeholder="Cari nama produk, SKU, atau scan barcode (Tekan Enter)..." 
                             class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                         >
                     </div>
@@ -309,8 +309,8 @@
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk & Stok (Supabase Cloud)</h2>
-                    <p class="text-xs text-slate-500">Kelola katalog, kategori, restock barang, dan cetak label barcode.</p>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU & Stok</h2>
+                    <p class="text-xs text-slate-500">Kelola katalog, kode SKU, barcode, kategori, restock barang, dan cetak label.</p>
                 </div>
                 <div class="flex gap-2">
                     <button 
@@ -334,7 +334,7 @@
                         type="text" 
                         id="admin-search-input" 
                         onkeyup="renderAdminProductsTable()" 
-                        placeholder="Cari nama atau barcode produk..." 
+                        placeholder="Cari nama, SKU, atau barcode produk..." 
                         class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                     <div class="flex items-center gap-2 text-xs">
@@ -347,6 +347,7 @@
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
+                                <th class="p-3">SKU</th>
                                 <th class="p-3">Barcode</th>
                                 <th class="p-3">Kategori</th>
                                 <th class="p-3">Nama Produk</th>
@@ -727,9 +728,15 @@
             <form onsubmit="saveProduct(event)" class="p-4 space-y-3 text-xs">
                 <input type="hidden" id="prod-edit-id">
                 
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">Kode Barcode</label>
-                    <input type="text" id="prod-barcode" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kode SKU</label>
+                        <input type="text" id="prod-sku" placeholder="Cth: BRS-001" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kode Barcode</label>
+                        <input type="text" id="prod-barcode" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
                 </div>
 
                 <div>
@@ -868,7 +875,7 @@
         </div>
     </div>
 
-    <!-- MODAL STRUK NOTA (FASE 11: Direct Bluetooth & WA Export) -->
+    <!-- MODAL STRUK NOTA -->
     <div id="modal-receipt" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-3 bg-slate-800 text-white flex justify-between items-center no-print">
@@ -1027,7 +1034,7 @@
         let currentUserRole = 'admin'; // 'admin' | 'cashier'
         let currentBranch = 'Pusat Utama'; // Multi-cabang
 
-        // Web Bluetooth Printer Variables (Fase 11)
+        // Web Bluetooth Printer Variables
         let bluetoothDevice = null;
         let bluetoothCharacteristic = null;
 
@@ -1196,12 +1203,12 @@
             if (statusText) statusText.innerText = "Mode Offline (Lokal)";
 
             products = [
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', sku: 'SKU-KPI-04', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', sku: 'SKU-TEH-05', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', sku: 'SKU-IND-06', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
             ];
             customers = [
                 { id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c11', name: 'Budi Santoso', phone: '08123456789', type: 'VIP', points: 120, total_tx: 450000 },
@@ -1356,7 +1363,9 @@
             const query = (document.getElementById('search-input')?.value || '').toLowerCase();
             const filtered = products.filter(p => {
                 const matchCat = selectedCategory === 'All' || p.category === selectedCategory;
-                const matchSearch = p.name.toLowerCase().includes(query) || (p.barcode && p.barcode.toLowerCase().includes(query));
+                const matchSearch = p.name.toLowerCase().includes(query) || 
+                                    (p.barcode && p.barcode.toLowerCase().includes(query)) ||
+                                    (p.sku && p.sku.toLowerCase().includes(query));
                 return matchCat && matchSearch;
             });
 
@@ -1372,9 +1381,10 @@
                     <div>
                         <div class="flex justify-between items-start text-[10px] text-slate-400 font-semibold mb-1">
                             <span class="truncate">${window.escapeHTML(p.category || 'Umum')}</span>
-                            <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">${window.escapeHTML(p.barcode || '-')}</span>
+                            <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600" title="Barcode / SKU">${window.escapeHTML(p.barcode || p.sku || '-')}</span>
                         </div>
                         <h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition">${window.escapeHTML(p.name)}</h3>
+                        ${p.sku ? `<div class="text-[10px] text-indigo-500 font-mono mt-0.5"><i class="fa-solid fa-tag mr-1 text-[9px]"></i>SKU: ${window.escapeHTML(p.sku)}</div>` : ''}
                     </div>
                     <div class="mt-3 flex justify-between items-end">
                         <div>
@@ -1505,11 +1515,14 @@
 
             if (e && e.key === 'Enter') {
                 if (query) {
-                    const exactBarcodeProduct = products.find(p => p.barcode && p.barcode.toLowerCase() === query);
-                    if (exactBarcodeProduct) {
-                        window.addToCart(exactBarcodeProduct.id);
+                    const exactMatchProduct = products.find(p => 
+                        (p.barcode && p.barcode.toLowerCase() === query) ||
+                        (p.sku && p.sku.toLowerCase() === query)
+                    );
+                    if (exactMatchProduct) {
+                        window.addToCart(exactMatchProduct.id);
                         if (inputEl) inputEl.value = '';
-                        window.showToast(`Ditambahkan: ${exactBarcodeProduct.name}`, 'success');
+                        window.showToast(`Ditambahkan: ${exactMatchProduct.name}`, 'success');
                     }
                 }
             }
@@ -1717,7 +1730,7 @@
             window.refreshAllUIs();
         };
 
-        // WEB BLUETOOTH THERMAL PRINTING (FASE 11)
+        // WEB BLUETOOTH THERMAL PRINTING
         window.connectBluetoothPrinter = async function() {
             if (!navigator.bluetooth) {
                 window.showToast('Browser Anda belum mendukung Web Bluetooth API', 'error');
@@ -1793,7 +1806,7 @@
             }
         };
 
-        // KIRIM STRUK VIA WHATSAPP DIRECT (FASE 11)
+        // KIRIM STRUK VIA WHATSAPP DIRECT
         window.sendWhatsAppReceipt = function() {
             if (!activeReceiptTx) return;
             const tx = activeReceiptTx;
@@ -1863,17 +1876,20 @@
 
             const filtered = products.filter(p => {
                 const matchCat = filterCat === 'Semua' || p.category === filterCat;
-                const matchSearch = p.name.toLowerCase().includes(query) || (p.barcode && p.barcode.toLowerCase().includes(query));
+                const matchSearch = p.name.toLowerCase().includes(query) || 
+                                    (p.barcode && p.barcode.toLowerCase().includes(query)) ||
+                                    (p.sku && p.sku.toLowerCase().includes(query));
                 return matchCat && matchSearch;
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Data produk tidak ditemukan</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">Data produk tidak ditemukan</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filtered.map(p => `
                 <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-mono font-bold text-indigo-600">${window.escapeHTML(p.sku || '-')}</td>
                     <td class="p-3 font-mono font-semibold text-slate-600">${window.escapeHTML(p.barcode || '-')}</td>
                     <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${window.escapeHTML(p.category || 'Umum')}</span></td>
                     <td class="p-3 font-bold text-slate-800">${window.escapeHTML(p.name)}</td>
@@ -1892,6 +1908,7 @@
         window.openProductModal = function() {
             document.getElementById('product-modal-title').innerText = "Tambah Produk Baru";
             document.getElementById('prod-edit-id').value = "";
+            document.getElementById('prod-sku').value = "";
             document.getElementById('prod-barcode').value = "";
             document.getElementById('prod-category').value = "";
             document.getElementById('prod-name').value = "";
@@ -1910,6 +1927,7 @@
             if (!p) return;
             document.getElementById('product-modal-title').innerText = "Edit Data Produk";
             document.getElementById('prod-edit-id').value = p.id;
+            document.getElementById('prod-sku').value = p.sku || '';
             document.getElementById('prod-barcode').value = p.barcode || '';
             document.getElementById('prod-category').value = p.category || '';
             document.getElementById('prod-name').value = p.name || '';
@@ -1922,6 +1940,7 @@
         window.saveProduct = async function(e) {
             if (e) e.preventDefault();
             const editId = document.getElementById('prod-edit-id').value;
+            const sku = document.getElementById('prod-sku').value;
             const barcode = document.getElementById('prod-barcode').value;
             const category = document.getElementById('prod-category').value;
             const name = document.getElementById('prod-name').value;
@@ -1932,14 +1951,14 @@
             if (editId) {
                 const index = products.findIndex(p => p.id === editId);
                 if (index !== -1) {
-                    products[index] = { ...products[index], barcode, category, name, purchase_price, selling_price, stock };
+                    products[index] = { ...products[index], sku, barcode, category, name, purchase_price, selling_price, stock };
                 }
 
-                window.logAudit('Update Product', `Memperbarui data produk: ${name}`);
+                window.logAudit('Update Product', `Memperbarui data produk: ${name} (SKU: ${sku})`);
 
                 if (supabaseClient) {
                     try {
-                        const { error } = await supabaseClient.from('products').update({ barcode, category, name, purchase_price, selling_price, stock }).eq('id', editId);
+                        const { error } = await supabaseClient.from('products').update({ sku, barcode, category, name, purchase_price, selling_price, stock }).eq('id', editId);
                         if (error) throw error;
                         window.showToast('Produk diperbarui di Cloud!', 'success');
                     } catch (err) {
@@ -1948,8 +1967,8 @@
                 }
             } else {
                 const newUuid = window.generateUUID();
-                const newProd = { id: newUuid, barcode, category, name, purchase_price, selling_price, stock };
-                window.logAudit('Add Product', `Menambahkan produk baru: ${name}`);
+                const newProd = { id: newUuid, sku, barcode, category, name, purchase_price, selling_price, stock };
+                window.logAudit('Add Product', `Menambahkan produk baru: ${name} (SKU: ${sku})`);
 
                 if (supabaseClient) {
                     try {
@@ -1987,7 +2006,7 @@
         window.openRestockModal = function() {
             const select = document.getElementById('restock-product-select');
             if (select) {
-                select.innerHTML = products.map(p => `<option value="${window.escapeHTML(p.id)}">${window.escapeHTML(p.name)} (Stok Saat Ini: ${p.stock})</option>`).join('');
+                select.innerHTML = products.map(p => `<option value="${window.escapeHTML(p.id)}">${window.escapeHTML(p.name)} [SKU: ${p.sku || '-'}] (Stok Saat Ini: ${p.stock})</option>`).join('');
             }
             document.getElementById('modal-restock').classList.remove('hidden');
         };
@@ -2454,13 +2473,16 @@
                 setTimeout(() => flashEl.classList.add('opacity-0'), 400);
             }
 
-            const exactBarcodeProduct = products.find(p => p.barcode && p.barcode.toLowerCase() === decodedText.trim().toLowerCase());
+            const exactMatchProduct = products.find(p => 
+                (p.barcode && p.barcode.toLowerCase() === decodedText.trim().toLowerCase()) ||
+                (p.sku && p.sku.toLowerCase() === decodedText.trim().toLowerCase())
+            );
 
             const sessionLog = document.getElementById('scanner-session-log');
             const sessionCountEl = document.getElementById('scanner-session-count');
 
-            if (exactBarcodeProduct) {
-                window.addToCart(exactBarcodeProduct.id);
+            if (exactMatchProduct) {
+                window.addToCart(exactMatchProduct.id);
                 scannedSessionCount++;
                 if (sessionCountEl) sessionCountEl.innerText = `${scannedSessionCount} Item`;
 
@@ -2469,23 +2491,23 @@
                     const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     sessionLog.insertAdjacentHTML('afterbegin', `
                         <div class="flex justify-between items-center py-1 text-slate-700">
-                            <span class="font-bold truncate text-emerald-600"><i class="fa-solid fa-circle-check text-[10px] mr-1"></i>${window.escapeHTML(exactBarcodeProduct.name)}</span>
+                            <span class="font-bold truncate text-emerald-600"><i class="fa-solid fa-circle-check text-[10px] mr-1"></i>${window.escapeHTML(exactMatchProduct.name)}</span>
                             <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
                         </div>
                     `);
                 }
-                window.showToast(`Berhasil Ditambah: ${exactBarcodeProduct.name}`, 'success');
+                window.showToast(`Berhasil Ditambah: ${exactMatchProduct.name}`, 'success');
             } else {
                 if (sessionLog) {
                     if (scannedSessionCount === 0 && sessionLog.children.length === 1 && sessionLog.children[0].classList.contains('italic')) sessionLog.innerHTML = '';
                     sessionLog.insertAdjacentHTML('afterbegin', `
                         <div class="flex justify-between items-center py-1 text-slate-500">
-                            <span class="truncate text-amber-600"><i class="fa-solid fa-triangle-exclamation text-[10px] mr-1"></i>Barcode: ${window.escapeHTML(decodedText)} (Tidak Ditemukan)</span>
+                            <span class="truncate text-amber-600"><i class="fa-solid fa-triangle-exclamation text-[10px] mr-1"></i>Kode: ${window.escapeHTML(decodedText)} (Tidak Ditemukan)</span>
                             <span class="text-[10px] text-slate-400">Baru</span>
                         </div>
                     `);
                 }
-                window.showToast(`Barcode ${decodedText} tidak ada di katalog`, 'error');
+                window.showToast(`Kode ${decodedText} tidak ada di katalog`, 'error');
             }
 
             const isContinuousMode = document.getElementById('scan-continuous-toggle')?.checked;
@@ -2519,17 +2541,18 @@
 
         window.generateProductBarcodeModal = function(productId) {
             const p = products.find(item => item.id === productId);
-            if (!p || !p.barcode) {
-                window.showToast('Produk ini belum memiliki kode barcode!', 'error');
+            if (!p || (!p.barcode && !p.sku)) {
+                window.showToast('Produk ini belum memiliki kode Barcode atau SKU!', 'error');
                 return;
             }
 
+            const barcodeCode = p.barcode || p.sku;
             document.getElementById('barcode-modal-name').innerText = p.name;
             document.getElementById('barcode-modal-price').innerText = window.formatRupiah(p.selling_price);
 
             if (typeof JsBarcode !== 'undefined') {
                 try {
-                    JsBarcode("#barcode-svg", p.barcode, {
+                    JsBarcode("#barcode-svg", barcodeCode, {
                         format: "CODE128",
                         lineColor: "#000",
                         width: 2,
