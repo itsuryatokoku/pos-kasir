@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Fase 11 Enterprise)</title>
+    <title>KASIR POS - itsuryatokoku (Fase 11 Supabase Auth)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- HTML5-QRCode JS CDN -->
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- JsBarcode CDN for Barcode Generator & Printing -->
+    <!-- JsBarcode CDN -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <!-- Chart.js CDN for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -50,10 +50,10 @@
             body * {
                 visibility: hidden;
             }
-            #printable-receipt, #printable-receipt *, #printable-barcode-card, #printable-barcode-card * {
+            #printable-receipt, #printable-receipt * {
                 visibility: visible;
             }
-            #printable-receipt, #printable-barcode-card {
+            #printable-receipt {
                 position: absolute;
                 left: 0;
                 top: 0;
@@ -80,9 +80,9 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v11.0 Enterprise</span>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">Supabase Auth</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir & Analytics Cloud Integration</p>
+                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud Database Integration</p>
             </div>
         </div>
 
@@ -143,29 +143,12 @@
             </button>
 
             <button 
-                onclick="openShiftModal()"
-                id="shift-btn"
-                title="Sesi Kasir & Modal Awal Laci"
-                class="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
-                <i class="fa-solid fa-cash-register"></i>
-                <span class="hidden sm:inline">Shift Kasir</span>
-            </button>
-
-            <button 
-                onclick="openAuditLogModal()"
-                title="Log Aktivitas Sistem"
-                class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300">
-                <i class="fa-solid fa-list-check text-indigo-400"></i>
-            </button>
-
-            <button 
                 onclick="syncWithSupabase()"
                 id="sync-btn"
                 title="Sinkronkan Data dengan Supabase Cloud"
                 class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
                 <i class="fa-solid fa-rotate" id="sync-icon"></i>
                 <span class="hidden lg:inline">Sync Cloud</span>
-                <span id="offline-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
             </button>
 
             <button 
@@ -252,17 +235,6 @@
                         <i class="fa-solid fa-cake-candles text-pink-500"></i>
                         <span>Hari ini Ulang Tahun Pelanggan! 🎂</span>
                     </div>
-
-                    <!-- VOUCHER / PROMO CODE INPUT -->
-                    <div class="flex gap-1.5">
-                        <input 
-                            type="text" 
-                            id="cart-voucher-input" 
-                            placeholder="Kode Promo (cth: PROMO10K)" 
-                            class="w-full px-2 py-1 text-[11px] uppercase bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        >
-                        <button onclick="applyVoucherCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold shadow-sm transition">Klaim</button>
-                    </div>
                 </div>
 
                 <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-200 bg-white min-h-[160px]">
@@ -291,11 +263,6 @@
                         <span id="cart-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
-                    <div id="voucher-discount-row" class="hidden flex justify-between text-xs text-indigo-600 items-center font-bold">
-                        <span>Voucher (<span id="voucher-label-code">PROMO</span>)</span>
-                        <span id="voucher-discount-amount">- Rp 0</span>
-                    </div>
-
                     <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
                         <span class="text-sm font-extrabold text-slate-900">Total Akhir</span>
                         <span id="cart-grand-total" class="text-xl font-black text-blue-600">Rp 0</span>
@@ -318,22 +285,14 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU & Stok</h2>
-                    <p class="text-xs text-slate-500">Kelola katalog, kode SKU, barcode, kategori, restock barang, dan cetak label.</p>
+                    <p class="text-xs text-slate-500">Kelola katalog, kode SKU, barcode, kategori, dan stok barang.</p>
                 </div>
-                <div class="flex gap-2">
-                    <button 
-                        onclick="openRestockModal()" 
-                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
-                        <i class="fa-solid fa-boxes-packing"></i>
-                        <span>Tambah Stok (Restock)</span>
-                    </button>
-                    <button 
-                        onclick="openProductModal()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Tambah Produk Baru</span>
-                    </button>
-                </div>
+                <button 
+                    onclick="openProductModal()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Produk Baru</span>
+                </button>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -436,7 +395,7 @@
             <!-- ANALYTICS CHARTS GRID -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div class="lg:col-span-2 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="font-bold text-sm text-slate-700 mb-3">Tren Penjualan Harian (7 Hari Terakhir)</h3>
+                    <h3 class="font-bold text-sm text-slate-700 mb-3">Tren Penjualan Harian</h3>
                     <div class="h-56 relative">
                         <canvas id="salesChart"></canvas>
                     </div>
@@ -479,7 +438,7 @@
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir</h2>
-                <p class="text-xs text-slate-500">Konfigurasi database cloud Supabase, informasi toko, dan direktori cetak.</p>
+                <p class="text-xs text-slate-500">Konfigurasi database cloud Supabase & informasi toko.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -491,7 +450,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Sub-judul / Slogan</label>
-                        <input type="text" id="setting-store-sub" value="Sistem Kasir & Analytics Cloud Integration" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" id="setting-store-sub" value="Sistem Kasir Cloud Database Integration" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Header Footer Nota</label>
@@ -634,7 +593,7 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Metode Pembayaran</label>
-                    <select id="pay-method" onchange="togglePayMethod()" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-semibold">
+                    <select id="pay-method" onchange="calculateChange()" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-semibold">
                         <option value="Tunai">Tunai (Cash)</option>
                         <option value="QRIS">QRIS / E-Wallet</option>
                         <option value="Transfer">Transfer Bank</option>
@@ -735,7 +694,7 @@
         </div>
     </div>
 
-    <!-- MODAL: LOGIN USER / ROLE ACCESS -->
+    <!-- MODAL: LOGIN USER / SUPABASE AUTH -->
     <div id="login-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-5 text-center relative overflow-hidden">
             <div class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
@@ -744,17 +703,15 @@
                 <div class="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-500/30 mb-3">
                     <i class="fa-solid fa-lock"></i>
                 </div>
-                <h3 class="font-black text-xl text-slate-800 tracking-tight">Otentikasi Kasir & Admin</h3>
-                <p class="text-xs text-slate-500 mt-1">Masukkan PIN untuk masuk ke sistem</p>
+                <h3 class="font-black text-xl text-slate-800 tracking-tight">Otentikasi Supabase Cloud</h3>
+                <p class="text-xs text-slate-500 mt-1">Pilih Akun & Masukkan PIN Kasir</p>
             </div>
 
             <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Pilih Akun / Peran</label>
                     <select id="login-username" class="w-full px-3 py-2.5 text-xs font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50">
-                        <option value="admin">👑 Owner / Admin (PIN: 1234)</option>
-                        <option value="kasir1">🛒 Kasir 1 - Utama (PIN: 0000)</option>
-                        <option value="kasir2">🛒 Kasir 2 - Shift Malam (PIN: 1111)</option>
+                        <!-- Populated dynamically from Supabase users table -->
                     </select>
                 </div>
 
@@ -771,7 +728,7 @@
                 </div>
 
                 <div id="login-error-msg" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs p-2.5 rounded-xl font-semibold text-center">
-                    PIN tidak valid! Silakan coba lagi.
+                    PIN atau Akun tidak valid!
                 </div>
 
                 <!-- KEYPAD DIGIT PIN -->
@@ -794,12 +751,12 @@
                     type="submit" 
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition active:scale-[0.99] flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
                     <i class="fa-solid fa-right-to-bracket"></i>
-                    <span>MASUK SISTEM</span>
+                    <span>VERIFIKASI & MASUK</span>
                 </button>
             </form>
 
             <div class="text-[10px] text-slate-400 border-t pt-2">
-                Default PIN: Admin = <b class="text-slate-600">1234</b> | Kasir 1 = <b class="text-slate-600">0000</b> | Kasir 2 = <b class="text-slate-600">1111</b>
+                Otentikasi Terintegrasi dengan Tabel <b class="text-slate-600">users</b> Supabase Cloud
             </div>
         </div>
     </div>
@@ -812,15 +769,15 @@
         let customers = [];
         let transactions = [];
         let cart = [];
+        let userAccounts = [];
         let html5QrcodeScanner = null;
         let salesChartInstance = null;
         let paymentChartInstance = null;
         let selectedCategory = 'Semua';
         let currentRole = 'admin';
         let currentBranch = 'Pusat Utama';
-        let activeVoucher = null;
 
-        // USER ACCOUNTS
+        // SEED ACCOUNTS FALLBACK (OFFLINE)
         const defaultAccounts = [
             { username: 'admin', name: 'Owner / Admin', role: 'admin', pin: '1234' },
             { username: 'kasir1', name: 'Kasir Utama', role: 'cashier', pin: '0000' },
@@ -832,10 +789,7 @@
         const defaultProducts = [
             { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
             { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', sku: 'SKU-KPI-04', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', sku: 'SKU-TEH-05', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', sku: 'SKU-IND-06', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 }
         ];
 
         const defaultCustomers = [
@@ -844,9 +798,10 @@
         ];
 
         // INIT APPLICATION
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             initSupabaseClient();
             loadLocalStorageData();
+            await fetchUsersFromSupabase();
             initAuthSystem();
             setupHashNavigation();
             renderCategories();
@@ -858,6 +813,55 @@
             renderHistoryTable();
             initCharts();
         });
+
+        // SUPABASE CLIENT INIT
+        function initSupabaseClient() {
+            const url = localStorage.getItem('supabase_url') || 'https://pftuivzghfscfczfckvd.supabase.co';
+            const key = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODQ0NjgsImV4cCI6MjA1NjU2MDQ2OH0.C83vJysq6_1u7aGj_t5WnOa63N2iK9s9lM0-86P0';
+            
+            document.getElementById('setting-supabase-url').value = url;
+            document.getElementById('setting-supabase-key').value = key;
+
+            if (url && key && window.supabase) {
+                try {
+                    supabaseClient = window.supabase.createClient(url, key);
+                    document.getElementById('db-status-dot').className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                    document.getElementById('db-status-text').innerText = 'Cloud Connected';
+                    syncWithSupabase();
+                } catch(e) {
+                    console.error('Supabase connect error:', e);
+                }
+            }
+        }
+
+        // SUPABASE AUTH USER FETCHING
+        async function fetchUsersFromSupabase() {
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('users').select('*');
+                    if (!error && data && data.length > 0) {
+                        userAccounts = data;
+                        localStorage.setItem('pos_users', JSON.stringify(data));
+                        populateLoginDropdown(data);
+                        return;
+                    }
+                } catch(e) {
+                    console.error('Fetch users error:', e);
+                }
+            }
+            // Fallback to local storage or defaults
+            userAccounts = JSON.parse(localStorage.getItem('pos_users')) || defaultAccounts;
+            populateLoginDropdown(userAccounts);
+        }
+
+        function populateLoginDropdown(accounts) {
+            const select = document.getElementById('login-username');
+            select.innerHTML = accounts.map(acc => `
+                <option value="${acc.username}">
+                    ${acc.role === 'admin' ? '👑' : '🛒'} ${acc.name} (${acc.username})
+                </option>
+            `).join('');
+        }
 
         // AUTHENTICATION LOGIC
         function initAuthSystem() {
@@ -874,20 +878,43 @@
             }
         }
 
-        function openLoginModal() {
+        async function openLoginModal() {
             document.getElementById('login-pin').value = '';
             document.getElementById('login-error-msg').classList.add('hidden');
+            await fetchUsersFromSupabase();
             document.getElementById('login-modal').classList.remove('hidden');
         }
 
-        function handleLoginSubmit(e) {
+        async function handleLoginSubmit(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value;
             const pin = document.getElementById('login-pin').value;
             const errorMsg = document.getElementById('login-error-msg');
 
-            const accounts = JSON.parse(localStorage.getItem('pos_accounts')) || defaultAccounts;
-            const foundUser = accounts.find(acc => acc.username === username && acc.pin === pin);
+            let foundUser = null;
+
+            // Direct Supabase Auth Query
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('username', username)
+                        .eq('pin', pin)
+                        .single();
+
+                    if (!error && data) {
+                        foundUser = data;
+                    }
+                } catch(err) {
+                    console.error('Supabase authentication error:', err);
+                }
+            }
+
+            // Fallback Offline Check
+            if (!foundUser) {
+                foundUser = userAccounts.find(acc => acc.username === username && acc.pin === pin);
+            }
 
             if (foundUser) {
                 activeUser = foundUser;
@@ -896,7 +923,7 @@
                 document.getElementById('login-modal').classList.add('hidden');
                 errorMsg.classList.add('hidden');
             } else {
-                errorMsg.innerText = 'PIN atau Akun tidak cocok!';
+                errorMsg.innerText = 'PIN atau Akun tidak cocok di Database Cloud!';
                 errorMsg.classList.remove('hidden');
             }
         }
@@ -906,7 +933,6 @@
             document.getElementById('user-display-name').innerText = user.name;
             document.getElementById('user-display-role').innerText = user.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
 
-            // Show or hide admin navigation items
             const adminNavs = document.querySelectorAll('.nav-admin-only');
             adminNavs.forEach(el => {
                 if (user.role === 'admin') {
@@ -916,7 +942,6 @@
                 }
             });
 
-            // Redirect cashier if attempting to access protected view
             const currentHash = window.location.hash;
             if (user.role === 'cashier' && currentHash !== '#pos' && currentHash !== '') {
                 window.location.hash = '#pos';
@@ -949,25 +974,6 @@
             });
         }
 
-        function initSupabaseClient() {
-            const url = localStorage.getItem('supabase_url') || 'https://pftuivzghfscfczfckvd.supabase.co';
-            const key = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODQ0NjgsImV4cCI6MjA1NjU2MDQ2OH0.C83vJysq6_1u7aGj_t5WnOa63N2iK9s9lM0-86P0';
-            
-            document.getElementById('setting-supabase-url').value = url;
-            document.getElementById('setting-supabase-key').value = key;
-
-            if (url && key && window.supabase) {
-                try {
-                    supabaseClient = window.supabase.createClient(url, key);
-                    document.getElementById('db-status-dot').className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
-                    document.getElementById('db-status-text').innerText = 'Cloud Connected';
-                    syncWithSupabase();
-                } catch(e) {
-                    console.error('Supabase connect error:', e);
-                }
-            }
-        }
-
         function loadLocalStorageData() {
             products = JSON.parse(localStorage.getItem('pos_products')) || defaultProducts;
             customers = JSON.parse(localStorage.getItem('pos_customers')) || defaultCustomers;
@@ -980,7 +986,7 @@
             localStorage.setItem('pos_transactions', JSON.stringify(transactions));
         }
 
-        // SUPABASE SYNC
+        // SUPABASE DATA SYNC
         async function syncWithSupabase() {
             if (!supabaseClient) return;
             const icon = document.getElementById('sync-icon');
@@ -1032,7 +1038,6 @@
             const activeView = document.querySelector(hash === '#pos' ? '#view-pos' : '#view-' + hash.replace('#', ''));
             if (activeView) activeView.classList.remove('hidden');
 
-            // Update Nav styling
             document.querySelectorAll('nav a').forEach(a => {
                 a.className = 'px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5';
             });
@@ -1149,9 +1154,6 @@
 
         function clearCart() {
             cart = [];
-            activeVoucher = null;
-            document.getElementById('cart-voucher-input').value = '';
-            document.getElementById('voucher-discount-row').classList.add('hidden');
             renderCartItems();
         }
 
@@ -1186,13 +1188,7 @@
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-
-            let voucherDisc = 0;
-            if (activeVoucher) {
-                voucherDisc = activeVoucher.amount;
-            }
-
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount - voucherDisc);
+            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
 
             document.getElementById('cart-subtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
             document.getElementById('cart-discount-amount').innerText = `- Rp ${manualDiscAmount.toLocaleString('id-ID')}`;
@@ -1205,7 +1201,7 @@
         function renderCustomersTable() {
             const tbody = document.getElementById('customers-tbody');
             const q = (document.getElementById('customer-search-input').value || '').toLowerCase();
-            const todayStr = new Date().toISOString().slice(5, 10); // MM-DD
+            const todayStr = new Date().toISOString().slice(5, 10);
 
             const list = customers.filter(c => 
                 c.name.toLowerCase().includes(q) || 
@@ -1343,7 +1339,6 @@
             const q = (document.getElementById('admin-search-input').value || '').toLowerCase();
             const catFilter = document.getElementById('admin-category-filter').value || 'Semua';
 
-            // Populate category dropdown filter if empty
             const catSelect = document.getElementById('admin-category-filter');
             const categories = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
             catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
@@ -1465,8 +1460,7 @@
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const voucherDisc = activeVoucher ? activeVoucher.amount : 0;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount - voucherDisc);
+            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
 
             document.getElementById('pay-modal-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
             document.getElementById('pay-cash-amount').value = '';
@@ -1482,8 +1476,7 @@
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const voucherDisc = activeVoucher ? activeVoucher.amount : 0;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount - voucherDisc);
+            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
 
             const cash = parseFloat(document.getElementById('pay-cash-amount').value) || 0;
             const change = cash - grandTotal;
@@ -1494,8 +1487,7 @@
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const voucherDisc = activeVoucher ? activeVoucher.amount : 0;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount - voucherDisc);
+            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
 
             if (val === 'pas') {
                 document.getElementById('pay-cash-amount').value = grandTotal;
@@ -1509,8 +1501,7 @@
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const voucherDisc = activeVoucher ? activeVoucher.amount : 0;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount - voucherDisc);
+            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
 
             const payMethod = document.getElementById('pay-method').value;
             const cashPaid = parseFloat(document.getElementById('pay-cash-amount').value) || grandTotal;
@@ -1528,7 +1519,7 @@
                 cashier: activeUser ? activeUser.name : (currentRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'),
                 customer_name: customerName,
                 subtotal: subtotal,
-                discount: manualDiscAmount + voucherDisc,
+                discount: manualDiscAmount,
                 total: grandTotal,
                 cash_paid: cashPaid,
                 change: Math.max(0, cashPaid - grandTotal),
@@ -1537,13 +1528,11 @@
                 created_at: new Date().toISOString()
             };
 
-            // Deduct Stocks
             cart.forEach(item => {
                 const p = products.find(prod => prod.id === item.id);
                 if (p) p.stock = Math.max(0, p.stock - item.qty);
             });
 
-            // Update Customer Points
             if (customerName !== 'Pelanggan Umum') {
                 const c = customers.find(cust => cust.name === customerName);
                 if (c) {
