@@ -995,7 +995,7 @@
 
         const defaultVouchers = [
             { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000', applicable_category: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: '', title: 'Diskon 10% Otomatis Minuman', applicable_category: 'Minuman', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_CAT_DEFAULT_MINUMAN', title: 'Diskon 10% Otomatis Minuman', applicable_category: 'Minuman', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1121,7 +1121,6 @@
             try {
                 const encoder = new TextEncoder();
                 const commands = [];
-                // ESC/POS raw commands
                 commands.push(new Uint8Array([0x1B, 0x40])); // Reset/Init
                 commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center align
 
@@ -1885,7 +1884,7 @@
                 document.getElementById('voucher-modal-title').innerText = 'Edit Promo / Voucher';
                 document.getElementById('vouch-id').value = v.id;
                 document.getElementById('vouch-promo-type').value = v.promo_type || 'voucher';
-                document.getElementById('vouch-code').value = v.code || '';
+                document.getElementById('vouch-code').value = (v.promo_type === 'voucher' ? v.code : '') || '';
                 document.getElementById('vouch-title').value = v.title;
                 if (catSelect) catSelect.value = v.applicable_category || 'Semua';
                 document.getElementById('vouch-type').value = v.type || 'fixed';
@@ -1934,10 +1933,23 @@
             e.preventDefault();
             const id = document.getElementById('vouch-id').value;
             const promoType = document.getElementById('vouch-promo-type').value;
+            
+            let voucherCode = '';
+            if (promoType === 'voucher') {
+                voucherCode = document.getElementById('vouch-code').value.toUpperCase().trim();
+                if (!voucherCode) {
+                    alert('Kode voucher wajib diisi!');
+                    return;
+                }
+            } else {
+                // Generate a unique internal code for auto category promos to satisfy UNIQUE database constraints
+                voucherCode = 'AUTO_CAT_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            }
+
             const voucherData = {
                 id: id || generateUUID(),
                 promo_type: promoType,
-                code: promoType === 'voucher' ? document.getElementById('vouch-code').value.toUpperCase().trim() : '',
+                code: voucherCode,
                 title: document.getElementById('vouch-title').value.trim(),
                 applicable_category: document.getElementById('vouch-category').value || 'Semua',
                 type: document.getElementById('vouch-type').value,
@@ -1953,9 +1965,14 @@
                 const idx = vouchers.findIndex(v => v.id === id);
                 if (idx !== -1) {
                     voucherData.times_used = vouchers[idx].times_used || 0;
+                    if (promoType === 'auto_category' && vouchers[idx].code && vouchers[idx].code.startsWith('AUTO_CAT_')) {
+                        voucherData.code = vouchers[idx].code;
+                    }
                     vouchers[idx] = voucherData;
                 }
-            } else vouchers.push(voucherData);
+            } else {
+                vouchers.push(voucherData);
+            }
 
             saveLocalStorageData();
             renderVouchersTable();
@@ -1966,7 +1983,10 @@
                 try {
                     await supabaseClient.from('vouchers').upsert([voucherData]);
                     syncWithSupabase();
-                } catch(err) { console.error('Save voucher cloud error:', err); }
+                } catch(err) { 
+                    console.error('Save voucher cloud error:', err);
+                    alert('Gagal menyimpan promo ke Supabase Cloud: ' + (err.message || err));
+                }
             }
         }
 
