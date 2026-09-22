@@ -75,7 +75,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v7.5 Sync Fix</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v7.6 Sync Fix</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Profesional & Supabase Cloud</p>
             </div>
@@ -818,7 +818,7 @@
         window.renderCategoryPills = function() {
             const container = document.getElementById('category-pills');
             if (!container) return;
-            const categories = ['All', ...new Set(products.map(p => p.category))];
+            const categories = ['All', ...new Set(products.map(p => p.category).filter(Boolean))];
             container.innerHTML = categories.map(cat => `
                 <button 
                     data-cat="${encodeURIComponent(cat)}"
@@ -1083,7 +1083,8 @@
                 discount: discountPercent,
                 total: grandTotal,
                 cash_paid: cashPaid,
-                change: change
+                change: change,
+                cashier: 'Kasir Utama'
             };
 
             // Update local stock
@@ -1155,7 +1156,7 @@
             const categorySelect = document.getElementById('admin-category-filter');
             if (!tbody) return;
 
-            const categories = ['Semua', ...new Set(products.map(p => p.category))];
+            const categories = ['Semua', ...new Set(products.map(p => p.category).filter(Boolean))];
             if (categorySelect && categorySelect.options.length <= 1) {
                 categorySelect.innerHTML = categories.map(c => `<option value="${window.escapeHTML(c)}">${window.escapeHTML(c)}</option>`).join('');
             }
