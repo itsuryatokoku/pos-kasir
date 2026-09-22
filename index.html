@@ -799,6 +799,7 @@
 
         // INIT APPLICATION
         document.addEventListener('DOMContentLoaded', async () => {
+            loadSavedStoreSettings();
             initSupabaseClient();
             loadLocalStorageData();
             await fetchUsersFromSupabase();
@@ -813,6 +814,94 @@
             renderHistoryTable();
             initCharts();
         });
+
+        // LOAD STORE SETTINGS
+        function loadSavedStoreSettings() {
+            const name = localStorage.getItem('pos_store_name');
+            const sub = localStorage.getItem('pos_store_sub');
+            const footer = localStorage.getItem('pos_receipt_footer');
+            const branch = localStorage.getItem('pos_current_branch');
+
+            if (name) {
+                document.getElementById('header-store-name').innerText = name;
+                document.getElementById('setting-store-name').value = name;
+                document.getElementById('rec-store-name').innerText = name;
+            }
+            if (sub) {
+                document.getElementById('header-store-sub').innerText = sub;
+                document.getElementById('setting-store-sub').value = sub;
+                document.getElementById('rec-store-sub').innerText = sub;
+            }
+            if (footer) {
+                document.getElementById('setting-receipt-footer').value = footer;
+                document.getElementById('rec-footer-text').innerText = footer;
+            }
+            if (branch) {
+                currentBranch = branch;
+                const branchSelect = document.getElementById('branch-select');
+                if (branchSelect) branchSelect.value = branch;
+            }
+        }
+
+        function saveStoreSettings() {
+            const name = document.getElementById('setting-store-name').value;
+            const sub = document.getElementById('setting-store-sub').value;
+            const footer = document.getElementById('setting-receipt-footer').value;
+
+            localStorage.setItem('pos_store_name', name);
+            localStorage.setItem('pos_store_sub', sub);
+            localStorage.setItem('pos_receipt_footer', footer);
+
+            document.getElementById('header-store-name').innerText = name || 'itsuryatokoku';
+            document.getElementById('header-store-sub').innerText = sub || 'Sistem Kasir Cloud';
+            document.getElementById('rec-store-name').innerText = name || 'itsuryatokoku';
+            document.getElementById('rec-store-sub').innerText = sub || 'POS Kasir & Cloud Sync';
+            document.getElementById('rec-footer-text').innerText = footer || 'Terima kasih telah berbelanja!';
+
+            alert('Pengaturan identitas toko berhasil disimpan!');
+        }
+
+        function saveSupabaseSettings() {
+            const url = document.getElementById('setting-supabase-url').value.trim();
+            const key = document.getElementById('setting-supabase-key').value.trim();
+
+            localStorage.setItem('supabase_url', url);
+            localStorage.setItem('supabase_key', key);
+
+            initSupabaseClient();
+            alert('Koneksi Supabase Cloud diperbarui!');
+        }
+
+        async function connectBluetoothPrinter() {
+            if (!navigator.bluetooth) {
+                alert('Browser ini belum mendukung Web Bluetooth API. Silakan gunakan Chrome/Edge versi desktop atau Android.');
+                return;
+            }
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+                });
+                document.getElementById('bt-printer-status').innerText = device.name || 'BT Terhubung';
+                alert(`Terhubung dengan Printer Bluetooth: ${device.name || 'Printer Thermal'}`);
+            } catch (e) {
+                console.warn('Bluetooth connection error or cancelled:', e);
+            }
+        }
+
+        function openConfigModal() {
+            window.location.hash = '#settings';
+        }
+
+        function openStoreModal() {
+            window.location.hash = '#settings';
+        }
+
+        function changeBranch() {
+            currentBranch = document.getElementById('branch-select').value;
+            localStorage.setItem('pos_current_branch', currentBranch);
+            alert(`Cabang aktif diubah ke: ${currentBranch}`);
+        }
 
         // SUPABASE CLIENT INIT
         function initSupabaseClient() {
