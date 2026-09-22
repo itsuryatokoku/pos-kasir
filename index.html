@@ -1147,7 +1147,7 @@
 
         async function connectBluetoothPrinter() {
             if (!navigator.bluetooth) {
-                showNotification("Web Bluetooth tidak didukung di browser ini. Gunakan Chrome/Edge.", "error");
+                showNotification("Web Bluetooth tidak didukung/diblokir di iframe sandbox ini. Buka aplikasi di tab mandiri browser (HTTPS).", "error");
                 return;
             }
             try {
@@ -1156,8 +1156,9 @@
                     acceptAllDevices: true,
                     optionalServices: [
                         '000018f0-0000-1000-8000-00805f9b34fb', 
-                        '0000ff00-0000-1000-8000-00805f9b34fb', 
-                        '000018p0-0000-1000-8000-00805f9b34fb'
+                        '0000ffe0-0000-1000-8000-00805f9b34fb', 
+                        '0000ff00-0000-1000-8000-00805f9b34fb',
+                        '49535343-fe7d-4ae5-8fa9-9fafd205e465'
                     ]
                 });
                 bluetoothDevice = device;
@@ -1182,7 +1183,7 @@
                 }
 
                 if (!foundChar) {
-                    throw new Error("Karakteristik printer tulis (writable) tidak ditemukan.");
+                    throw new Error("Karakteristik printer tulis (writable) tidak ditemukan pada perangkat.");
                 }
 
                 bluetoothCharacteristic = foundChar;
@@ -1191,7 +1192,7 @@
             } catch (e) {
                 console.warn('Bluetooth connection error:', e);
                 document.getElementById('bt-printer-status').innerText = 'BT Gagal';
-                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Manual.", "error");
+                showNotification("Gagal terhubung ke printer Bluetooth. Pastikan Bluetooth aktif dan berikan izin.", "error");
             }
         }
 
@@ -1253,13 +1254,18 @@
                 commands.push(encoder.encode(`${footerText}\n\n\n`));
                 commands.push(new Uint8Array([0x1D, 0x56, 0x41, 0x00])); // Cut
 
-                for (const cmd of commands) {
-                    if (bluetoothCharacteristic.properties.writeWithoutResponse) {
-                        await bluetoothCharacteristic.writeValueWithoutResponse(cmd);
-                    } else {
-                        await bluetoothCharacteristic.writeValue(cmd);
+                for (let i = 0; i < commands.length; i++) {
+                    const cmd = commands[i];
+                    const chunkSize = 20; // BLE MTU chunk limit
+                    for (let j = 0; j < cmd.length; j += chunkSize) {
+                        const chunk = cmd.slice(j, j + chunkSize);
+                        if (bluetoothCharacteristic.properties.writeWithoutResponse) {
+                            await bluetoothCharacteristic.writeValueWithoutResponse(chunk);
+                        } else {
+                            await bluetoothCharacteristic.writeValue(chunk);
+                        }
+                        await new Promise(r => setTimeout(r, 15));
                     }
-                    await new Promise(r => setTimeout(r, 20));
                 }
                 showNotification("Nota berhasil dicetak via Bluetooth!", "success");
             } catch (err) {
@@ -2643,6 +2649,7 @@
             
             document.getElementById('cart-discount-input').value = '0';
             document.getElementById('cart-discount-type').value = 'percentage';
+            calculateCartTotals();
 
             saveLocalStorageData();
 
