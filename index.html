@@ -954,7 +954,6 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        // GLOBAL STATE
         let supabaseClient = null;
         let products = [];
         let customers = [];
@@ -1884,7 +1883,8 @@
                 document.getElementById('voucher-modal-title').innerText = 'Edit Promo / Voucher';
                 document.getElementById('vouch-id').value = v.id;
                 document.getElementById('vouch-promo-type').value = v.promo_type || 'voucher';
-                document.getElementById('vouch-code').value = (v.promo_type === 'voucher' ? v.code : '') || '';
+                const cleanCode = v.code && !v.code.startsWith('AUTO_CAT_') ? v.code : ('PROMO' + Math.floor(10 + Math.random() * 90) + 'K');
+                document.getElementById('vouch-code').value = (v.promo_type === 'voucher' ? cleanCode : '');
                 document.getElementById('vouch-title').value = v.title;
                 if (catSelect) catSelect.value = v.applicable_category || 'Semua';
                 document.getElementById('vouch-type').value = v.type || 'fixed';
@@ -1916,10 +1916,16 @@
         function togglePromoTypeFields() {
             const promoType = document.getElementById('vouch-promo-type').value;
             const codeGroup = document.getElementById('voucher-code-group');
+            const codeInput = document.getElementById('vouch-code');
             if (promoType === 'auto_category') {
                 codeGroup.classList.add('hidden');
+                codeInput.removeAttribute('required');
             } else {
                 codeGroup.classList.remove('hidden');
+                codeInput.setAttribute('required', 'true');
+                if (!codeInput.value || codeInput.value.startsWith('AUTO_CAT_')) {
+                    codeInput.value = 'PROMO' + Math.floor(10 + Math.random() * 90) + 'K';
+                }
             }
         }
 
@@ -1942,7 +1948,6 @@
                     return;
                 }
             } else {
-                // Generate a unique internal code for auto category promos to satisfy UNIQUE database constraints
                 voucherCode = 'AUTO_CAT_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             }
 
