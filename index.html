@@ -461,7 +461,7 @@
                                 <th class="p-3">Judul Promo</th>
                                 <th class="p-3">Kombinasi Kriteria Target</th>
                                 <th class="p-3">Diskon</th>
-                                <th class="p-3 text-center">Kadaluarsa</th>
+                                <th class="p-3 text-center">Periode Aktif</th>
                                 <th class="p-3 text-center">Status</th>
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
@@ -685,7 +685,7 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD / EDIT VOUCHER / PROMO (DENGAN MULTI-CRITERIA COMBINATION) -->
+    <!-- MODAL: ADD / EDIT VOUCHER / PROMO (DENGAN MULTI-CRITERIA COMBINATION & DATE RANGE) -->
     <div id="voucher-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -716,7 +716,7 @@
 
                 <!-- MULTI-CRITERIA TARGET COMBINATIONS -->
                 <div class="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100 space-y-2.5">
-                    <span class="block text-xs font-bold text-indigo-900 uppercase tracking-wide">Kombinasi Kriteria Target Produk (Opsional / Semua)</span>
+                    <span class="block text-xs font-bold text-indigo-900 uppercase tracking-wide">Kombinasi Kriteria Target Produk (Bisa Pilih Banyak)</span>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kategori</label>
@@ -770,9 +770,15 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Kadaluarsa</label>
-                    <input type="date" id="vouch-valid-until" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Mulai Tanggal</label>
+                        <input type="date" id="vouch-valid-from" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Kadaluarsa</label>
+                        <input type="date" id="vouch-valid-until" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-between pt-1">
@@ -1012,8 +1018,8 @@
         ];
 
         const defaultVouchers = [
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000', target_category: 'Semua', target_brand: 'Semua', target_family: 'Semua', target_promo: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000', target_category: 'Semua', target_brand: 'Semua', target_family: 'Semua', target_promo: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 5 },
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1426,7 +1432,14 @@
             }
         }
 
-        // MULTI-CRITERIA COMBINATION MATCHING LOGIC
+        // MULTI-CRITERIA COMBINATION MATCHING LOGIC WITH DATE RANGE CHECK
+        function isVoucherDateValid(v) {
+            const today = new Date().setHours(0,0,0,0);
+            const fromOk = !v.valid_from || new Date(v.valid_from).setHours(0,0,0,0) <= today;
+            const untilOk = !v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today;
+            return fromOk && untilOk;
+        }
+
         function productMatchesVoucherTarget(product, voucher) {
             const targetCat = voucher.target_category || 'Semua';
             const targetBrand = voucher.target_brand || 'Semua';
@@ -1442,14 +1455,11 @@
         }
 
         function getActiveDiscountForProduct(product) {
-            const today = new Date().setHours(0,0,0,0);
             let activeDiscount = null;
             vouchers.forEach(v => {
-                if (v.is_active && v.promo_type === 'auto_category') {
-                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                        if (productMatchesVoucherTarget(product, v)) {
-                            activeDiscount = v;
-                        }
+                if (v.is_active && v.promo_type === 'auto_category' && isVoucherDateValid(v)) {
+                    if (productMatchesVoucherTarget(product, v)) {
+                        activeDiscount = v;
                     }
                 }
             });
@@ -1487,7 +1497,7 @@
                 return `
                     <div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">
                         ${activeDiscount ? `
-                            <div class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl shadow uppercase tracking-wider">
+                            <div class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded-bl-xl shadow uppercase tracking-wider">
                                 <i class="fa-solid fa-tag mr-0.5"></i>${activeAutoPromoText}
                             </div>
                         ` : ''}
@@ -1653,8 +1663,7 @@
             const container = document.getElementById('active-promo-list');
             if (!container) return;
 
-            const today = new Date().setHours(0,0,0,0);
-            const activeList = vouchers.filter(v => v.is_active && v.promo_type === 'voucher' && (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today));
+            const activeList = vouchers.filter(v => v.is_active && v.promo_type === 'voucher' && isVoucherDateValid(v));
 
             if (activeList.length === 0) {
                 container.innerHTML = `<div class="text-[10px] text-slate-400 text-center py-1">Tidak ada voucher kode aktif</div>`;
@@ -1687,8 +1696,7 @@
             if (subtotal <= 0) return;
 
             const v = vouchers.find(item => item.promo_type === 'voucher' && item.code && item.code.toUpperCase() === code);
-            if (!v || !v.is_active) return;
-            if (v.valid_until && new Date(v.valid_until) < new Date().setHours(0,0,0,0)) return;
+            if (!v || !v.is_active || !isVoucherDateValid(v)) return;
             if (v.min_purchase && subtotal < v.min_purchase) return;
 
             appliedVoucher = v;
@@ -1848,6 +1856,8 @@
                 if (v.target_promo && v.target_promo !== 'Semua') criteriaParts.push(`Tag: ${v.target_promo}`);
                 const criteriaText = criteriaParts.length > 0 ? criteriaParts.join(' | ') : 'Semua Produk';
 
+                const periodText = `${v.valid_from || 'Mulai Awal'} s/d ${v.valid_until || 'Selamanya'}`;
+
                 return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="p-3">
@@ -1861,7 +1871,7 @@
                         <td class="p-3 font-semibold text-emerald-600">
                             ${v.type === 'percentage' ? `${v.value}%` : `Rp ${v.value.toLocaleString('id-ID')}`}
                         </td>
-                        <td class="p-3 text-center text-slate-500">${v.valid_until || 'Selamanya'}</td>
+                        <td class="p-3 text-center text-slate-500 text-[11px]">${periodText}</td>
                         <td class="p-3 text-center">
                             <button onclick="toggleVoucherActive('${v.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v.is_active ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
                                 ${v.is_active ? 'Aktif' : 'Nonaktif'}
@@ -1919,6 +1929,7 @@
                 document.getElementById('vouch-value').value = v.value || 0;
                 document.getElementById('vouch-min-purchase').value = v.min_purchase || 0;
                 document.getElementById('vouch-max-discount').value = v.max_discount || 0;
+                document.getElementById('vouch-valid-from').value = v.valid_from || '';
                 document.getElementById('vouch-valid-until').value = v.valid_until || '';
                 document.getElementById('vouch-is-active').checked = v.is_active !== false;
             } else {
@@ -1935,6 +1946,7 @@
                 document.getElementById('vouch-value').value = '';
                 document.getElementById('vouch-min-purchase').value = '';
                 document.getElementById('vouch-max-discount').value = '';
+                document.getElementById('vouch-valid-from').value = '';
                 document.getElementById('vouch-valid-until').value = '';
                 document.getElementById('vouch-is-active').checked = true;
             }
@@ -1992,6 +2004,7 @@
                 value: parseFloat(document.getElementById('vouch-value').value) || 0,
                 min_purchase: parseFloat(document.getElementById('vouch-min-purchase').value) || 0,
                 max_discount: parseFloat(document.getElementById('vouch-max-discount').value) || 0,
+                valid_from: document.getElementById('vouch-valid-from').value || null,
                 valid_until: document.getElementById('vouch-valid-until').value || null,
                 is_active: document.getElementById('vouch-is-active').checked,
                 times_used: 0
