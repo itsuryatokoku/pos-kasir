@@ -256,6 +256,10 @@
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
+                        <div id="auto-discount-badge" class="hidden bg-amber-50 border border-amber-200 text-amber-800 px-2 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-bolt text-amber-500"></i>
+                            <span id="auto-discount-text">Diskon Kategori Aktif</span>
+                        </div>
                     </div>
 
                     <div id="birthday-alert-banner" class="hidden bg-pink-100 border border-pink-300 text-pink-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 animate-bounce">
@@ -409,7 +413,7 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Voucher & Diskon Promo</h2>
-                    <p class="text-xs text-slate-500">Buat kode promo, atur tipe diskon (persentase / nominal), minimal belanja, dan masa berlaku.</p>
+                    <p class="text-xs text-slate-500">Buat kode promo, atur diskon khusus kategori produk tertentu, minimal belanja, dan masa berlaku.</p>
                 </div>
                 <button 
                     onclick="openVoucherModal()" 
@@ -425,7 +429,7 @@
                         type="text" 
                         id="voucher-search-input" 
                         onkeyup="renderVouchersTable()" 
-                        placeholder="Cari kode promo atau judul voucher..." 
+                        placeholder="Cari kode promo, judul, atau kategori..." 
                         class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                 </div>
@@ -435,6 +439,7 @@
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
                                 <th class="p-3">Kode Voucher</th>
                                 <th class="p-3">Judul Promo</th>
+                                <th class="p-3">Kategori Produk</th>
                                 <th class="p-3">Nilai Diskon</th>
                                 <th class="p-3 text-right">Min. Belanja</th>
                                 <th class="p-3 text-right">Max. Diskon</th>
@@ -673,9 +678,19 @@
                         </select>
                     </div>
                 </div>
+                
+                <!-- TARGET KATEGORI PRODUK -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Target Kategori Produk (Diskon Otomatis)</label>
+                    <select id="vouch-category" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-semibold">
+                        <option value="Semua">Semua Kategori (Tanpa Batasan)</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Diskon berlaku otomatis untuk produk dari kategori ini selama periode aktif.</p>
+                </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Deskripsi Promo</label>
-                    <input type="text" id="vouch-title" required placeholder="Diskon Spesial Hari Raya..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input type="text" id="vouch-title" required placeholder="Diskon Spesial Kategori..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -924,7 +939,9 @@
         const defaultProducts = [
             { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
             { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 }
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', sku: 'SKU-KPI-04', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', sku: 'SKU-TEH-05', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 }
         ];
 
         const defaultCustomers = [
@@ -933,8 +950,8 @@
         ];
 
         const defaultVouchers = [
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', code: 'PROMO10K', title: 'Potongan Rp 10.000', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', code: 'DISKON10', title: 'Diskon 10% Belanja', type: 'percentage', value: 10, min_purchase: 30000, max_discount: 20000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', code: 'PROMO10K', title: 'Potongan Rp 10.000', applicable_category: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', code: 'MINUMAN10', title: 'Diskon 10% Otomatis Minuman', applicable_category: 'Minuman', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
         // INIT APPLICATION
@@ -1079,7 +1096,6 @@
                     console.error('Fetch users error:', e);
                 }
             }
-            // Fallback to local storage or defaults
             userAccounts = JSON.parse(localStorage.getItem('pos_users')) || defaultAccounts;
             populateLoginDropdown(userAccounts);
         }
@@ -1124,7 +1140,6 @@
 
             let foundUser = null;
 
-            // Direct Supabase Auth Query
             if (supabaseClient) {
                 try {
                     const { data, error } = await supabaseClient
@@ -1142,7 +1157,6 @@
                 }
             }
 
-            // Fallback Offline Check
             if (!foundUser) {
                 foundUser = userAccounts.find(acc => acc.username === username && acc.pin === pin);
             }
@@ -1528,20 +1542,68 @@
                 vipDiscAmount = (subtotal * 0.05);
             }
 
-            // Diskon Voucher
+            // Diskon Voucher Promo (Manual Kode Input)
             let voucherDiscAmount = 0;
             if (appliedVoucher) {
+                const targetCat = appliedVoucher.applicable_category || 'Semua';
+                let catSubtotal = subtotal;
+
+                if (targetCat !== 'Semua') {
+                    catSubtotal = cart.reduce((sum, item) => {
+                        const prod = products.find(p => p.id === item.id);
+                        return (prod && prod.category === targetCat) ? sum + (item.price * item.qty) : sum;
+                    }, 0);
+                }
+
                 if (appliedVoucher.type === 'percentage') {
-                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    voucherDiscAmount = (catSubtotal * appliedVoucher.value) / 100;
                     if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
                         voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                     }
                 } else {
-                    voucherDiscAmount = appliedVoucher.value;
+                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
                 }
             }
 
-            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            // Diskon Otomatis Kategori Berdasarkan Periode Aktif
+            let autoCategoryDiscounts = 0;
+            let activeAutoPromos = [];
+            const today = new Date().setHours(0,0,0,0);
+
+            vouchers.forEach(v => {
+                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                        // Cek apakah ada produk di cart yang sesuai kategori ini
+                        const catSub = cart.reduce((sum, item) => {
+                            const prod = products.find(p => p.id === item.id);
+                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                        }, 0);
+
+                        if (catSub > 0) {
+                            let dVal = 0;
+                            if (v.type === 'percentage') {
+                                dVal = (catSub * v.value) / 100;
+                                if (v.max_discount && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                            } else {
+                                dVal = Math.min(v.value, catSub);
+                            }
+                            autoCategoryDiscounts += dVal;
+                            activeAutoPromos.push(`${v.title} (${v.applicable_category})`);
+                        }
+                    }
+                }
+            });
+
+            const autoBadge = document.getElementById('auto-discount-badge');
+            const autoText = document.getElementById('auto-discount-text');
+            if (activeAutoPromos.length > 0) {
+                autoText.innerText = `Promo Otomatis: ${activeAutoPromos.join(', ')}`;
+                autoBadge.classList.remove('hidden');
+            } else {
+                autoBadge.classList.add('hidden');
+            }
+
+            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts;
             const grandTotal = Math.max(0, subtotal - totalDiscount);
 
             document.getElementById('cart-subtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
@@ -1559,13 +1621,19 @@
             const q = (document.getElementById('voucher-search-input')?.value || '').toLowerCase();
             const list = vouchers.filter(v => 
                 v.code.toLowerCase().includes(q) || 
-                v.title.toLowerCase().includes(q)
+                v.title.toLowerCase().includes(q) ||
+                (v.applicable_category && v.applicable_category.toLowerCase().includes(q))
             );
 
             tbody.innerHTML = list.map(v => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
                     <td class="p-3 font-mono font-bold text-indigo-600">${v.code}</td>
                     <td class="p-3 font-bold text-slate-800">${v.title}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${v.applicable_category && v.applicable_category !== 'Semua' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600'}">
+                            ${v.applicable_category || 'Semua'}
+                        </span>
+                    </td>
                     <td class="p-3 font-semibold text-emerald-600">
                         ${v.type === 'percentage' ? `${v.value}%` : `Rp ${v.value.toLocaleString('id-ID')}`}
                     </td>
@@ -1587,6 +1655,12 @@
         }
 
         function openVoucherModal(voucherId = null) {
+            const catSelect = document.getElementById('vouch-category');
+            if (catSelect) {
+                const categories = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
+                catSelect.innerHTML = categories.map(c => `<option value="${c}">${c === 'Semua' ? 'Semua Kategori (Tanpa Batasan)' : 'Khusus Kategori: ' + c}</option>`).join('');
+            }
+
             document.getElementById('voucher-modal').classList.remove('hidden');
             if (voucherId) {
                 const v = vouchers.find(item => item.id === voucherId);
@@ -1594,6 +1668,7 @@
                 document.getElementById('vouch-id').value = v.id;
                 document.getElementById('vouch-code').value = v.code;
                 document.getElementById('vouch-title').value = v.title;
+                if (catSelect) catSelect.value = v.applicable_category || 'Semua';
                 document.getElementById('vouch-type').value = v.type || 'fixed';
                 document.getElementById('vouch-value').value = v.value || 0;
                 document.getElementById('vouch-min-purchase').value = v.min_purchase || 0;
@@ -1605,6 +1680,7 @@
                 document.getElementById('vouch-id').value = '';
                 document.getElementById('vouch-code').value = 'PROMO' + Math.floor(10 + Math.random() * 90) + 'K';
                 document.getElementById('vouch-title').value = '';
+                if (catSelect) catSelect.value = 'Semua';
                 document.getElementById('vouch-type').value = 'fixed';
                 document.getElementById('vouch-value').value = '';
                 document.getElementById('vouch-min-purchase').value = '';
@@ -1634,6 +1710,7 @@
                 id: id || generateUUID(),
                 code: document.getElementById('vouch-code').value.toUpperCase().trim(),
                 title: document.getElementById('vouch-title').value.trim(),
+                applicable_category: document.getElementById('vouch-category').value || 'Semua',
                 type: document.getElementById('vouch-type').value,
                 value: parseFloat(document.getElementById('vouch-value').value) || 0,
                 min_purchase: parseFloat(document.getElementById('vouch-min-purchase').value) || 0,
@@ -1968,17 +2045,45 @@
 
             let voucherDiscAmount = 0;
             if (appliedVoucher) {
+                const targetCat = appliedVoucher.applicable_category || 'Semua';
+                let catSubtotal = subtotal;
+
+                if (targetCat !== 'Semua') {
+                    catSubtotal = cart.reduce((sum, item) => {
+                        const prod = products.find(p => p.id === item.id);
+                        return (prod && prod.category === targetCat) ? sum + (item.price * item.qty) : sum;
+                    }, 0);
+                }
+
                 if (appliedVoucher.type === 'percentage') {
-                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    voucherDiscAmount = (catSubtotal * appliedVoucher.value) / 100;
                     if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
                         voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                     }
                 } else {
-                    voucherDiscAmount = appliedVoucher.value;
+                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
                 }
             }
 
-            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            let autoCategoryDiscounts = 0;
+            const today = new Date().setHours(0,0,0,0);
+            vouchers.forEach(v => {
+                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                        const catSub = cart.reduce((sum, item) => {
+                            const prod = products.find(p => p.id === item.id);
+                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                        }, 0);
+                        if (catSub > 0) {
+                            let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
+                            if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                            autoCategoryDiscounts += dVal;
+                        }
+                    }
+                }
+            });
+
+            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts;
             const grandTotal = Math.max(0, subtotal - totalDiscount);
 
             document.getElementById('pay-modal-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
@@ -2003,15 +2108,43 @@
 
             let voucherDiscAmount = 0;
             if (appliedVoucher) {
+                const targetCat = appliedVoucher.applicable_category || 'Semua';
+                let catSubtotal = subtotal;
+
+                if (targetCat !== 'Semua') {
+                    catSubtotal = cart.reduce((sum, item) => {
+                        const prod = products.find(p => p.id === item.id);
+                        return (prod && prod.category === targetCat) ? sum + (item.price * item.qty) : sum;
+                    }, 0);
+                }
+
                 if (appliedVoucher.type === 'percentage') {
-                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    voucherDiscAmount = (catSubtotal * appliedVoucher.value) / 100;
                     if (appliedVoucher.max_discount > 0) voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                 } else {
-                    voucherDiscAmount = appliedVoucher.value;
+                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
                 }
             }
 
-            const grandTotal = Math.max(0, subtotal - (manualDiscAmount + vipDiscAmount + voucherDiscAmount));
+            let autoCategoryDiscounts = 0;
+            const today = new Date().setHours(0,0,0,0);
+            vouchers.forEach(v => {
+                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                        const catSub = cart.reduce((sum, item) => {
+                            const prod = products.find(p => p.id === item.id);
+                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                        }, 0);
+                        if (catSub > 0) {
+                            let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
+                            if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                            autoCategoryDiscounts += dVal;
+                        }
+                    }
+                }
+            });
+
+            const grandTotal = Math.max(0, subtotal - (manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts));
             const cash = parseFloat(document.getElementById('pay-cash-amount').value) || 0;
             const change = cash - grandTotal;
             document.getElementById('pay-change-amount').innerText = `Rp ${Math.max(0, change).toLocaleString('id-ID')}`;
@@ -2047,17 +2180,45 @@
 
             let voucherDiscAmount = 0;
             if (appliedVoucher) {
+                const targetCat = appliedVoucher.applicable_category || 'Semua';
+                let catSubtotal = subtotal;
+
+                if (targetCat !== 'Semua') {
+                    catSubtotal = cart.reduce((sum, item) => {
+                        const prod = products.find(p => p.id === item.id);
+                        return (prod && prod.category === targetCat) ? sum + (item.price * item.qty) : sum;
+                    }, 0);
+                }
+
                 if (appliedVoucher.type === 'percentage') {
-                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    voucherDiscAmount = (catSubtotal * appliedVoucher.value) / 100;
                     if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
                         voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                     }
                 } else {
-                    voucherDiscAmount = appliedVoucher.value;
+                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
                 }
             }
 
-            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            let autoCategoryDiscounts = 0;
+            const today = new Date().setHours(0,0,0,0);
+            vouchers.forEach(v => {
+                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                        const catSub = cart.reduce((sum, item) => {
+                            const prod = products.find(p => p.id === item.id);
+                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                        }, 0);
+                        if (catSub > 0) {
+                            let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
+                            if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                            autoCategoryDiscounts += dVal;
+                        }
+                    }
+                }
+            });
+
+            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts;
             const grandTotal = Math.max(0, subtotal - totalDiscount);
 
             const payMethod = document.getElementById('pay-method').value;
@@ -2068,7 +2229,6 @@
                 return;
             }
 
-            // Increment usage count if a voucher was applied
             if (appliedVoucher) {
                 const v = vouchers.find(item => item.id === appliedVoucher.id);
                 if (v) {
