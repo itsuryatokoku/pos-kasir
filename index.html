@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MY KSR - Enterprise POS & Cloud v12.6 Pro</title>
+    <title>MY KSR - Enterprise POS & Cloud v12.8 Pro</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -82,9 +82,9 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">MY KSR</h1>
-                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v12.6 Pro</span>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v12.8 Pro</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud & Multi-Criteria Promo</p>
+                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud & Multi-Criteria BOGO</p>
             </div>
         </div>
 
@@ -234,7 +234,7 @@
                     <!-- MULTI-VOUCHER DROPDOWN SELECTOR -->
                     <div class="space-y-1">
                         <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
-                            <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Tambah Voucher / Promo</span>
+                            <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Pilih Voucher / Promo</span>
                         </div>
                         <div class="flex gap-1.5">
                             <select id="cart-voucher-dropdown" onchange="applyDropdownVoucher(this)" class="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
@@ -422,7 +422,7 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Diskon & Voucher Promo</h2>
-                    <p class="text-xs text-slate-500">Atur promo dengan kombinasi target kategori, brand, family, promo tag, min Qty, & BOGO.</p>
+                    <p class="text-xs text-slate-500">Atur promo dengan kombinasi target kategori, brand, family, promo tag, min Qty, min purchase, & BOGO.</p>
                 </div>
                 <button 
                     onclick="openVoucherModal()" 
@@ -782,9 +782,17 @@
                         <input type="number" id="vouch-min-qty" min="0" placeholder="0" class="w-full px-2.5 py-1.5 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Maks. Diskon (Rp)</label>
-                        <input type="number" id="vouch-max-discount" min="0" placeholder="0" class="w-full px-2.5 py-1.5 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Cakupan Min. (Belanja/Qty)</label>
+                        <select id="vouch-min-scope" class="w-full px-2 py-1.5 text-[11px] border rounded-xl bg-white font-medium focus:ring-1 focus:ring-indigo-500">
+                            <option value="criteria">Berdasarkan Kriteria</option>
+                            <option value="overall">Seluruh Nota (Total)</option>
+                        </select>
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Maks. Diskon (Rp)</label>
+                    <input type="number" id="vouch-max-discount" min="0" placeholder="0 (Tanpa Batas)" class="w-full px-2.5 py-1.5 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -1003,7 +1011,7 @@
         let cart = [];
         let userAccounts = [];
         let vouchers = [];
-        let appliedVouchers = []; // Multi-voucher array
+        let appliedVouchers = []; 
         let html5QrcodeScanner = null;
         let salesChartInstance = null;
         let paymentChartInstance = null;
@@ -1035,8 +1043,8 @@
         ];
 
         const defaultVouchers = [
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000 (Min. Bimoli 50rb)', target_category: 'Semua', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'fixed', value: 10000, min_purchase: 50000, min_qty: 0, buy_qty: 0, get_qty: 0, max_discount: 10000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 5 },
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'percentage', value: 10, min_purchase: 0, min_qty: 0, buy_qty: 0, get_qty: 0, max_discount: 15000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 12 }
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000 (Min. Bimoli 50rb)', target_category: 'Semua', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'fixed', value: 10000, min_purchase: 50000, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 0, get_qty: 0, max_discount: 10000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 5 },
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'percentage', value: 10, min_purchase: 0, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 0, get_qty: 0, max_discount: 15000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1769,9 +1777,19 @@
 
             const appliedIds = appliedVouchers.map(v => v.id);
 
+            // Compute gross subtotal for overall scope check
+            let grossSubtotal = 0;
+            let totalCartQty = 0;
+            cart.forEach(item => {
+                const prod = products.find(p => p.id === item.id);
+                const origPrice = prod ? prod.selling_price : item.price;
+                grossSubtotal += origPrice * item.qty;
+                totalCartQty += item.qty;
+            });
+
             const availableVouchers = vouchers.filter(v => {
                 if (!v.is_active || v.promo_type !== 'voucher' || !isVoucherDateValid(v)) return false;
-                if (appliedIds.includes(v.id)) return false; // Exclude already applied
+                if (appliedIds.includes(v.id)) return false; 
                 
                 const matchingItems = cart.filter(item => {
                     const prod = products.find(p => p.id === item.id);
@@ -1781,8 +1799,12 @@
                 const matchingSubtotal = matchingItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
                 const matchingQty = matchingItems.reduce((sum, item) => sum + item.qty, 0);
 
-                if (v.min_purchase && matchingSubtotal < v.min_purchase) return false;
-                if (v.min_qty && matchingQty < v.min_qty) return false;
+                const scope = v.min_purchase_scope || 'criteria';
+                const evaluatedPurchase = scope === 'overall' ? grossSubtotal : matchingSubtotal;
+                const evaluatedQty = scope === 'overall' ? totalCartQty : matchingQty;
+
+                if (v.min_purchase && evaluatedPurchase < v.min_purchase) return false;
+                if (v.min_qty && evaluatedQty < v.min_qty) return false;
 
                 return true;
             });
@@ -1808,6 +1830,15 @@
                 return;
             }
 
+            let grossSubtotal = 0;
+            let totalCartQty = 0;
+            cart.forEach(item => {
+                const prod = products.find(p => p.id === item.id);
+                const origPrice = prod ? prod.selling_price : item.price;
+                grossSubtotal += origPrice * item.qty;
+                totalCartQty += item.qty;
+            });
+
             const matchingItems = cart.filter(item => {
                 const prod = products.find(p => p.id === item.id);
                 return prod ? productMatchesVoucherTarget(prod, v) : false;
@@ -1815,13 +1846,17 @@
             const matchingSubtotal = matchingItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const matchingQty = matchingItems.reduce((sum, item) => sum + item.qty, 0);
 
-            if (v.min_purchase && matchingSubtotal < v.min_purchase) {
-                showNotification(`Minimum pembelian target untuk voucher ${v.code} adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`, "error");
+            const scope = v.min_purchase_scope || 'criteria';
+            const evaluatedPurchase = scope === 'overall' ? grossSubtotal : matchingSubtotal;
+            const evaluatedQty = scope === 'overall' ? totalCartQty : matchingQty;
+
+            if (v.min_purchase && evaluatedPurchase < v.min_purchase) {
+                showNotification(`Minimum pembelian ${scope === 'overall' ? 'total nota' : 'target'} untuk voucher ${v.code} adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`, "error");
                 selectEl.value = '';
                 return;
             }
-            if (v.min_qty && matchingQty < v.min_qty) {
-                showNotification(`Minimum kuantitas target untuk voucher ${v.code} adalah ${v.min_qty} pcs`, "error");
+            if (v.min_qty && evaluatedQty < v.min_qty) {
+                showNotification(`Minimum kuantitas ${scope === 'overall' ? 'total item' : 'target'} untuk voucher ${v.code} adalah ${v.min_qty} pcs`, "error");
                 selectEl.value = '';
                 return;
             }
@@ -1865,6 +1900,7 @@
         function calculateCartState() {
             let grossSubtotal = 0;
             let categoryDiscountTotal = 0;
+            let totalCartQty = 0;
 
             cart.forEach(item => {
                 const product = products.find(p => p.id === item.id);
@@ -1892,6 +1928,7 @@
                 }
 
                 grossSubtotal += origPrice * item.qty;
+                totalCartQty += item.qty;
             });
 
             const subtotalAfterCat = Math.max(0, grossSubtotal - categoryDiscountTotal);
@@ -1923,7 +1960,11 @@
                 let targetSubtotal = matchingItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
                 let targetQty = matchingItems.reduce((sum, item) => sum + item.qty, 0);
 
-                if (!((v.min_purchase && targetSubtotal < v.min_purchase) || (v.min_qty && targetQty < v.min_qty))) {
+                const scope = v.min_purchase_scope || 'criteria';
+                const evaluatedPurchase = scope === 'overall' ? grossSubtotal : targetSubtotal;
+                const evaluatedQty = scope === 'overall' ? totalCartQty : targetQty;
+
+                if (!((v.min_purchase && evaluatedPurchase < v.min_purchase) || (v.min_qty && evaluatedQty < v.min_qty))) {
                     let currentVoucherDisc = 0;
                     if (v.benefit_type === 'buy_x_get_y') {
                         matchingItems.forEach(item => {
@@ -2037,7 +2078,7 @@
                         <td class="p-3 font-medium text-slate-700 text-[11px]">${criteriaText}</td>
                         <td class="p-3 font-semibold text-emerald-600">
                             ${benefitText}
-                            ${v.min_purchase > 0 ? `<div class="text-[9px] text-slate-400">Min Blj: Rp ${v.min_purchase.toLocaleString('id-ID')}</div>` : ''}
+                            ${v.min_purchase > 0 ? `<div class="text-[9px] text-slate-400">Min Blj (${v.min_purchase_scope === 'overall' ? 'Nota' : 'Kriteria'}): Rp ${v.min_purchase.toLocaleString('id-ID')}</div>` : ''}
                             ${v.min_qty > 0 ? `<div class="text-[9px] text-slate-400">Min Qty: ${v.min_qty} pcs</div>` : ''}
                         </td>
                         <td class="p-3 text-center text-slate-500 text-[11px]">${periodText}</td>
@@ -2098,6 +2139,7 @@
                 document.getElementById('vouch-type').value = v.type || 'fixed';
                 document.getElementById('vouch-value').value = v.value || 0;
                 document.getElementById('vouch-min-purchase').value = v.min_purchase || 0;
+                document.getElementById('vouch-min-scope').value = v.min_purchase_scope || 'criteria';
                 document.getElementById('vouch-min-qty').value = v.min_qty || 0;
                 document.getElementById('vouch-buy-qty').value = v.buy_qty || 1;
                 document.getElementById('vouch-get-qty').value = v.get_qty || 1;
@@ -2119,6 +2161,7 @@
                 document.getElementById('vouch-type').value = 'fixed';
                 document.getElementById('vouch-value').value = '';
                 document.getElementById('vouch-min-purchase').value = '';
+                document.getElementById('vouch-min-scope').value = 'criteria';
                 document.getElementById('vouch-min-qty').value = '';
                 document.getElementById('vouch-buy-qty').value = 1;
                 document.getElementById('vouch-get-qty').value = 1;
@@ -2201,6 +2244,7 @@
                 type: document.getElementById('vouch-type').value,
                 value: parseFloat(document.getElementById('vouch-value').value) || 0,
                 min_purchase: parseFloat(document.getElementById('vouch-min-purchase').value) || 0,
+                min_purchase_scope: document.getElementById('vouch-min-scope').value || 'criteria',
                 min_qty: parseInt(document.getElementById('vouch-min-qty').value) || 0,
                 buy_qty: parseInt(document.getElementById('vouch-buy-qty').value) || 1,
                 get_qty: parseInt(document.getElementById('vouch-get-qty').value) || 1,
