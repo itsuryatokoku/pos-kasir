@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - Halaman Utama Kasir</title>
-
+    <title>KASIR POS - itsuryatokoku</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client v2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body {
@@ -16,9 +17,8 @@
             background-color: #f3f4f6;
         }
 
-        /* Custom Scrollbar untuk area produk dan keranjang */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #f1f1f1;
@@ -32,78 +32,79 @@
             background: #94a3b8;
         }
 
-        /* Animasi ringkas untuk Toast Notification */
-        .toast-enter {
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 0.3s ease-out;
-        }
         .toast-show {
             transform: translateY(0);
             opacity: 1;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+<body class="h-screen overflow-hidden text-slate-800 flex flex-col antialiased">
 
-    <!-- HEADER -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <!-- Logo / Judul -->
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 p-2 rounded-lg text-white font-bold">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"></path>
-                    </svg>
-                </div>
-                <h1 class="text-xl font-bold tracking-wide text-white">KASIR POS</h1>
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-slate-900 text-white px-4 py-3 shadow-md flex items-center justify-between z-10 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 text-white font-bold p-2 rounded-lg text-sm flex items-center justify-center w-9 h-9 shadow-inner">
+                POS
+            </div>
+            <div>
+                <h1 class="font-bold text-base tracking-wide leading-tight">itsuryatokoku</h1>
+                <p class="text-[11px] text-slate-400">Kasir Toko Online & Offline</p>
+            </div>
+        </div>
+
+        <!-- User Status & Supabase Connection Badge -->
+        <div class="flex items-center space-x-3 sm:space-x-4">
+            <button 
+                onclick="openConfigModal()"
+                id="db-status-badge"
+                class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 transition">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400" id="db-status-dot"></span>
+                <span id="db-status-text" class="text-slate-300">Terhubung Supabase</span>
+            </button>
+
+            <div class="hidden sm:flex flex-col text-right">
+                <span id="header-user-name" class="text-sm font-semibold text-slate-100">Kasir Utama</span>
+                <span id="header-user-role" class="text-xs text-blue-400 font-medium">KASIR</span>
             </div>
 
-            <!-- User Status & Logout Button -->
-            <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex flex-col text-right">
-                    <span id="header-user-name" class="text-sm font-semibold text-slate-100">Kasir Utama</span>
-                    <span id="header-user-role" class="text-xs text-blue-400 font-medium">KASIR</span>
-                </div>
-                <button 
-                    onclick="handleLogoutSimulated()"
-                    class="bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white px-3 py-1.5 rounded-lg text-sm font-medium transition duration-200 border border-slate-700 hover:border-red-600 flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                    </svg>
-                    <span>Logout</span>
-                </button>
-            </div>
+            <button 
+                onclick="handleLogoutSimulated()"
+                class="bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white p-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span class="hidden sm:inline">Keluar</span>
+            </button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- AREA PRODUK (LEFT SECTION - 7 COLUMNS ON DESKTOP) -->
-        <section class="lg:col-span-7 flex flex-col gap-4">
+    <!-- MAIN CONTAINER (LAYOUT 2 KOLOM) -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        <!-- KOLOM KIRI: AREA PRODUK & PENCARIAN -->
+        <section class="flex-1 p-3 sm:p-5 flex flex-col gap-3 sm:gap-4 overflow-hidden border-b md:border-b-0 md:border-r border-slate-200 bg-white">
             
-            <!-- Pencarian Produk & Tombol Scan -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex gap-2">
+            <!-- Input Pencarian & Scan -->
+            <div class="flex gap-2">
                 <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                    </div>
+                    </span>
                     <input 
                         type="text" 
-                        id="search-input" 
-                        oninput="handleSearch()"
-                        placeholder="Cari produk / scan barcode..." 
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                        id="search-input"
+                        onkeyup="handleSearch()"
+                        placeholder="Cari produk atau barcode..." 
+                        class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                     >
                 </div>
                 <button 
                     onclick="handleScanClick()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg text-sm flex items-center gap-2 transition active:scale-95 shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                     </svg>
                     <span>SCAN</span>
                 </button>
@@ -111,72 +112,90 @@
 
             <!-- Daftar Produk Header -->
             <div class="flex justify-between items-center px-1">
-                <h2 class="text-base font-bold text-slate-700">Daftar Produk</h2>
-                <span id="product-count" class="text-xs font-semibold bg-slate-200 text-slate-600 px-2.5 py-1 rounded-full">8 Produk</span>
+                <h2 class="text-sm sm:text-base font-bold text-slate-700">Daftar Produk Supabase</h2>
+                <div class="flex items-center gap-2">
+                    <button 
+                        onclick="fetchProductsFromSupabase()" 
+                        class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <span id="product-count" class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">0 Produk</span>
+                </div>
             </div>
 
             <!-- Grid Produk -->
             <div 
                 id="product-grid" 
-                class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 overflow-y-auto max-h-[calc(100vh-280px)] custom-scrollbar pr-1"
+                class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 overflow-y-auto max-h-[calc(100vh-250px)] custom-scrollbar pr-1"
             >
-                <!-- Produk Card akan di-render menggunakan JS -->
+                <div class="col-span-full py-12 text-center text-slate-400 font-medium flex flex-col items-center gap-2">
+                    <svg class="w-6 h-6 animate-spin text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Memuat data produk dari database...</span>
+                </div>
             </div>
         </section>
 
-        <!-- AREA KERANJANG (RIGHT SECTION - 5 COLUMNS ON DESKTOP) -->
-        <section class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-[calc(100vh-140px)] sticky top-20">
+        <!-- KOLOM KANAN: KERANJANG BELANJA -->
+        <section class="w-full md:w-80 lg:w-96 bg-slate-50 flex flex-col h-1/2 md:h-full border-t md:border-t-0 border-slate-200 shrink-0">
             
             <!-- Header Keranjang -->
-            <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-xl">
+            <div class="p-3 sm:p-4 bg-white border-b border-slate-200 flex justify-between items-center shadow-sm">
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 11h14l1 12H4L5 11z"></path>
                     </svg>
-                    <h2 class="font-bold text-slate-800">KERANJANG</h2>
+                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">KERANJANG</h2>
                 </div>
                 <button 
-                    onclick="clearCart()" 
-                    class="text-xs font-medium text-red-500 hover:text-red-700 hover:underline">
+                    onclick="clearCart()"
+                    class="text-xs font-semibold text-rose-500 hover:text-rose-700 transition">
                     Kosongkan
                 </button>
             </div>
 
-            <!-- Item Keranjang (Scrollable List) -->
-            <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                <!-- Item Keranjang akan di-render menggunakan JS -->
+            <!-- List Item Keranjang -->
+            <div id="cart-items" class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+                <div class="h-full flex flex-col items-center justify-center text-slate-400 py-12">
+                    <svg class="w-12 h-12 mb-2 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"></path>
+                    </svg>
+                    <p class="text-xs sm:text-sm font-medium">Keranjang masih kosong</p>
+                </div>
             </div>
 
             <!-- Ringkasan Pembayaran & Tombol Bayar -->
-            <div class="p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl space-y-3">
-                <div class="space-y-1.5 text-sm">
-                    <div class="flex justify-between text-slate-600">
-                        <span>Subtotal</span>
-                        <span id="cart-subtotal" class="font-semibold text-slate-800">Rp 0</span>
-                    </div>
-                    <div class="flex justify-between items-center text-slate-600">
-                        <label for="cart-discount-input" class="cursor-pointer">Diskon (Rp)</label>
-                        <input 
-                            type="number" 
-                            id="cart-discount-input" 
-                            value="0" 
-                            min="0"
-                            oninput="updateTotals()"
-                            class="w-24 text-right py-1 px-2 border border-slate-300 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                        >
-                    </div>
-                    <div class="border-t border-slate-200 pt-2 flex justify-between text-base font-bold text-slate-900">
-                        <span>Total</span>
-                        <span id="cart-total" class="text-blue-600 text-lg">Rp 0</span>
-                    </div>
+            <div class="p-3 sm:p-4 bg-white border-t border-slate-200 space-y-2 shadow-lg">
+                <div class="flex justify-between text-xs sm:text-sm text-slate-600">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal" class="font-semibold text-slate-800">Rp 0</span>
+                </div>
+                <div class="flex justify-between text-xs sm:text-sm text-slate-600 items-center">
+                    <span>Diskon (Rp)</span>
+                    <input 
+                        type="number" 
+                        id="cart-discount-input" 
+                        value="0" 
+                        min="0"
+                        oninput="updateTotals()"
+                        class="w-24 text-right px-2 py-1 bg-slate-50 border border-slate-300 rounded text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
+                    <span class="font-bold text-slate-800 text-sm sm:text-base">TOTAL</span>
+                    <span id="cart-total" class="font-bold text-blue-600 text-base sm:text-lg">Rp 0</span>
                 </div>
 
-                <!-- Tombol Bayar Besar -->
                 <button 
                     id="pay-button"
                     onclick="openCheckoutModal()"
                     disabled
-                    class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-md transition duration-200 active:scale-[0.99] text-center text-base uppercase tracking-wider flex items-center justify-center gap-2">
+                    class="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
@@ -184,101 +203,194 @@
                 </button>
             </div>
         </section>
-
     </main>
 
-    <!-- MODAL PEMBAYARAN (CUSTOM MODAL - TANPA ALERT NATIVE) -->
+    <!-- MODAL PEMBAYARAN / RINGKASAN -->
     <div id="checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 transform transition-all">
-            <div class="text-center space-y-3">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+            <div class="text-center space-y-2 mb-4">
                 <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-slate-800">Simulasi Pembayaran</h3>
-                <p class="text-sm text-slate-500">
-                    Ini adalah simulasi tampilan transaksi (Fase 1). Belum tersimpan ke database.
-                </p>
+                <h3 class="text-lg font-bold text-slate-800">Konfirmasi Transaksi</h3>
+                <p class="text-xs text-slate-500">Periksa kembali item pesanan sebelum memproses pembayaran.</p>
             </div>
 
-            <!-- Detail Struk Ringkas -->
-            <div class="my-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm space-y-2">
+            <div class="bg-slate-50 rounded-xl p-3 space-y-2 mb-4 text-xs">
                 <div class="flex justify-between text-slate-600">
                     <span>Jumlah Item:</span>
                     <span id="modal-item-count" class="font-bold text-slate-800">0</span>
                 </div>
                 <div class="flex justify-between text-slate-600">
                     <span>Subtotal:</span>
-                    <span id="modal-subtotal" class="font-bold text-slate-800">Rp 0</span>
+                    <span id="modal-subtotal" class="font-medium text-slate-800">Rp 0</span>
                 </div>
                 <div class="flex justify-between text-slate-600">
                     <span>Diskon:</span>
-                    <span id="modal-discount" class="font-bold text-slate-800">Rp 0</span>
+                    <span id="modal-discount" class="font-medium text-rose-500">Rp 0</span>
                 </div>
-                <div class="border-t border-slate-200 pt-2 flex justify-between text-slate-900 font-bold text-base">
+                <div class="pt-2 border-t border-slate-200 flex justify-between font-bold text-sm text-slate-900">
                     <span>Total Bayar:</span>
                     <span id="modal-total" class="text-emerald-600">Rp 0</span>
                 </div>
             </div>
 
-            <div class="flex gap-3">
+            <div class="flex gap-2">
                 <button 
                     onclick="closeCheckoutModal()"
-                    class="flex-1 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-sm transition">
+                    class="flex-1 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">
                     Batal
                 </button>
                 <button 
                     onclick="confirmPaymentSimulated()"
-                    class="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-sm shadow transition">
-                    Selesai
+                    class="flex-1 px-3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition">
+                    Proses Selesai
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 toast-enter hidden pointer-events-none">
-        <div class="bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-3">
-            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span id="toast-message" class="text-sm font-medium">Notifikasi</span>
+    <!-- MODAL CONFIG SUPABASE API -->
+    <div id="config-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="text-center space-y-2 mb-4">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Pengaturan Supabase API</h3>
+                <p class="text-xs text-slate-500">Project: <span class="font-semibold text-slate-700">itsuryatokoku</span></p>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">SUPABASE URL</label>
+                    <input 
+                        type="text" 
+                        id="input-supabase-url" 
+                        placeholder="https://xyz.supabase.co"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">SUPABASE ANON KEY</label>
+                    <textarea 
+                        id="input-supabase-key" 
+                        rows="3"
+                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-5">
+                <button 
+                    onclick="closeConfigModal()"
+                    class="flex-1 px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition">
+                    Batal
+                </button>
+                <button 
+                    onclick="saveSupabaseConfig()"
+                    class="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs shadow transition">
+                    Simpan & Konek
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFIKASI TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-none hidden">
+        <div class="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-2 text-xs font-medium">
+            <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+            <span id="toast-message">Notifikasi</span>
         </div>
     </div>
 
     <script>
-        // DATA DUMMY PRODUK KASIR (SECUKUPNYA UNTUK FASE 1)
-        const productsData = [
-            { id: 1, name: "Beras Pandan Wangi 5kg", barcode: "899123456001", price: 75000, stock: 20 },
-            { id: 2, name: "Minyak Goreng 2L", barcode: "899123456002", price: 34000, stock: 15 },
-            { id: 3, name: "Gula Pasir 1kg", barcode: "899123456003", price: 16500, stock: 30 },
-            { id: 4, name: "Kopi Hitam Instant 100g", barcode: "899123456004", price: 12000, stock: 45 },
-            { id: 5, name: "Susu UHT Full Cream 1L", barcode: "899123456005", price: 18500, stock: 12 },
-            { id: 6, name: "Mie Instant Goreng", barcode: "899123456006", price: 3100, stock: 100 },
-            { id: 7, name: "Sabun Mandi Cair 400ml", barcode: "899123456007", price: 22000, stock: 18 },
-            { id: 8, name: "Air Mineral 600ml", barcode: "899123456008", price: 4000, stock: 50 }
-        ];
+        // CREDENTIALS PROYEK SUPABASE ITSURYATOKOKU
+        const DEFAULT_URL = 'https://zxsyggyekdbxtumdpisq.supabase.co';
+        const DEFAULT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4c3lnZ3lla2RieHR1bWRwaXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzI5MTgsImV4cCI6MjEwNTU0ODkxOH0.b2HoXlKgchtRwOmqRyb9pPQp9tHCQ6x4EibLH6W_tQI';
 
-        // STATE KERANJANG
-        let cart = [];
+        let SUPABASE_URL = localStorage.getItem('POS_SUPABASE_URL') || DEFAULT_URL;
+        let SUPABASE_KEY = localStorage.getItem('POS_SUPABASE_KEY') || DEFAULT_KEY;
 
-        // INITIALIZE APP ON LOAD
+        let supabaseClient = null;
+        let productsData = []; 
+        let cart = []; 
+
         window.onload = function() {
-            renderProducts(productsData);
-            renderCart();
+            initSupabaseClient();
         };
 
-        // HELPER UTILITY: FORMAT RUPIAH
-        function formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                maximumFractionDigits: 0
-            }).format(number);
+        function initSupabaseClient() {
+            const statusDot = document.getElementById('db-status-dot');
+            const statusText = document.getElementById('db-status-text');
+
+            if (!SUPABASE_URL || !SUPABASE_KEY) {
+                statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+                statusText.textContent = 'Set API Key';
+                renderProducts([]);
+                openConfigModal();
+                return;
+            }
+
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                statusText.textContent = 'Terhubung Supabase';
+                fetchProductsFromSupabase();
+            } catch (error) {
+                console.error("Gagal inisialisasi Supabase:", error);
+                statusDot.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+                statusText.textContent = 'Koneksi Error';
+                showToast("Gagal terhubung ke Supabase.");
+            }
         }
 
-        // RENDER GRID PRODUK
+        async function fetchProductsFromSupabase() {
+            const grid = document.getElementById('product-grid');
+            
+            if (!supabaseClient) {
+                openConfigModal();
+                return;
+            }
+
+            grid.innerHTML = `
+                <div class="col-span-full py-12 text-center text-slate-400 font-medium flex flex-col items-center gap-2">
+                    <svg class="w-6 h-6 animate-spin text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Mengambil produk dari database itsuryatokoku...</span>
+                </div>
+            `;
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('name', { ascending: true });
+
+                if (error) throw error;
+
+                productsData = data || [];
+                renderProducts(productsData);
+                showToast(`${productsData.length} produk dimuat dari Supabase`);
+            } catch (error) {
+                console.error("Error Fetch Products:", error);
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-rose-500 font-medium">
+                        Gagal memuat produk dari Supabase.<br>
+                        <span class="text-xs text-slate-400">${error.message || 'Pastikan skrip SQL Fase 2 sudah di-run di Supabase Editor!'}</span>
+                    </div>
+                `;
+            }
+        }
+
         function renderProducts(items) {
             const grid = document.getElementById('product-grid');
             const countLabel = document.getElementById('product-count');
@@ -288,7 +400,7 @@
             if (items.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full py-12 text-center text-slate-400 font-medium">
-                        Produk tidak ditemukan
+                        Produk tidak ditemukan di database
                     </div>
                 `;
                 return;
@@ -297,22 +409,27 @@
             grid.innerHTML = items.map(product => `
                 <div class="bg-white p-3.5 rounded-xl border border-slate-200 hover:border-blue-300 shadow-sm transition duration-150 flex flex-col justify-between group">
                     <div>
-                        <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded inline-block mb-1">
-                            Kode: ${product.barcode}
-                        </span>
-                        <h3 class="font-semibold text-slate-800 text-sm leading-snug line-clamp-2 group-hover:text-blue-600 transition">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                                ${product.barcode || 'NO BARCODE'}
+                            </span>
+                            <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                                Stok: ${product.stock}
+                            </span>
+                        </div>
+                        <h3 class="font-semibold text-slate-800 text-xs sm:text-sm leading-snug line-clamp-2 group-hover:text-blue-600 transition">
                             ${product.name}
                         </h3>
                     </div>
                     <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
-                        <span class="font-bold text-slate-900 text-sm">
-                            ${formatRupiah(product.price)}
+                        <span class="font-bold text-slate-900 text-xs sm:text-sm">
+                            ${formatRupiah(product.selling_price || 0)}
                         </span>
                         <button 
-                            onclick="addToCart(${product.id})"
+                            onclick="addToCart('${product.id}')"
                             class="bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white p-1.5 rounded-lg transition active:scale-95"
                             title="Tambah ke Keranjang">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                         </button>
@@ -321,7 +438,6 @@
             `).join('');
         }
 
-        // TAMBAH PRODUK KE KERANJANG
         function addToCart(productId) {
             const product = productsData.find(p => p.id === productId);
             if (!product) return;
@@ -329,12 +445,20 @@
             const existingItem = cart.find(item => item.id === productId);
 
             if (existingItem) {
+                if (existingItem.qty + 1 > product.stock) {
+                    showToast(`Stok tidak mencukupi (Maksimal ${product.stock})`);
+                    return;
+                }
                 existingItem.qty += 1;
             } else {
+                if (product.stock < 1) {
+                    showToast("Stok produk habis");
+                    return;
+                }
                 cart.push({
                     id: product.id,
                     name: product.name,
-                    price: product.price,
+                    price: product.selling_price,
                     qty: 1
                 });
             }
@@ -343,10 +467,66 @@
             showToast(`"${product.name}" ditambahkan`);
         }
 
-        // UPDATE QUANTITY ITEM
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const filtered = productsData.filter(p => 
+                (p.name && p.name.toLowerCase().includes(query)) || 
+                (p.barcode && p.barcode.toLowerCase().includes(query))
+            );
+            renderProducts(filtered);
+        }
+
+        function openConfigModal() {
+            document.getElementById('input-supabase-url').value = SUPABASE_URL;
+            document.getElementById('input-supabase-key').value = SUPABASE_KEY;
+            
+            const modal = document.getElementById('config-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeConfigModal() {
+            const modal = document.getElementById('config-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function saveSupabaseConfig() {
+            const url = document.getElementById('input-supabase-url').value.trim();
+            const key = document.getElementById('input-supabase-key').value.trim();
+
+            if (!url || !key) {
+                showToast("Harap isi URL dan Anon Key Supabase!");
+                return;
+            }
+
+            localStorage.setItem('POS_SUPABASE_URL', url);
+            localStorage.setItem('POS_SUPABASE_KEY', key);
+
+            SUPABASE_URL = url;
+            SUPABASE_KEY = key;
+
+            closeConfigModal();
+            initSupabaseClient();
+        }
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(number);
+        }
+
         function updateQuantity(productId, delta) {
             const item = cart.find(i => i.id === productId);
             if (!item) return;
+
+            const product = productsData.find(p => p.id === productId);
+            if (delta > 0 && product && (item.qty + delta > product.stock)) {
+                showToast(`Stok tidak mencukupi (Maksimal ${product.stock})`);
+                return;
+            }
 
             item.qty += delta;
 
@@ -357,13 +537,11 @@
             }
         }
 
-        // HAPUS ITEM DARI KERANJANG
         function removeFromCart(productId) {
             cart = cart.filter(i => i.id !== productId);
             renderCart();
         }
 
-        // KOSONGKAN KERANJANG
         function clearCart() {
             if (cart.length === 0) return;
             cart = [];
@@ -371,7 +549,6 @@
             showToast("Keranjang dikosongkan");
         }
 
-        // RENDER COMPONENT KERANJANG
         function renderCart() {
             const cartContainer = document.getElementById('cart-items');
             const payButton = document.getElementById('pay-button');
@@ -382,7 +559,7 @@
                         <svg class="w-12 h-12 mb-2 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"></path>
                         </svg>
-                        <p class="text-sm font-medium">Keranjang masih kosong</p>
+                        <p class="text-xs sm:text-sm font-medium">Keranjang masih kosong</p>
                     </div>
                 `;
                 payButton.disabled = true;
@@ -395,30 +572,28 @@
             cartContainer.innerHTML = cart.map(item => {
                 const subtotalItem = item.price * item.qty;
                 return `
-                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2">
+                    <div class="p-2.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-2 shadow-sm">
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-semibold text-slate-800 text-xs sm:text-sm truncate">${item.name}</h4>
-                            <span class="text-xs text-slate-500">${formatRupiah(item.price)}</span>
+                            <h4 class="font-semibold text-slate-800 text-xs truncate">${item.name}</h4>
+                            <span class="text-[11px] text-slate-500">${formatRupiah(item.price)}</span>
                         </div>
 
-                        <!-- Quantity Controller -->
-                        <div class="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden shadow-sm">
+                        <div class="flex items-center border border-slate-300 rounded-lg bg-slate-50 overflow-hidden">
                             <button 
-                                onclick="updateQuantity(${item.id}, -1)" 
-                                class="px-2 py-1 text-slate-600 hover:bg-slate-100 transition font-bold text-xs">
+                                onclick="updateQuantity('${item.id}', -1)" 
+                                class="px-2 py-0.5 text-slate-600 hover:bg-slate-200 transition font-bold text-xs">
                                 -
                             </button>
-                            <span class="px-2.5 text-xs font-bold text-slate-800">${item.qty}</span>
+                            <span class="px-2 text-xs font-bold text-slate-800">${item.qty}</span>
                             <button 
-                                onclick="updateQuantity(${item.id}, 1)" 
-                                class="px-2 py-1 text-slate-600 hover:bg-slate-100 transition font-bold text-xs">
+                                onclick="updateQuantity('${item.id}', 1)" 
+                                class="px-2 py-0.5 text-slate-600 hover:bg-slate-200 transition font-bold text-xs">
                                 +
                             </button>
                         </div>
 
-                        <!-- Subtotal & Delete -->
-                        <div class="text-right min-w-[70px]">
-                            <span class="block font-bold text-xs sm:text-sm text-slate-800">${formatRupiah(subtotalItem)}</span>
+                        <div class="text-right min-w-[65px]">
+                            <span class="block font-bold text-xs text-slate-800">${formatRupiah(subtotalItem)}</span>
                         </div>
                     </div>
                 `;
@@ -427,7 +602,6 @@
             updateTotals();
         }
 
-        // HITUNG TOTAL & SUBTOTAL
         function updateTotals() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const discountInput = document.getElementById('cart-discount-input');
@@ -442,22 +616,10 @@
             document.getElementById('cart-total').textContent = formatRupiah(total);
         }
 
-        // LOGIKA PENCARIAN
-        function handleSearch() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
-            const filtered = productsData.filter(p => 
-                p.name.toLowerCase().includes(query) || 
-                p.barcode.includes(query)
-            );
-            renderProducts(filtered);
-        }
-
-        // STUB TOMBOL SCAN
         function handleScanClick() {
             showToast("Fitur kamera barcode akan diaktifkan di fase selanjutnya");
         }
 
-        // SIMULASI CHECKOUT MODAL
         function openCheckoutModal() {
             if (cart.length === 0) return;
 
@@ -486,14 +648,13 @@
             closeCheckoutModal();
             clearCart();
             document.getElementById('cart-discount-input').value = 0;
-            showToast("Transaksi Berhasil (Simulasi)");
+            showToast("Transaksi Berhasil (Simulasi Simpan)");
         }
 
         function handleLogoutSimulated() {
             showToast("Logout berhasil (Simulasi)");
         }
 
-        // UTILITY TOAST NOTIFICATION
         function showToast(message) {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toast-message');
