@@ -245,7 +245,7 @@
                             </button>
                         </div>
 
-                        <!-- LIST / WIDGET VOUCHER KODE AKTIF -->
+                        <!-- LIST VOUCHER KODE AKTIF -->
                         <div class="bg-white border border-slate-200 rounded-lg p-2 space-y-1">
                             <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
                                 <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Daftar Voucher Kode</span>
@@ -273,12 +273,13 @@
                     </div>
                 </div>
 
-                <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-200 bg-white min-h-[140px]">
+                <!-- CART ITEMS LIST -->
+                <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-100 bg-white min-h-[140px]">
                 </div>
 
                 <div class="p-4 bg-slate-100 border-t border-slate-200 space-y-2.5 shadow-lg">
                     <div class="flex justify-between text-xs text-slate-600">
-                        <span>Subtotal</span>
+                        <span>Subtotal Sebelum Diskon</span>
                         <span id="cart-subtotal" class="font-bold text-slate-800">Rp 0</span>
                     </div>
                     
@@ -1070,7 +1071,7 @@
 
         function initSupabaseClient() {
             const url = localStorage.getItem('supabase_url') || 'https://pftuivzghfscfczfckvd.supabase.co';
-            const key = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODQ0NjgsImV4cCI6MjA1NjU2MDQ2OH0.C83vJysq6_1u7aGj_t5WnOa63N2iK9s9lM0-86P0';
+            const key = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODQ0NjgsImV4cCI6MjA1NjU2MDQ2OH0.C83vJysq6_1u7aGj_t5WnOa63N2iK9s9lM0-86P0';
             
             document.getElementById('setting-supabase-url').value = url;
             document.getElementById('setting-supabase-key').value = key;
@@ -1332,31 +1333,19 @@
 
             grid.innerHTML = list.map(p => {
                 let activeAutoPromoText = '';
-                let priceSectionHtml = `<span class="font-extrabold text-xs text-blue-600">Rp ${(p.selling_price || 0).toLocaleString('id-ID')}</span>`;
+                let finalPrice = p.selling_price || 0;
+                let hasDiscount = false;
 
                 vouchers.forEach(v => {
                     if (v.is_active && v.promo_type === 'auto_category' && v.applicable_category === p.category) {
                         if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                            hasDiscount = true;
                             if (v.type === 'percentage') {
-                                const discVal = (p.selling_price * v.value) / 100;
-                                const finalPrice = p.selling_price - discVal;
+                                finalPrice = p.selling_price * (1 - v.value / 100);
                                 activeAutoPromoText = `Diskon ${v.value}%`;
-                                priceSectionHtml = `
-                                    <div class="flex flex-col">
-                                        <span class="text-[11px] text-slate-400 line-through">Rp ${p.selling_price.toLocaleString('id-ID')}</span>
-                                        <span class="font-extrabold text-xs text-emerald-600">Rp ${finalPrice.toLocaleString('id-ID')}</span>
-                                    </div>
-                                `;
                             } else {
-                                const discVal = Math.min(v.value, p.selling_price);
-                                const finalPrice = p.selling_price - discVal;
+                                finalPrice = Math.max(0, p.selling_price - v.value);
                                 activeAutoPromoText = `Potongan Rp ${v.value.toLocaleString('id-ID')}`;
-                                priceSectionHtml = `
-                                    <div class="flex flex-col">
-                                        <span class="text-[11px] text-slate-400 line-through">Rp ${p.selling_price.toLocaleString('id-ID')}</span>
-                                        <span class="font-extrabold text-xs text-emerald-600">Rp ${finalPrice.toLocaleString('id-ID')}</span>
-                                    </div>
-                                `;
                             }
                         }
                     }
@@ -1374,7 +1363,14 @@
                         <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    ${priceSectionHtml}
+                                    ${hasDiscount ? `
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] text-slate-400 line-through">Rp ${(p.selling_price || 0).toLocaleString('id-ID')}</span>
+                                            <span class="font-extrabold text-xs text-emerald-600">Rp ${finalPrice.toLocaleString('id-ID')}</span>
+                                        </div>
+                                    ` : `
+                                        <span class="font-extrabold text-xs text-blue-600">Rp ${(p.selling_price || 0).toLocaleString('id-ID')}</span>
+                                    `}
                                 </div>
                                 <span class="text-[10px] font-semibold ${p.stock <= 5 ? 'text-red-500 font-bold' : 'text-slate-400'}">Stok: ${p.stock}</span>
                             </div>
@@ -1413,20 +1409,65 @@
                 container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-cart-flatbed text-2xl mb-2 block"></i>Keranjang belanja kosong</div>`;
                 return;
             }
-            container.innerHTML = cart.map(item => `
-                <div class="py-2 flex justify-between items-center text-xs">
-                    <div class="flex-1 pr-2">
-                        <div class="font-bold text-slate-800 line-clamp-1">${item.name}</div>
-                        <div class="text-[10px] text-slate-500">Rp ${item.price.toLocaleString('id-ID')}</div>
+            const today = new Date().setHours(0,0,0,0);
+
+            container.innerHTML = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                const origPrice = product ? product.selling_price : item.price;
+
+                let activeDiscount = null;
+                vouchers.forEach(v => {
+                    if (v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
+                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                            activeDiscount = v;
+                        }
+                    }
+                });
+
+                let effectivePrice = origPrice;
+                let discText = '';
+                if (activeDiscount) {
+                    if (activeDiscount.type === 'percentage') {
+                        effectivePrice = origPrice * (1 - activeDiscount.value / 100);
+                        discText = `Diskon ${activeDiscount.value}%`;
+                    } else {
+                        effectivePrice = Math.max(0, origPrice - activeDiscount.value);
+                        discText = `Potongan Rp ${activeDiscount.value.toLocaleString('id-ID')}`;
+                    }
+                }
+
+                const lineTotal = effectivePrice * item.qty;
+
+                return `
+                    <div class="py-2.5 flex justify-between items-start text-xs border-b border-slate-100 last:border-0">
+                        <div class="flex-1 pr-2">
+                            <div class="font-bold text-slate-800 line-clamp-1">${item.name}</div>
+                            <div class="mt-0.5">
+                                ${activeDiscount ? `
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] text-slate-400 line-through">Rp ${origPrice.toLocaleString('id-ID')}</span>
+                                        <span class="font-bold text-emerald-600">Rp ${effectivePrice.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 py-0.5 rounded w-fit mt-0.5 border border-amber-200">
+                                        <i class="fa-solid fa-tag text-amber-500 mr-0.5"></i>${discText}
+                                    </div>
+                                ` : `
+                                    <div class="font-semibold text-slate-700">Rp ${origPrice.toLocaleString('id-ID')}</div>
+                                `}
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1.5">
+                            <div class="font-extrabold text-slate-900">Rp ${lineTotal.toLocaleString('id-ID')}</div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="updateCartQty('${item.id}', -1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">-</button>
+                                <span class="font-bold text-xs w-5 text-center">${item.qty}</span>
+                                <button onclick="updateCartQty('${item.id}', 1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">+</button>
+                                <button onclick="removeFromCart('${item.id}')" class="text-red-400 hover:text-red-600 ml-1"><i class="fa-solid fa-xmark text-xs"></i></button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="updateCartQty('${item.id}', -1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">-</button>
-                        <span class="font-bold text-xs w-5 text-center">${item.qty}</span>
-                        <button onclick="updateCartQty('${item.id}', 1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">+</button>
-                        <button onclick="removeFromCart('${item.id}')" class="text-red-400 hover:text-red-600 ml-1"><i class="fa-solid fa-xmark text-xs"></i></button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function updateCartQty(productId, change) {
@@ -1554,23 +1595,51 @@
         }
 
         function calculateCartTotals() {
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const today = new Date().setHours(0,0,0,0);
             
+            let grossSubtotal = 0;
+            let categoryDiscountTotal = 0;
+            let manualVoucherCategory = null;
+
+            if (appliedVoucher) manualVoucherCategory = appliedVoucher.applicable_category || 'Semua';
+
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const origPrice = product ? product.selling_price : item.price;
+                let effectivePrice = origPrice;
+
+                vouchers.forEach(v => {
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
+                        if (manualVoucherCategory !== v.applicable_category) {
+                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                                if (v.type === 'percentage') {
+                                    effectivePrice = origPrice * (1 - v.value / 100);
+                                } else {
+                                    effectivePrice = Math.max(0, origPrice - v.value);
+                                }
+                            }
+                        }
+                    }
+                });
+                grossSubtotal += origPrice * item.qty;
+                categoryDiscountTotal += (origPrice - effectivePrice) * item.qty;
+            });
+
+            const subtotalAfterCat = grossSubtotal - categoryDiscountTotal;
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
-            let manualDiscAmount = (subtotal * manualDiscPercent) / 100;
+            let manualDiscAmount = (subtotalAfterCat * manualDiscPercent) / 100;
 
             let vipDiscAmount = 0;
             const customerName = document.getElementById('cart-customer-select').value;
             const cust = customers.find(c => c.name === customerName);
-            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotalAfterCat * 0.05);
 
             let voucherDiscAmount = 0;
-            let manualVoucherCategory = null;
 
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
-                manualVoucherCategory = targetCat;
-                let catSubtotal = subtotal;
+                let catSubtotal = subtotalAfterCat;
 
                 if (targetCat !== 'Semua') {
                     catSubtotal = cart.reduce((sum, item) => {
@@ -1587,37 +1656,12 @@
                 } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
-            let autoCategoryDiscounts = 0;
-            const today = new Date().setHours(0,0,0,0);
+            const totalOtherDiscounts = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            const grandTotalDiscount = categoryDiscountTotal + totalOtherDiscounts;
+            const grandTotal = Math.max(0, grossSubtotal - grandTotalDiscount);
 
-            vouchers.forEach(v => {
-                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
-                if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (manualVoucherCategory !== v.applicable_category) {
-                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                            const catSub = cart.reduce((sum, item) => {
-                                const prod = products.find(p => p.id === item.id);
-                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                            }, 0);
-
-                            if (catSub > 0) {
-                                let dVal = 0;
-                                if (v.type === 'percentage') {
-                                    dVal = (catSub * v.value) / 100;
-                                    if (v.max_discount && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                                } else dVal = Math.min(v.value, catSub);
-                                autoCategoryDiscounts += dVal;
-                            }
-                        }
-                    }
-                }
-            });
-
-            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts;
-            const grandTotal = Math.max(0, subtotal - totalDiscount);
-
-            document.getElementById('cart-subtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
-            document.getElementById('cart-discount-amount').innerText = `- Rp ${totalDiscount.toLocaleString('id-ID')}`;
+            document.getElementById('cart-subtotal').innerText = `Rp ${grossSubtotal.toLocaleString('id-ID')}`;
+            document.getElementById('cart-discount-amount').innerText = `- Rp ${grandTotalDiscount.toLocaleString('id-ID')}`;
             document.getElementById('cart-grand-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
 
             document.getElementById('btn-checkout').disabled = cart.length === 0;
@@ -2019,22 +2063,50 @@
 
         function openPaymentModal() {
             if (cart.length === 0) return;
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const today = new Date().setHours(0,0,0,0);
+            let grossSubtotal = 0;
+            let categoryDiscountTotal = 0;
+            let manualVoucherCategory = null;
+
+            if (appliedVoucher) manualVoucherCategory = appliedVoucher.applicable_category || 'Semua';
+
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const origPrice = product ? product.selling_price : item.price;
+                let effectivePrice = origPrice;
+
+                vouchers.forEach(v => {
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
+                        if (manualVoucherCategory !== v.applicable_category) {
+                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                                if (v.type === 'percentage') {
+                                    effectivePrice = origPrice * (1 - v.value / 100);
+                                } else {
+                                    effectivePrice = Math.max(0, origPrice - v.value);
+                                }
+                            }
+                        }
+                    }
+                });
+                grossSubtotal += origPrice * item.qty;
+                categoryDiscountTotal += (origPrice - effectivePrice) * item.qty;
+            });
+
+            const subtotalAfterCat = grossSubtotal - categoryDiscountTotal;
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
-            const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
+            const manualDiscAmount = (subtotalAfterCat * manualDiscPercent) / 100;
             
             let vipDiscAmount = 0;
             const customerName = document.getElementById('cart-customer-select').value;
             const cust = customers.find(c => c.name === customerName);
-            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotalAfterCat * 0.05);
 
             let voucherDiscAmount = 0;
-            let manualVoucherCategory = null;
 
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
-                manualVoucherCategory = targetCat;
-                let catSubtotal = subtotal;
+                let catSubtotal = subtotalAfterCat;
 
                 if (targetCat !== 'Semua') {
                     catSubtotal = cart.reduce((sum, item) => {
@@ -2051,29 +2123,9 @@
                 } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
-            let autoCategoryDiscounts = 0;
-            const today = new Date().setHours(0,0,0,0);
-            vouchers.forEach(v => {
-                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
-                if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (manualVoucherCategory !== v.applicable_category) {
-                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                            const catSub = cart.reduce((sum, item) => {
-                                const prod = products.find(p => p.id === item.id);
-                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                            }, 0);
-                            if (catSub > 0) {
-                                let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
-                                if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                                autoCategoryDiscounts += dVal;
-                            }
-                        }
-                    }
-                }
-            });
-
-            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts;
-            const grandTotal = Math.max(0, subtotal - totalDiscount);
+            const totalOtherDiscounts = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            const grandTotalDiscount = categoryDiscountTotal + totalOtherDiscounts;
+            const grandTotal = Math.max(0, grossSubtotal - grandTotalDiscount);
 
             document.getElementById('pay-modal-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
             document.getElementById('pay-cash-amount').value = '';
@@ -2084,22 +2136,50 @@
         function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
 
         function calculateChange() {
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const today = new Date().setHours(0,0,0,0);
+            let grossSubtotal = 0;
+            let categoryDiscountTotal = 0;
+            let manualVoucherCategory = null;
+
+            if (appliedVoucher) manualVoucherCategory = appliedVoucher.applicable_category || 'Semua';
+
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const origPrice = product ? product.selling_price : item.price;
+                let effectivePrice = origPrice;
+
+                vouchers.forEach(v => {
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
+                        if (manualVoucherCategory !== v.applicable_category) {
+                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                                if (v.type === 'percentage') {
+                                    effectivePrice = origPrice * (1 - v.value / 100);
+                                } else {
+                                    effectivePrice = Math.max(0, origPrice - v.value);
+                                }
+                            }
+                        }
+                    }
+                });
+                grossSubtotal += origPrice * item.qty;
+                categoryDiscountTotal += (origPrice - effectivePrice) * item.qty;
+            });
+
+            const subtotalAfterCat = grossSubtotal - categoryDiscountTotal;
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
-            const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
+            const manualDiscAmount = (subtotalAfterCat * manualDiscPercent) / 100;
             
             let vipDiscAmount = 0;
             const customerName = document.getElementById('cart-customer-select').value;
             const cust = customers.find(c => c.name === customerName);
-            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotalAfterCat * 0.05);
 
             let voucherDiscAmount = 0;
-            let manualVoucherCategory = null;
 
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
-                manualVoucherCategory = targetCat;
-                let catSubtotal = subtotal;
+                let catSubtotal = subtotalAfterCat;
 
                 if (targetCat !== 'Semua') {
                     catSubtotal = cart.reduce((sum, item) => {
@@ -2114,38 +2194,49 @@
                 } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
-            let autoCategoryDiscounts = 0;
-            const today = new Date().setHours(0,0,0,0);
-            vouchers.forEach(v => {
-                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
-                if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (manualVoucherCategory !== v.applicable_category) {
-                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                            const catSub = cart.reduce((sum, item) => {
-                                const prod = products.find(p => p.id === item.id);
-                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                            }, 0);
-                            if (catSub > 0) {
-                                let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
-                                if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                                autoCategoryDiscounts += dVal;
-                            }
-                        }
-                    }
-                }
-            });
-
-            const grandTotal = Math.max(0, subtotal - (manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts));
+            const totalOtherDiscounts = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            const grandTotalDiscount = categoryDiscountTotal + totalOtherDiscounts;
+            const grandTotal = Math.max(0, grossSubtotal - grandTotalDiscount);
             const cash = parseFloat(document.getElementById('pay-cash-amount').value) || 0;
             const change = cash - grandTotal;
             document.getElementById('pay-change-amount').innerText = `Rp ${Math.max(0, change).toLocaleString('id-ID')}`;
         }
 
         function setQuickCash(val) {
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const today = new Date().setHours(0,0,0,0);
+            let grossSubtotal = 0;
+            let categoryDiscountTotal = 0;
+            let manualVoucherCategory = null;
+
+            if (appliedVoucher) manualVoucherCategory = appliedVoucher.applicable_category || 'Semua';
+
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const origPrice = product ? product.selling_price : item.price;
+                let effectivePrice = origPrice;
+
+                vouchers.forEach(v => {
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
+                        if (manualVoucherCategory !== v.applicable_category) {
+                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                                if (v.type === 'percentage') {
+                                    effectivePrice = origPrice * (1 - v.value / 100);
+                                } else {
+                                    effectivePrice = Math.max(0, origPrice - v.value);
+                                }
+                            }
+                        }
+                    }
+                });
+                grossSubtotal += origPrice * item.qty;
+                categoryDiscountTotal += (origPrice - effectivePrice) * item.qty;
+            });
+
+            const subtotalAfterCat = grossSubtotal - categoryDiscountTotal;
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
-            const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
+            const manualDiscAmount = (subtotalAfterCat * manualDiscPercent) / 100;
+            const grandTotal = Math.max(0, grossSubtotal - (categoryDiscountTotal + manualDiscAmount));
 
             if (val === 'pas') document.getElementById('pay-cash-amount').value = grandTotal;
             else document.getElementById('pay-cash-amount').value = val;
@@ -2155,22 +2246,50 @@
         async function processTransaction() {
             if (cart.length === 0) return;
 
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const today = new Date().setHours(0,0,0,0);
+            let grossSubtotal = 0;
+            let categoryDiscountTotal = 0;
+            let manualVoucherCategory = null;
+
+            if (appliedVoucher) manualVoucherCategory = appliedVoucher.applicable_category || 'Semua';
+
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const origPrice = product ? product.selling_price : item.price;
+                let effectivePrice = origPrice;
+
+                vouchers.forEach(v => {
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
+                        if (manualVoucherCategory !== v.applicable_category) {
+                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                                if (v.type === 'percentage') {
+                                    effectivePrice = origPrice * (1 - v.value / 100);
+                                } else {
+                                    effectivePrice = Math.max(0, origPrice - v.value);
+                                }
+                            }
+                        }
+                    }
+                });
+                grossSubtotal += origPrice * item.qty;
+                categoryDiscountTotal += (origPrice - effectivePrice) * item.qty;
+            });
+
+            const subtotalAfterCat = grossSubtotal - categoryDiscountTotal;
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
-            const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
+            const manualDiscAmount = (subtotalAfterCat * manualDiscPercent) / 100;
             
             let vipDiscAmount = 0;
             const customerName = document.getElementById('cart-customer-select').value;
             const cust = customers.find(c => c.name === customerName);
-            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotalAfterCat * 0.05);
 
             let voucherDiscAmount = 0;
-            let manualVoucherCategory = null;
 
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
-                manualVoucherCategory = targetCat;
-                let catSubtotal = subtotal;
+                let catSubtotal = subtotalAfterCat;
 
                 if (targetCat !== 'Semua') {
                     catSubtotal = cart.reduce((sum, item) => {
@@ -2187,29 +2306,9 @@
                 } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
-            let autoCategoryDiscounts = 0;
-            const today = new Date().setHours(0,0,0,0);
-            vouchers.forEach(v => {
-                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
-                if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (manualVoucherCategory !== v.applicable_category) {
-                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                            const catSub = cart.reduce((sum, item) => {
-                                const prod = products.find(p => p.id === item.id);
-                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                            }, 0);
-                            if (catSub > 0) {
-                                let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
-                                if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                                autoCategoryDiscounts += dVal;
-                            }
-                        }
-                    }
-                }
-            });
-
-            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts;
-            const grandTotal = Math.max(0, subtotal - totalDiscount);
+            const totalOtherDiscounts = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            const grandTotalDiscount = categoryDiscountTotal + totalOtherDiscounts;
+            const grandTotal = Math.max(0, grossSubtotal - grandTotalDiscount);
 
             const payMethod = document.getElementById('pay-method').value;
             const cashPaid = parseFloat(document.getElementById('pay-cash-amount').value) || grandTotal;
@@ -2236,8 +2335,8 @@
                 id: invoiceNum,
                 cashier: activeUser ? activeUser.name : (currentRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'),
                 customer_name: customerName,
-                subtotal: subtotal,
-                discount: totalDiscount,
+                subtotal: grossSubtotal,
+                discount: grandTotalDiscount,
                 total: grandTotal,
                 cash_paid: cashPaid,
                 change: Math.max(0, cashPaid - grandTotal),
