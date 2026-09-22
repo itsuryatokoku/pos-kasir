@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Supabase Sync)</title>
+    <title>KASIR POS - itsuryatokoku (Supabase Sync Fixed)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -75,9 +75,9 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v7.4 Schema Matched</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v7.5 Sync Fix</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Profesional & Supabase Sync</p>
+                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Profesional & Supabase Cloud</p>
             </div>
         </div>
 
@@ -1096,10 +1096,10 @@
 
             transactions.unshift(newTx);
 
-            // Sync with Supabase (transactions + transaction_items)
+            // Sync with Supabase with error reporting
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('transactions').insert([{
+                    const { error: txErr } = await supabaseClient.from('transactions').insert([{
                         id: txId,
                         cashier: 'Kasir Utama',
                         customer_name: customerName,
@@ -1112,13 +1112,15 @@
                         items: newTx.items
                     }]);
 
+                    if (txErr) throw new Error("Gagal insert transactions: " + txErr.message);
+
                     for (const item of cart) {
                         const prod = products.find(p => p.id === item.product.id);
                         if (prod) {
-                            await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+                            const { error: stockErr } = await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+                            if (stockErr) console.warn("Gagal update stok produk di cloud:", stockErr.message);
                             
-                            // Insert into transaction_items table
-                            await supabaseClient.from('transaction_items').insert([{
+                            const { error: itemErr } = await supabaseClient.from('transaction_items').insert([{
                                 transaction_id: txId,
                                 product_id: prod.id,
                                 product_name: prod.name,
@@ -1126,11 +1128,16 @@
                                 qty: item.qty,
                                 subtotal: prod.selling_price * item.qty
                             }]);
+                            if (itemErr) console.warn("Gagal insert transaction_items:", itemErr.message);
                         }
                     }
+                    window.showToast('Transaksi Berhasil & Disinkronkan ke Cloud!', 'success');
                 } catch (e) {
                     console.error("Supabase transaction save error:", e);
+                    window.showToast('Tersimpan lokal, Gagal ke Cloud: ' + e.message, 'error');
                 }
+            } else {
+                window.showToast('Transaksi Berhasil Disimpan (Offline Mode)!', 'success');
             }
 
             window.closePaymentModal();
@@ -1141,7 +1148,6 @@
             if (discInput) discInput.value = '0';
             window.renderCart();
             window.renderProductGrid();
-            window.showToast('Transaksi Berhasil Disimpan & Disinkronkan!', 'success');
         };
 
         window.renderAdminProductsTable = function() {
@@ -1231,9 +1237,11 @@
                 }
                 if (supabaseClient) {
                     try {
-                        await supabaseClient.from('products').update({ barcode, category, name, purchase_price, selling_price, stock }).eq('id', editId);
+                        const { error } = await supabaseClient.from('products').update({ barcode, category, name, purchase_price, selling_price, stock }).eq('id', editId);
+                        if (error) throw error;
                     } catch (err) {
                         console.error("Supabase update product error:", err);
+                        window.showToast('Gagal update ke cloud: ' + err.message, 'error');
                     }
                 }
             } else {
@@ -1243,15 +1251,13 @@
                 if (supabaseClient) {
                     try {
                         const { data, error } = await supabaseClient.from('products').insert([newProd]).select();
-                        if (!error && data && data[0]) {
+                        if (error) throw error;
+                        if (data && data[0]) {
                             products.unshift(data[0]);
-                        } else {
-                            newProd.id = 'prod-' + Date.now();
-                            products.unshift(newProd);
                         }
                     } catch (err) {
-                        newProd.id = 'prod-' + Date.now();
-                        products.unshift(newProd);
+                        console.error("Supabase insert product error:", err);
+                        window.showToast('Gagal simpan ke cloud: ' + err.message, 'error');
                     }
                 } else {
                     newProd.id = 'prod-' + Date.now();
@@ -1261,7 +1267,7 @@
 
             window.refreshAllUIs();
             window.closeProductModal();
-            window.showToast('Produk berhasil disimpan ke Supabase!', 'success');
+            window.showToast('Produk berhasil disimpan!', 'success');
         };
 
         window.deleteProduct = async function(id) {
