@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Fase 11 Supabase Auth)</title>
+    <title>KASIR POS - itsuryatokoku (Enterprise v11.0)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -80,7 +80,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">Supabase Auth</span>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v11.0 Cloud</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud Database Integration</p>
             </div>
@@ -98,6 +98,10 @@
             <a href="#customers" id="nav-link-customers" class="nav-admin-only px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-users"></i>
                 <span>Pelanggan & Member</span>
+            </a>
+            <a href="#vouchers" id="nav-link-vouchers" class="nav-admin-only px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-ticket"></i>
+                <span>Diskon & Voucher</span>
             </a>
             <a href="#history" id="nav-link-history" class="nav-admin-only px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-chart-line"></i>
@@ -167,6 +171,7 @@
         <a href="#pos" id="mobile-nav-pos" class="px-3 py-1.5 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
         <a href="#products" id="mobile-nav-products" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
         <a href="#customers" id="mobile-nav-customers" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pelanggan</a>
+        <a href="#vouchers" id="mobile-nav-vouchers" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Voucher</a>
         <a href="#history" id="mobile-nav-history" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Laporan</a>
         <a href="#settings" id="mobile-nav-settings" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
     </div>
@@ -229,6 +234,28 @@
                         <select id="cart-customer-select" onchange="onSelectCustomerForCart()" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
                             <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
                         </select>
+                    </div>
+
+                    <!-- VOUCHER PROMO INPUT IN CART -->
+                    <div class="space-y-1">
+                        <div class="flex gap-1.5">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-ticket absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                                <input type="text" id="cart-voucher-input" placeholder="Kode Promo (misal: PROMO10K)..." class="w-full pl-7 pr-2 py-1 text-xs font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-indigo-500 focus:outline-none uppercase">
+                            </div>
+                            <button onclick="applyVoucherCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 text-xs rounded-lg transition shrink-0">
+                                Pakai
+                            </button>
+                        </div>
+                        <div id="applied-voucher-badge" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-1 rounded-lg text-[11px] font-semibold flex justify-between items-center">
+                            <span class="flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                <span id="voucher-badge-text">Voucher Dipakai</span>
+                            </span>
+                            <button onclick="removeAppliedVoucher()" class="text-red-500 hover:text-red-700 font-bold ml-2">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div id="birthday-alert-banner" class="hidden bg-pink-100 border border-pink-300 text-pink-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 animate-bounce">
@@ -336,7 +363,7 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member</h2>
-                    <p class="text-xs text-slate-500">Kelola No. Member, Alamat, Tanggal Lahir, Poin Loyalitas, dan Status VIP.</p>
+                    <p class="text-xs text-slate-500">Kelola database pelanggan, status member VIP, alamat, dan poin loyalty.</p>
                 </div>
                 <button 
                     onclick="openCustomerModal()" 
@@ -352,7 +379,7 @@
                         type="text" 
                         id="customer-search-input" 
                         onkeyup="renderCustomersTable()" 
-                        placeholder="Cari No. Member, nama, alamat, atau nomor telepon..." 
+                        placeholder="Cari nama, nomor HP, atau No. Member..." 
                         class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                 </div>
@@ -361,16 +388,63 @@
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
                                 <th class="p-3">No. Member</th>
-                                <th class="p-3">Pelanggan</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Alamat</th>
-                                <th class="p-3">Tgl Lahir / Ultah</th>
-                                <th class="p-3 text-center">Poin</th>
+                                <th class="p-3">Nama</th>
+                                <th class="p-3">Telepon</th>
+                                <th class="p-3">Tipe</th>
+                                <th class="p-3 text-center">Ultah</th>
+                                <th class="p-3 text-right">Poin</th>
                                 <th class="p-3 text-right">Total Belanja</th>
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="customers-tbody" class="divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 6: VOUCHERS & DISCOUNTS MANAGEMENT -->
+        <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen Voucher & Diskon Promo</h2>
+                    <p class="text-xs text-slate-500">Buat kode promo, atur tipe diskon (persentase / nominal), minimal belanja, dan masa berlaku.</p>
+                </div>
+                <button 
+                    onclick="openVoucherModal()" 
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Voucher Baru</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-3 border-b border-slate-100 bg-slate-50">
+                    <input 
+                        type="text" 
+                        id="voucher-search-input" 
+                        onkeyup="renderVouchersTable()" 
+                        placeholder="Cari kode promo atau judul voucher..." 
+                        class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
+                                <th class="p-3">Kode Voucher</th>
+                                <th class="p-3">Judul Promo</th>
+                                <th class="p-3">Nilai Diskon</th>
+                                <th class="p-3 text-right">Min. Belanja</th>
+                                <th class="p-3 text-right">Max. Diskon</th>
+                                <th class="p-3 text-center">Tgl Kadaluarsa</th>
+                                <th class="p-3 text-center">Penggunaan</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vouchers-tbody" class="divide-y divide-slate-100">
                         </tbody>
                     </table>
                 </div>
@@ -538,40 +612,100 @@
             </div>
             <form onsubmit="handleCustomerSubmit(event)" class="space-y-3">
                 <input type="hidden" id="cust-id">
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">No. Member</label>
-                        <input type="text" id="cust-member-number" placeholder="MBR-001" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono font-bold">
+                        <input type="text" id="cust-member-num" placeholder="MBR-001" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Member</label>
-                        <select id="cust-type" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-                            <option value="Regular">Regular (Poin Standar)</option>
-                            <option value="VIP">VIP (Diskon Otomatis 5%)</option>
+                        <select id="cust-type" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-semibold">
+                            <option value="Regular">Regular</option>
+                            <option value="VIP">VIP (Diskon 5%)</option>
                         </select>
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap</label>
-                    <input type="text" id="cust-name" required placeholder="Ketik nama pelanggan..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <input type="text" id="cust-name" required placeholder="Nama pelanggan..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">No. Telepon / WA</label>
-                        <input type="text" id="cust-phone" placeholder="08123456789" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" id="cust-phone" placeholder="08xxx" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Ulang Tahun</label>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tgl Lahir / Ultah</label>
                         <input type="date" id="cust-birth-date" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Alamat Rumah / Usaha</label>
-                    <textarea id="cust-address" rows="2" placeholder="Jl. Merdeka No. 12, Cirebon..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Alamat Lengkap</label>
+                    <textarea id="cust-address" rows="2" placeholder="Alamat rumah/toko..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                 </div>
-                <div class="pt-2 flex justify-end gap-2">
+                <div class="pt-2 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeCustomerModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
                     <button type="submit" class="px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">Simpan Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT VOUCHER -->
+    <div id="voucher-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 id="voucher-modal-title" class="font-bold text-slate-800 text-base">Tambah Voucher Baru</h3>
+                <button onclick="closeVoucherModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="handleVoucherSubmit(event)" class="space-y-3">
+                <input type="hidden" id="vouch-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kode Voucher / Promo</label>
+                        <input type="text" id="vouch-code" required placeholder="PROMO10K" class="w-full px-3 py-2 text-xs font-mono font-bold uppercase border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Diskon</label>
+                        <select id="vouch-type" onchange="toggleVoucherValueLabel()" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-semibold">
+                            <option value="fixed">Nominal Tetap (Rp)</option>
+                            <option value="percentage">Persentase (%)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Deskripsi Promo</label>
+                    <input type="text" id="vouch-title" required placeholder="Diskon Spesial Hari Raya..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="vouch-value-label" class="block text-xs font-semibold text-slate-600 mb-1">Nilai Diskon (Rp)</label>
+                        <input type="number" id="vouch-value" required min="1" placeholder="10000" class="w-full px-3 py-2 text-xs font-bold border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Min. Belanja (Rp)</label>
+                        <input type="number" id="vouch-min-purchase" min="0" placeholder="0" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Maks. Diskon (Rp, Opsional)</label>
+                        <input type="number" id="vouch-max-discount" min="0" placeholder="0 = Tanpa Batas" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Kadaluarsa</label>
+                        <input type="date" id="vouch-valid-until" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-1">
+                    <label class="text-xs font-semibold text-slate-700 flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="vouch-is-active" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
+                        <span>Aktifkan Voucher Ini</span>
+                    </label>
+                </div>
+                <div class="pt-2 flex justify-end gap-2 border-t">
+                    <button type="button" onclick="closeVoucherModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow transition">Simpan Voucher</button>
                 </div>
             </form>
         </div>
@@ -624,7 +758,7 @@
 
             <button 
                 onclick="processTransaction()" 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs">
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
                 <i class="fa-solid fa-check-circle"></i>
                 <span>SELESAIKAN TRANSAKSI</span>
             </button>
@@ -711,7 +845,6 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Pilih Akun / Peran</label>
                     <select id="login-username" class="w-full px-3 py-2.5 text-xs font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50">
-                        <!-- Populated dynamically from Supabase users table -->
                     </select>
                 </div>
 
@@ -770,6 +903,8 @@
         let transactions = [];
         let cart = [];
         let userAccounts = [];
+        let vouchers = [];
+        let appliedVoucher = null;
         let html5QrcodeScanner = null;
         let salesChartInstance = null;
         let paymentChartInstance = null;
@@ -797,6 +932,11 @@
             { id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c12', member_number: 'MBR-002', name: 'Siti Rahma', phone: '08987654321', address: 'Kuningan, Jawa Barat', birth_date: '1995-04-12', type: 'Regular', points: 30, total_tx: 120000 }
         ];
 
+        const defaultVouchers = [
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', code: 'PROMO10K', title: 'Potongan Rp 10.000', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', code: 'DISKON10', title: 'Diskon 10% Belanja', type: 'percentage', value: 10, min_purchase: 30000, max_discount: 20000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
+        ];
+
         // INIT APPLICATION
         document.addEventListener('DOMContentLoaded', async () => {
             loadSavedStoreSettings();
@@ -811,6 +951,7 @@
             renderAdminProductsTable();
             renderCustomersTable();
             renderCartCustomerDropdown();
+            renderVouchersTable();
             renderHistoryTable();
             initCharts();
         });
@@ -945,6 +1086,7 @@
 
         function populateLoginDropdown(accounts) {
             const select = document.getElementById('login-username');
+            if (!select) return;
             select.innerHTML = accounts.map(acc => `
                 <option value="${acc.username}">
                     ${acc.role === 'admin' ? '👑' : '🛒'} ${acc.name} (${acc.username})
@@ -1067,12 +1209,14 @@
             products = JSON.parse(localStorage.getItem('pos_products')) || defaultProducts;
             customers = JSON.parse(localStorage.getItem('pos_customers')) || defaultCustomers;
             transactions = JSON.parse(localStorage.getItem('pos_transactions')) || [];
+            vouchers = JSON.parse(localStorage.getItem('pos_vouchers')) || defaultVouchers;
         }
 
         function saveLocalStorageData() {
             localStorage.setItem('pos_products', JSON.stringify(products));
             localStorage.setItem('pos_customers', JSON.stringify(customers));
             localStorage.setItem('pos_transactions', JSON.stringify(transactions));
+            localStorage.setItem('pos_vouchers', JSON.stringify(vouchers));
         }
 
         // SUPABASE DATA SYNC
@@ -1098,6 +1242,14 @@
                     saveLocalStorageData();
                     renderCustomersTable();
                     renderCartCustomerDropdown();
+                }
+
+                // Sync Vouchers
+                const { data: cloudVouch, error: vErr } = await supabaseClient.from('vouchers').select('*');
+                if (!vErr && cloudVouch && cloudVouch.length > 0) {
+                    vouchers = cloudVouch;
+                    saveLocalStorageData();
+                    renderVouchersTable();
                 }
 
                 // Sync Transactions
@@ -1138,6 +1290,7 @@
         function renderCategories() {
             const cats = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
             const container = document.getElementById('category-pills');
+            if (!container) return;
             container.innerHTML = cats.map(cat => `
                 <button 
                     onclick="filterCategory('${cat}')" 
@@ -1153,8 +1306,22 @@
             renderProductGrid();
         }
 
+        function handleSearch(e) {
+            const q = e.target.value;
+            renderProductGrid(q);
+            if (e.key === 'Enter' && q.trim()) {
+                const exact = products.find(p => (p.barcode && p.barcode === q.trim()) || (p.sku && p.sku === q.trim()));
+                if (exact) {
+                    addToCart(exact.id);
+                    e.target.value = '';
+                    renderProductGrid();
+                }
+            }
+        }
+
         function renderProductGrid(filterQuery = '') {
             const grid = document.getElementById('product-grid');
+            if (!grid) return;
             let list = products;
 
             if (selectedCategory !== 'Semua') {
@@ -1189,235 +1356,344 @@
             `).join('');
         }
 
-        function handleSearch(e) {
-            const val = e.target.value;
-            renderProductGrid(val);
-        }
-
         // CART LOGIC
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
             if (product.stock <= 0) {
-                alert('Stok produk ini telah habis!');
+                alert(`Stok untuk ${product.name} telah habis!`);
                 return;
             }
-
-            const exist = cart.find(item => item.id === productId);
-            if (exist) {
-                if (exist.qty + 1 > product.stock) {
-                    alert('Jumlah melebihi sisa stok yang tersedia!');
+            const cartItem = cart.find(item => item.id === productId);
+            if (cartItem) {
+                if (cartItem.qty + 1 > product.stock) {
+                    alert(`Sisa stok hanya ${product.stock}`);
                     return;
                 }
-                exist.qty += 1;
+                cartItem.qty += 1;
             } else {
                 cart.push({
                     id: product.id,
                     sku: product.sku || '',
                     name: product.name,
-                    price: product.selling_price,
+                    price: product.selling_price || 0,
                     qty: 1
                 });
             }
-
             renderCartItems();
+            calculateCartTotals();
         }
 
-        function updateCartQty(productId, delta) {
+        function renderCartItems() {
+            const container = document.getElementById('cart-items');
+            if (!container) return;
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-cart-flatbed text-2xl mb-2 block"></i>Keranjang belanja kosong</div>`;
+                return;
+            }
+            container.innerHTML = cart.map(item => `
+                <div class="py-2 flex justify-between items-center text-xs">
+                    <div class="flex-1 pr-2">
+                        <div class="font-bold text-slate-800 line-clamp-1">${item.name}</div>
+                        <div class="text-[10px] text-slate-500">Rp ${item.price.toLocaleString('id-ID')}</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="updateCartQty('${item.id}', -1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">-</button>
+                        <span class="font-bold text-xs w-5 text-center">${item.qty}</span>
+                        <button onclick="updateCartQty('${item.id}', 1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">+</button>
+                        <button onclick="removeFromCart('${item.id}')" class="text-red-400 hover:text-red-600 ml-1"><i class="fa-solid fa-xmark text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCartQty(productId, change) {
             const item = cart.find(i => i.id === productId);
             if (!item) return;
             const product = products.find(p => p.id === productId);
-
-            item.qty += delta;
-            if (item.qty > (product ? product.stock : 999)) {
-                alert('Stok tidak mencukupi!');
-                item.qty -= delta;
+            if (change > 0 && product && item.qty + change > product.stock) {
+                alert(`Stok maksimal tersedia: ${product.stock}`);
                 return;
             }
-
+            item.qty += change;
             if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== productId);
+                removeFromCart(productId);
+            } else {
+                renderCartItems();
+                calculateCartTotals();
             }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(i => i.id !== productId);
             renderCartItems();
+            calculateCartTotals();
         }
 
         function clearCart() {
             cart = [];
             renderCartItems();
+            calculateCartTotals();
         }
 
-        function renderCartItems() {
-            const container = document.getElementById('cart-items');
-            if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-slate-400">
-                        <i class="fa-solid fa-basket-shopping text-3xl mb-2 text-slate-300"></i>
-                        <p class="text-xs">Keranjang masih kosong</p>
-                    </div>
-                `;
+        function onSelectCustomerForCart() {
+            const customerName = document.getElementById('cart-customer-select').value;
+            const cust = customers.find(c => c.name === customerName);
+            const birthdayBanner = document.getElementById('birthday-alert-banner');
+            if (cust && cust.birth_date) {
+                const today = new Date();
+                const bday = new Date(cust.birth_date);
+                if (today.getDate() === bday.getDate() && today.getMonth() === bday.getMonth()) {
+                    birthdayBanner.classList.remove('hidden');
+                } else {
+                    birthdayBanner.classList.add('hidden');
+                }
             } else {
-                container.innerHTML = cart.map(item => `
-                    <div class="py-2 flex items-center justify-between gap-2">
-                        <div class="flex-1 min-w-0">
-                            <h5 class="font-bold text-xs text-slate-800 truncate">${item.name}</h5>
-                            <span class="text-[11px] text-slate-500">Rp ${item.price.toLocaleString('id-ID')} x ${item.qty}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold">-</button>
-                            <span class="text-xs font-bold w-5 text-center">${item.qty}</span>
-                            <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold">+</button>
-                        </div>
-                    </div>
-                `).join('');
+                birthdayBanner.classList.add('hidden');
             }
+            calculateCartTotals();
+        }
+
+        function renderCartCustomerDropdown() {
+            const select = document.getElementById('cart-customer-select');
+            if (!select) return;
+            select.innerHTML = `<option value="Pelanggan Umum">-- Pelanggan Umum --</option>` +
+                customers.map(c => `
+                    <option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>
+                `).join('');
+        }
+
+        function applyVoucherCode() {
+            const input = document.getElementById('cart-voucher-input');
+            const code = (input.value || '').trim().toUpperCase();
+
+            if (!code) {
+                alert('Masukkan kode voucher terlebih dahulu!');
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            if (subtotal <= 0) {
+                alert('Keranjang belanja masih kosong!');
+                return;
+            }
+
+            const v = vouchers.find(item => item.code.toUpperCase() === code);
+            if (!v) {
+                alert(`Kode voucher "${code}" tidak ditemukan!`);
+                return;
+            }
+
+            if (!v.is_active) {
+                alert(`Kode voucher "${code}" sedang tidak aktif!`);
+                return;
+            }
+
+            if (v.valid_until && new Date(v.valid_until) < new Date().setHours(0,0,0,0)) {
+                alert(`Kode voucher "${code}" sudah kadaluarsa!`);
+                return;
+            }
+
+            if (v.min_purchase && subtotal < v.min_purchase) {
+                alert(`Minimal belanja untuk voucher "${code}" adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`);
+                return;
+            }
+
+            appliedVoucher = v;
+            document.getElementById('voucher-badge-text').innerText = `${v.code} (${v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})`;
+            document.getElementById('applied-voucher-badge').classList.remove('hidden');
+            input.value = '';
+
+            calculateCartTotals();
+        }
+
+        function removeAppliedVoucher() {
+            appliedVoucher = null;
+            document.getElementById('applied-voucher-badge').classList.add('hidden');
             calculateCartTotals();
         }
 
         function calculateCartTotals() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            // Diskon Manual %
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
-            const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
+            let manualDiscAmount = (subtotal * manualDiscPercent) / 100;
+
+            // Diskon Member VIP 5%
+            let vipDiscAmount = 0;
+            const customerName = document.getElementById('cart-customer-select').value;
+            const cust = customers.find(c => c.name === customerName);
+            if (cust && cust.type === 'VIP') {
+                vipDiscAmount = (subtotal * 0.05);
+            }
+
+            // Diskon Voucher
+            let voucherDiscAmount = 0;
+            if (appliedVoucher) {
+                if (appliedVoucher.type === 'percentage') {
+                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
+                        voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
+                    }
+                } else {
+                    voucherDiscAmount = appliedVoucher.value;
+                }
+            }
+
+            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            const grandTotal = Math.max(0, subtotal - totalDiscount);
 
             document.getElementById('cart-subtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
-            document.getElementById('cart-discount-amount').innerText = `- Rp ${manualDiscAmount.toLocaleString('id-ID')}`;
+            document.getElementById('cart-discount-amount').innerText = `- Rp ${totalDiscount.toLocaleString('id-ID')}`;
             document.getElementById('cart-grand-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
 
             document.getElementById('btn-checkout').disabled = cart.length === 0;
         }
 
-        // CUSTOMERS & MEMBER MANAGEMENT
-        function renderCustomersTable() {
-            const tbody = document.getElementById('customers-tbody');
-            const q = (document.getElementById('customer-search-input').value || '').toLowerCase();
-            const todayStr = new Date().toISOString().slice(5, 10);
+        // VOUCHER MANAGEMENT
+        function renderVouchersTable() {
+            const tbody = document.getElementById('vouchers-tbody');
+            if (!tbody) return;
 
-            const list = customers.filter(c => 
-                c.name.toLowerCase().includes(q) || 
-                (c.member_number && c.member_number.toLowerCase().includes(q)) ||
-                (c.phone && c.phone.includes(q)) ||
-                (c.address && c.address.toLowerCase().includes(q))
+            const q = (document.getElementById('voucher-search-input')?.value || '').toLowerCase();
+            const list = vouchers.filter(v => 
+                v.code.toLowerCase().includes(q) || 
+                v.title.toLowerCase().includes(q)
             );
 
-            tbody.innerHTML = list.map(c => {
-                const isBirthday = c.birth_date && c.birth_date.slice(5, 10) === todayStr;
-                return `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50">
-                        <td class="p-3 font-mono font-bold text-blue-600">${c.member_number || '-'}</td>
-                        <td class="p-3">
-                            <div class="font-bold text-slate-800">${c.name}</div>
-                            <div class="text-[11px] text-slate-400">${c.phone || '-'}</div>
-                        </td>
-                        <td class="p-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${c.type === 'VIP' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600'}">
-                                ${c.type}
-                            </span>
-                        </td>
-                        <td class="p-3 text-slate-600 max-w-[180px] truncate" title="${c.address || ''}">${c.address || '-'}</td>
-                        <td class="p-3">
-                            <div>${c.birth_date || '-'}</div>
-                            ${isBirthday ? `<span class="inline-block text-[9px] bg-pink-100 text-pink-700 font-bold px-1.5 py-0.5 rounded border border-pink-200 animate-pulse mt-0.5">🎂 Ultah Hari Ini!</span>` : ''}
-                        </td>
-                        <td class="p-3 text-center font-bold text-emerald-600">${c.points || 0} Pts</td>
-                        <td class="p-3 text-right font-bold">Rp ${(c.total_tx || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="openCustomerModal('${c.id}')" class="text-blue-600 hover:text-blue-800 font-bold px-2 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = list.map(v => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="p-3 font-mono font-bold text-indigo-600">${v.code}</td>
+                    <td class="p-3 font-bold text-slate-800">${v.title}</td>
+                    <td class="p-3 font-semibold text-emerald-600">
+                        ${v.type === 'percentage' ? `${v.value}%` : `Rp ${v.value.toLocaleString('id-ID')}`}
+                    </td>
+                    <td class="p-3 text-right">Rp ${(v.min_purchase || 0).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right">${v.max_discount ? 'Rp ' + v.max_discount.toLocaleString('id-ID') : '-'}</td>
+                    <td class="p-3 text-center text-slate-500">${v.valid_until || 'Selamanya'}</td>
+                    <td class="p-3 text-center font-semibold text-slate-700">${v.times_used || 0}x</td>
+                    <td class="p-3 text-center">
+                        <button onclick="toggleVoucherActive('${v.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v.is_active ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
+                            ${v.is_active ? 'Aktif' : 'Nonaktif'}
+                        </button>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="openVoucherModal('${v.id}')" class="text-indigo-600 hover:text-indigo-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteVoucher('${v.id}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        function renderCartCustomerDropdown() {
-            const select = document.getElementById('cart-customer-select');
-            select.innerHTML = `<option value="Pelanggan Umum">-- Pelanggan Umum --</option>` + 
-                customers.map(c => `
-                    <option value="${c.name}">[${c.member_number || 'MBR'}] ${c.name} (${c.type})</option>
-                `).join('');
-        }
-
-        function onSelectCustomerForCart() {
-            const name = document.getElementById('cart-customer-select').value;
-            const cust = customers.find(c => c.name === name);
-            const alertBanner = document.getElementById('birthday-alert-banner');
-
-            if (cust && cust.birth_date) {
-                const todayStr = new Date().toISOString().slice(5, 10);
-                if (cust.birth_date.slice(5, 10) === todayStr) {
-                    alertBanner.classList.remove('hidden');
-                } else {
-                    alertBanner.classList.add('hidden');
-                }
+        function openVoucherModal(voucherId = null) {
+            document.getElementById('voucher-modal').classList.remove('hidden');
+            if (voucherId) {
+                const v = vouchers.find(item => item.id === voucherId);
+                document.getElementById('voucher-modal-title').innerText = 'Edit Voucher Promo';
+                document.getElementById('vouch-id').value = v.id;
+                document.getElementById('vouch-code').value = v.code;
+                document.getElementById('vouch-title').value = v.title;
+                document.getElementById('vouch-type').value = v.type || 'fixed';
+                document.getElementById('vouch-value').value = v.value || 0;
+                document.getElementById('vouch-min-purchase').value = v.min_purchase || 0;
+                document.getElementById('vouch-max-discount').value = v.max_discount || 0;
+                document.getElementById('vouch-valid-until').value = v.valid_until || '';
+                document.getElementById('vouch-is-active').checked = v.is_active !== false;
             } else {
-                alertBanner.classList.add('hidden');
+                document.getElementById('voucher-modal-title').innerText = 'Tambah Voucher Baru';
+                document.getElementById('vouch-id').value = '';
+                document.getElementById('vouch-code').value = 'PROMO' + Math.floor(10 + Math.random() * 90) + 'K';
+                document.getElementById('vouch-title').value = '';
+                document.getElementById('vouch-type').value = 'fixed';
+                document.getElementById('vouch-value').value = '';
+                document.getElementById('vouch-min-purchase').value = '';
+                document.getElementById('vouch-max-discount').value = '';
+                document.getElementById('vouch-valid-until').value = '';
+                document.getElementById('vouch-is-active').checked = true;
+            }
+            toggleVoucherValueLabel();
+        }
+
+        function closeVoucherModal() {
+            document.getElementById('voucher-modal').classList.add('hidden');
+        }
+
+        function toggleVoucherValueLabel() {
+            const type = document.getElementById('vouch-type').value;
+            const label = document.getElementById('vouch-value-label');
+            if (label) {
+                label.innerText = type === 'percentage' ? 'Nilai Diskon (%)' : 'Nilai Diskon (Rp)';
             }
         }
 
-        function openCustomerModal(customerId = null) {
-            document.getElementById('customer-modal').classList.remove('hidden');
-            if (customerId) {
-                const c = customers.find(item => item.id === customerId);
-                document.getElementById('customer-modal-title').innerText = 'Edit Data Member';
-                document.getElementById('cust-id').value = c.id;
-                document.getElementById('cust-member-number').value = c.member_number || '';
-                document.getElementById('cust-name').value = c.name;
-                document.getElementById('cust-phone').value = c.phone || '';
-                document.getElementById('cust-address').value = c.address || '';
-                document.getElementById('cust-birth-date').value = c.birth_date || '';
-                document.getElementById('cust-type').value = c.type || 'Regular';
-            } else {
-                document.getElementById('customer-modal-title').innerText = 'Tambah Member Baru';
-                document.getElementById('cust-id').value = '';
-                document.getElementById('cust-member-number').value = 'MBR-' + Math.floor(100 + Math.random() * 900);
-                document.getElementById('cust-name').value = '';
-                document.getElementById('cust-phone').value = '';
-                document.getElementById('cust-address').value = '';
-                document.getElementById('cust-birth-date').value = '';
-                document.getElementById('cust-type').value = 'Regular';
-            }
-        }
-
-        function closeCustomerModal() {
-            document.getElementById('customer-modal').classList.add('hidden');
-        }
-
-        async function handleCustomerSubmit(e) {
+        async function handleVoucherSubmit(e) {
             e.preventDefault();
-            const id = document.getElementById('cust-id').value;
-            const custData = {
+            const id = document.getElementById('vouch-id').value;
+            const voucherData = {
                 id: id || generateUUID(),
-                member_number: document.getElementById('cust-member-number').value || ('MBR-' + Math.floor(100 + Math.random() * 900)),
-                name: document.getElementById('cust-name').value,
-                phone: document.getElementById('cust-phone').value,
-                address: document.getElementById('cust-address').value,
-                birth_date: document.getElementById('cust-birth-date').value || null,
-                type: document.getElementById('cust-type').value,
-                points: 0,
-                total_tx: 0
+                code: document.getElementById('vouch-code').value.toUpperCase().trim(),
+                title: document.getElementById('vouch-title').value.trim(),
+                type: document.getElementById('vouch-type').value,
+                value: parseFloat(document.getElementById('vouch-value').value) || 0,
+                min_purchase: parseFloat(document.getElementById('vouch-min-purchase').value) || 0,
+                max_discount: parseFloat(document.getElementById('vouch-max-discount').value) || 0,
+                valid_until: document.getElementById('vouch-valid-until').value || null,
+                is_active: document.getElementById('vouch-is-active').checked,
+                times_used: 0
             };
 
             if (id) {
-                const idx = customers.findIndex(c => c.id === id);
+                const idx = vouchers.findIndex(v => v.id === id);
                 if (idx !== -1) {
-                    custData.points = customers[idx].points;
-                    custData.total_tx = customers[idx].total_tx;
-                    customers[idx] = custData;
+                    voucherData.times_used = vouchers[idx].times_used || 0;
+                    vouchers[idx] = voucherData;
                 }
             } else {
-                customers.push(custData);
+                vouchers.push(voucherData);
             }
 
             saveLocalStorageData();
-            renderCustomersTable();
-            renderCartCustomerDropdown();
-            closeCustomerModal();
+            renderVouchersTable();
+            closeVoucherModal();
 
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('customers').upsert([custData]);
+                    await supabaseClient.from('vouchers').upsert([voucherData]);
                     syncWithSupabase();
                 } catch(err) {
-                    console.error('Save customer cloud error:', err);
+                    console.error('Save voucher cloud error:', err);
+                }
+            }
+        }
+
+        async function toggleVoucherActive(voucherId) {
+            const v = vouchers.find(item => item.id === voucherId);
+            if (!v) return;
+            v.is_active = !v.is_active;
+            saveLocalStorageData();
+            renderVouchersTable();
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('vouchers').update({ is_active: v.is_active }).eq('id', voucherId);
+                } catch(e) {
+                    console.error('Toggle voucher active error:', e);
+                }
+            }
+        }
+
+        async function deleteVoucher(voucherId) {
+            if (!confirm('Apakah Anda yakin ingin menghapus voucher promo ini?')) return;
+            vouchers = vouchers.filter(v => v.id !== voucherId);
+            saveLocalStorageData();
+            renderVouchersTable();
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('vouchers').delete().eq('id', voucherId);
+                } catch(e) {
+                    console.error('Delete voucher error:', e);
                 }
             }
         }
@@ -1425,6 +1701,7 @@
         // ADMIN PRODUCTS TABLE
         function renderAdminProductsTable() {
             const tbody = document.getElementById('admin-products-tbody');
+            if (!tbody) return;
             const q = (document.getElementById('admin-search-input').value || '').toLowerCase();
             const catFilter = document.getElementById('admin-category-filter').value || 'Semua';
 
@@ -1543,13 +1820,166 @@
             }
         }
 
+        // CUSTOMERS / MEMBERS TABLE & MODAL
+        function renderCustomersTable() {
+            const tbody = document.getElementById('customers-tbody');
+            if (!tbody) return;
+
+            const q = (document.getElementById('customer-search-input')?.value || '').toLowerCase();
+            const list = customers.filter(c => 
+                c.name.toLowerCase().includes(q) || 
+                (c.phone && c.phone.includes(q)) || 
+                (c.member_number && c.member_number.toLowerCase().includes(q))
+            );
+
+            const today = new Date();
+
+            tbody.innerHTML = list.map(c => {
+                let isBirthdayToday = false;
+                if (c.birth_date) {
+                    const bdate = new Date(c.birth_date);
+                    if (bdate.getDate() === today.getDate() && bdate.getMonth() === today.getMonth()) {
+                        isBirthdayToday = true;
+                    }
+                }
+
+                return `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="p-3 font-mono font-bold text-blue-600">${c.member_number || '-'}</td>
+                        <td class="p-3 font-bold text-slate-800">${c.name}</td>
+                        <td class="p-3 text-slate-600">${c.phone || '-'}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.type === 'VIP' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-700'}">
+                                ${c.type}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center">
+                            ${isBirthdayToday ? `<span class="bg-pink-100 text-pink-700 font-bold px-2 py-0.5 rounded-full text-[10px] animate-pulse">🎂 Ultah Hari Ini!</span>` : `<span class="text-slate-400 text-[11px]">${c.birth_date || '-'}</span>`}
+                        </td>
+                        <td class="p-3 text-right font-bold text-emerald-600">${c.points || 0} pts</td>
+                        <td class="p-3 text-right font-bold text-slate-800">Rp ${(c.total_tx || 0).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="openCustomerModal('${c.id}')" class="text-blue-600 hover:text-blue-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteCustomer('${c.id}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openCustomerModal(customerId = null) {
+            document.getElementById('customer-modal').classList.remove('hidden');
+            if (customerId) {
+                const c = customers.find(item => item.id === customerId);
+                document.getElementById('customer-modal-title').innerText = 'Edit Member Pelanggan';
+                document.getElementById('cust-id').value = c.id;
+                document.getElementById('cust-member-num').value = c.member_number || '';
+                document.getElementById('cust-type').value = c.type || 'Regular';
+                document.getElementById('cust-name').value = c.name;
+                document.getElementById('cust-phone').value = c.phone || '';
+                document.getElementById('cust-birth-date').value = c.birth_date || '';
+                document.getElementById('cust-address').value = c.address || '';
+            } else {
+                document.getElementById('customer-modal-title').innerText = 'Tambah Member Baru';
+                document.getElementById('cust-id').value = '';
+                document.getElementById('cust-member-num').value = 'MBR-' + Math.floor(100 + Math.random() * 900);
+                document.getElementById('cust-type').value = 'Regular';
+                document.getElementById('cust-name').value = '';
+                document.getElementById('cust-phone').value = '';
+                document.getElementById('cust-birth-date').value = '';
+                document.getElementById('cust-address').value = '';
+            }
+        }
+
+        function closeCustomerModal() {
+            document.getElementById('customer-modal').classList.add('hidden');
+        }
+
+        async function handleCustomerSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('cust-id').value;
+            const customerData = {
+                id: id || generateUUID(),
+                member_number: document.getElementById('cust-member-num').value.toUpperCase().trim(),
+                type: document.getElementById('cust-type').value,
+                name: document.getElementById('cust-name').value.trim(),
+                phone: document.getElementById('cust-phone').value.trim(),
+                birth_date: document.getElementById('cust-birth-date').value || null,
+                address: document.getElementById('cust-address').value.trim(),
+                points: 0,
+                total_tx: 0
+            };
+
+            if (id) {
+                const idx = customers.findIndex(c => c.id === id);
+                if (idx !== -1) {
+                    customerData.points = customers[idx].points || 0;
+                    customerData.total_tx = customers[idx].total_tx || 0;
+                    customers[idx] = customerData;
+                }
+            } else {
+                customers.push(customerData);
+            }
+
+            saveLocalStorageData();
+            renderCustomersTable();
+            renderCartCustomerDropdown();
+            closeCustomerModal();
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('customers').upsert([customerData]);
+                    syncWithSupabase();
+                } catch(err) {
+                    console.error('Save customer cloud error:', err);
+                }
+            }
+        }
+
+        async function deleteCustomer(customerId) {
+            if (!confirm('Apakah Anda yakin ingin menghapus data member ini?')) return;
+            customers = customers.filter(c => c.id !== customerId);
+            saveLocalStorageData();
+            renderCustomersTable();
+            renderCartCustomerDropdown();
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('customers').delete().eq('id', customerId);
+                } catch(e) {
+                    console.error('Delete customer error:', e);
+                }
+            }
+        }
+
         // CHECKOUT & TRANSACTIONS
         function openPaymentModal() {
             if (cart.length === 0) return;
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
+            
+            let vipDiscAmount = 0;
+            const customerName = document.getElementById('cart-customer-select').value;
+            const cust = customers.find(c => c.name === customerName);
+            if (cust && cust.type === 'VIP') {
+                vipDiscAmount = (subtotal * 0.05);
+            }
+
+            let voucherDiscAmount = 0;
+            if (appliedVoucher) {
+                if (appliedVoucher.type === 'percentage') {
+                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
+                        voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
+                    }
+                } else {
+                    voucherDiscAmount = appliedVoucher.value;
+                }
+            }
+
+            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            const grandTotal = Math.max(0, subtotal - totalDiscount);
 
             document.getElementById('pay-modal-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
             document.getElementById('pay-cash-amount').value = '';
@@ -1565,8 +1995,23 @@
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
+            
+            let vipDiscAmount = 0;
+            const customerName = document.getElementById('cart-customer-select').value;
+            const cust = customers.find(c => c.name === customerName);
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
 
+            let voucherDiscAmount = 0;
+            if (appliedVoucher) {
+                if (appliedVoucher.type === 'percentage') {
+                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    if (appliedVoucher.max_discount > 0) voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
+                } else {
+                    voucherDiscAmount = appliedVoucher.value;
+                }
+            }
+
+            const grandTotal = Math.max(0, subtotal - (manualDiscAmount + vipDiscAmount + voucherDiscAmount));
             const cash = parseFloat(document.getElementById('pay-cash-amount').value) || 0;
             const change = cash - grandTotal;
             document.getElementById('pay-change-amount').innerText = `Rp ${Math.max(0, change).toLocaleString('id-ID')}`;
@@ -1587,33 +2032,70 @@
         }
 
         async function processTransaction() {
+            if (cart.length === 0) return;
+
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
-            const grandTotal = Math.max(0, subtotal - manualDiscAmount);
+            
+            let vipDiscAmount = 0;
+            const customerName = document.getElementById('cart-customer-select').value;
+            const cust = customers.find(c => c.name === customerName);
+            if (cust && cust.type === 'VIP') {
+                vipDiscAmount = (subtotal * 0.05);
+            }
+
+            let voucherDiscAmount = 0;
+            if (appliedVoucher) {
+                if (appliedVoucher.type === 'percentage') {
+                    voucherDiscAmount = (subtotal * appliedVoucher.value) / 100;
+                    if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
+                        voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
+                    }
+                } else {
+                    voucherDiscAmount = appliedVoucher.value;
+                }
+            }
+
+            const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
+            const grandTotal = Math.max(0, subtotal - totalDiscount);
 
             const payMethod = document.getElementById('pay-method').value;
             const cashPaid = parseFloat(document.getElementById('pay-cash-amount').value) || grandTotal;
 
             if (payMethod === 'Tunai' && cashPaid < grandTotal) {
-                alert('Jumlah pembayaran tunai masih kurang!');
+                alert('Jumlah uang pembayaran tunai kurang!');
                 return;
             }
 
+            // Increment usage count if a voucher was applied
+            if (appliedVoucher) {
+                const v = vouchers.find(item => item.id === appliedVoucher.id);
+                if (v) {
+                    v.times_used = (v.times_used || 0) + 1;
+                    if (supabaseClient) {
+                        try {
+                            await supabaseClient.from('vouchers').update({ times_used: v.times_used }).eq('id', v.id);
+                        } catch(e) {
+                            console.error('Update voucher usage error:', e);
+                        }
+                    }
+                }
+            }
+
             const invoiceNum = 'TRX-' + Math.floor(100000 + Math.random() * 900000);
-            const customerName = document.getElementById('cart-customer-select').value;
 
             const newTx = {
                 id: invoiceNum,
                 cashier: activeUser ? activeUser.name : (currentRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'),
                 customer_name: customerName,
                 subtotal: subtotal,
-                discount: manualDiscAmount,
+                discount: totalDiscount,
                 total: grandTotal,
                 cash_paid: cashPaid,
                 change: Math.max(0, cashPaid - grandTotal),
                 payment_method: payMethod,
-                items: cart,
+                items: [...cart],
                 created_at: new Date().toISOString()
             };
 
@@ -1627,10 +2109,18 @@
                 if (c) {
                     c.points = (c.points || 0) + Math.floor(grandTotal / 10000);
                     c.total_tx = (c.total_tx || 0) + grandTotal;
+                    if (supabaseClient) {
+                        try {
+                            await supabaseClient.from('customers').update({ points: c.points, total_tx: c.total_tx }).eq('id', c.id);
+                        } catch(e) {
+                            console.error('Update customer cloud points error:', e);
+                        }
+                    }
                 }
             }
 
             transactions.unshift(newTx);
+            removeAppliedVoucher();
             saveLocalStorageData();
 
             closePaymentModal();
@@ -1696,6 +2186,7 @@
         // HISTORY TABLE & CHARTS
         function renderHistoryTable() {
             const tbody = document.getElementById('history-tbody');
+            if (!tbody) return;
             document.getElementById('history-count').innerText = `${transactions.length} Transaksi`;
 
             tbody.innerHTML = transactions.map(tx => `
@@ -1714,7 +2205,11 @@
         }
 
         function initCharts() {
-            const ctxSales = document.getElementById('salesChart').getContext('2d');
+            const elSales = document.getElementById('salesChart');
+            const elPay = document.getElementById('paymentChart');
+            if (!elSales || !elPay) return;
+
+            const ctxSales = elSales.getContext('2d');
             salesChartInstance = new Chart(ctxSales, {
                 type: 'line',
                 data: {
@@ -1731,7 +2226,7 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            const ctxPay = document.getElementById('paymentChart').getContext('2d');
+            const ctxPay = elPay.getContext('2d');
             paymentChartInstance = new Chart(ctxPay, {
                 type: 'doughnut',
                 data: {
