@@ -71,7 +71,6 @@
 </head>
 <body class="h-screen overflow-hidden text-slate-800 flex flex-col antialiased bg-slate-100">
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <header class="bg-slate-900 text-white px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
@@ -320,12 +319,12 @@
             </section>
         </div>
 
-        <!-- PRODUCTS VIEW -->
+        <!-- PRODUCTS VIEW WITH FULL BARCODE COLUMN -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU, Brand, Family & Promo</h2>
-                    <p class="text-xs text-slate-500">Kelola katalog barang beserta brand, family, dan label promo.</p>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU, Barcode, Brand, Family & Promo</h2>
+                    <p class="text-xs text-slate-500">Kelola katalog barang beserta barcode, brand, family, dan label promo.</p>
                 </div>
                 <button 
                     onclick="openProductModal()" 
@@ -341,7 +340,7 @@
                         type="text" 
                         id="admin-search-input" 
                         onkeyup="renderAdminProductsTable()" 
-                        placeholder="Cari nama, SKU, brand, barcode..." 
+                        placeholder="Cari nama, SKU, barcode, brand..." 
                         class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                     <div class="flex items-center gap-2 text-xs">
@@ -355,6 +354,7 @@
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
                                 <th class="p-3">SKU</th>
+                                <th class="p-3">Barcode</th>
                                 <th class="p-3">Nama Produk</th>
                                 <th class="p-3">Kategori</th>
                                 <th class="p-3">Brand / Family</th>
@@ -394,7 +394,7 @@
                         onkeyup="renderCustomersTable()" 
                         placeholder="Cari nama, nomor HP, atau No. Member..." 
                         class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+                    />
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
@@ -440,7 +440,7 @@
                         onkeyup="renderVouchersTable()" 
                         placeholder="Cari judul promo, kode, atau target..." 
                         class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
+                    />
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
@@ -1030,11 +1030,11 @@
         let activeUser = null;
 
         const defaultProducts = [
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', brand: 'Cap Ayam', family: 'Beras Keluarga', promo: 'SuperSale', purchase_price: 60000, selling_price: 68000, stock: 25 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', brand: 'Bimoli', family: 'Minyak Goreng', promo: 'Hemat', purchase_price: 28000, selling_price: 33000, stock: 40 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', brand: 'Gulaku', family: 'Pemanis', promo: 'Reguler', purchase_price: 13500, selling_price: 16000, stock: 15 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', sku: 'SKU-KPI-04', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', brand: 'Kapal Api', family: 'Kopi Bubuk', promo: 'Bundling', purchase_price: 11000, selling_price: 13500, stock: 50 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', sku: 'SKU-TEH-05', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', brand: 'Sosro', family: 'Teh Celup', promo: 'Reguler', purchase_price: 6000, selling_price: 8500, stock: 30 }
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001002938', name: 'Beras Premium 5kg', category: 'Sembako', brand: 'Cap Ayam', family: 'Beras Keluarga', promo: 'SuperSale', purchase_price: 60000, selling_price: 68000, stock: 25 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002003847', name: 'Minyak Goreng 2L', category: 'Sembako', brand: 'Bimoli', family: 'Minyak Goreng', promo: 'Hemat', purchase_price: 28000, selling_price: 33000, stock: 40 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003004756', name: 'Gula Pasir 1kg', category: 'Sembako', brand: 'Gulaku', family: 'Pemanis', promo: 'Reguler', purchase_price: 13500, selling_price: 16000, stock: 15 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', sku: 'SKU-KPI-04', barcode: '8991004005665', name: 'Kopi Kapal Api 165g', category: 'Minuman', brand: 'Kapal Api', family: 'Kopi Bubuk', promo: 'Bundling', purchase_price: 11000, selling_price: 13500, stock: 50 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', sku: 'SKU-TEH-05', barcode: '8991005006574', name: 'Teh Celup Sosro', category: 'Minuman', brand: 'Sosro', family: 'Teh Celup', promo: 'Reguler', purchase_price: 6000, selling_price: 8500, stock: 30 }
         ];
 
         const defaultCustomers = [
@@ -1047,7 +1047,6 @@
             { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'percentage', value: 10, min_purchase: 0, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 1, get_qty: 1, max_discount: 15000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
-        // Helper for Rounding Up Prices (Round Up via Math.ceil)
         function roundPrice(val) {
             if (!val || isNaN(val)) return 0;
             return Math.ceil(val);
@@ -1192,7 +1191,7 @@
             } catch (e) {
                 console.warn('Bluetooth connection error:', e);
                 document.getElementById('bt-printer-status').innerText = 'Print Manual';
-                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan tombol 'Print Thermal' pada nota.", "info");
+                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Manual.", "info");
             }
         }
 
@@ -1255,7 +1254,7 @@
 
                 for (let i = 0; i < commands.length; i++) {
                     const cmd = commands[i];
-                    const chunkSize = 20; // BLE MTU chunk limit
+                    const chunkSize = 20; 
                     for (let j = 0; j < cmd.length; j += chunkSize) {
                         const chunk = cmd.slice(j, j + chunkSize);
                         if (bluetoothCharacteristic.properties.writeWithoutResponse) {
@@ -2341,6 +2340,7 @@
             tbody.innerHTML = list.map(p => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
                     <td class="p-3 font-mono font-bold text-indigo-600">${p.sku || '-'}</td>
+                    <td class="p-3 font-mono text-xs text-slate-600 whitespace-nowrap">${p.barcode || '-'}</td>
                     <td class="p-3 font-bold text-slate-800">${p.name}</td>
                     <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">${p.category || 'Umum'}</span></td>
                     <td class="p-3"><span class="text-xs text-slate-700"><b>${p.brand || '-'}</b> / <span class="text-slate-500">${p.family || '-'}</span></span></td>
