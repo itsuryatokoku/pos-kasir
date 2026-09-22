@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Enterprise v11.0 Pro)</title>
+    <title>KASIR POS - itsuryatokoku (Enterprise v12.0 Pro)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -71,7 +71,6 @@
 </head>
 <body class="h-screen overflow-hidden text-slate-800 flex flex-col antialiased bg-slate-100">
 
-    <!-- HEADER / NAVIGATION BAR -->
     <header class="bg-slate-900 text-white px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
         <div class="flex items-center space-x-3">
             <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-10 h-10 shadow-lg shadow-blue-500/35 tracking-widest cursor-pointer" onclick="openStoreModal()" title="Pengaturan Toko">
@@ -80,9 +79,9 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v11.0 Pro</span>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v12.0 Pro</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud Database & Diskon Kategori</p>
+                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud & Multi-Target Discount</p>
             </div>
         </div>
 
@@ -163,7 +162,6 @@
         </div>
     </header>
 
-    <!-- MOBILE NAVIGATION -->
     <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-2 py-1.5 flex gap-1 text-[11px] overflow-x-auto custom-scrollbar">
         <a href="#pos" id="mobile-nav-pos" class="px-3 py-1.5 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
         <a href="#products" id="mobile-nav-products" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
@@ -176,7 +174,6 @@
     <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-1 flex overflow-hidden relative">
         
-        <!-- VIEW 1: KASIR POS -->
         <div id="view-pos" class="view-page flex-1 flex flex-col md:flex-row w-full h-full overflow-hidden">
             <section class="flex-1 p-3 sm:p-4 flex flex-col gap-3 overflow-hidden bg-white border-r border-slate-200">
                 <div class="flex gap-2">
@@ -186,7 +183,7 @@
                             type="text" 
                             id="search-input"
                             onkeyup="handleSearch(event)"
-                            placeholder="Cari nama produk, SKU, atau scan barcode (Tekan Enter)..." 
+                            placeholder="Cari nama produk, SKU, brand, barcode (Tekan Enter)..." 
                             class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                         >
                     </div>
@@ -224,7 +221,6 @@
                     </button>
                 </div>
 
-                <!-- CUSTOMER SELECTION FOR CART -->
                 <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-2">
                     <div class="flex items-center gap-2 text-xs">
                         <i class="fa-solid fa-id-card text-blue-500"></i>
@@ -284,9 +280,9 @@
                         <span id="cart-subtotal" class="font-bold text-slate-800">Rp 0</span>
                     </div>
                     
-                    <!-- Diskon Kategori Otomatis -->
+                    <!-- Diskon Otomatis (Kategori/Brand/Family/Promo) -->
                     <div id="row-category-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span class="text-slate-500">Diskon Kategori Otomatis</span>
+                        <span class="text-slate-500">Diskon Otomatis Target</span>
                         <span id="cart-category-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
@@ -344,12 +340,11 @@
             </section>
         </div>
 
-        <!-- VIEW 2: PRODUCTS & STOCK MANAGEMENT -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU & Stok</h2>
-                    <p class="text-xs text-slate-500">Kelola katalog, kode SKU, barcode, kategori, dan stok barang.</p>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU, Brand & Stok</h2>
+                    <p class="text-xs text-slate-500">Kelola katalog barang beserta brand, family, dan label promo.</p>
                 </div>
                 <button 
                     onclick="openProductModal()" 
@@ -365,7 +360,7 @@
                         type="text" 
                         id="admin-search-input" 
                         onkeyup="renderAdminProductsTable()" 
-                        placeholder="Cari nama, SKU, atau barcode produk..." 
+                        placeholder="Cari nama, SKU, brand, barcode..." 
                         class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                     <div class="flex items-center gap-2 text-xs">
@@ -379,12 +374,12 @@
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
                                 <th class="p-3">SKU</th>
-                                <th class="p-3">Barcode</th>
-                                <th class="p-3">Kategori</th>
                                 <th class="p-3">Nama Produk</th>
-                                <th class="p-3 text-right">Harga Modal</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3">Brand / Family</th>
+                                <th class="p-3">Promo Tag</th>
                                 <th class="p-3 text-right">Harga Jual</th>
-                                <th class="p-3 text-center">Sisa Stok</th>
+                                <th class="p-3 text-center">Stok</th>
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -395,7 +390,6 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CUSTOMERS & MEMBERS -->
         <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -441,12 +435,11 @@
             </div>
         </div>
 
-        <!-- VIEW 6: VOUCHERS & DISCOUNTS MANAGEMENT -->
         <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Diskon & Voucher Promo</h2>
-                    <p class="text-xs text-slate-500">Atur jenis promo (Voucher Kode atau Diskon Otomatis Berdasarkan Kategori) dan masa berlaku.</p>
+                    <p class="text-xs text-slate-500">Atur promo dengan target kategori, brand, family, atau promo tag.</p>
                 </div>
                 <button 
                     onclick="openVoucherModal()" 
@@ -462,7 +455,7 @@
                         type="text" 
                         id="voucher-search-input" 
                         onkeyup="renderVouchersTable()" 
-                        placeholder="Cari jenis promo, judul, atau kategori..." 
+                        placeholder="Cari judul promo, kode, atau target..." 
                         class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                 </div>
@@ -473,11 +466,10 @@
                                 <th class="p-3">Jenis Promo</th>
                                 <th class="p-3">Kode Voucher</th>
                                 <th class="p-3">Judul Promo</th>
-                                <th class="p-3">Target Kategori</th>
-                                <th class="p-3">Nilai Diskon</th>
-                                <th class="p-3 text-right">Min. Belanja</th>
-                                <th class="p-3 text-center">Tgl Kadaluarsa</th>
-                                <th class="p-3 text-center">Penggunaan</th>
+                                <th class="p-3">Target Berdasarkan</th>
+                                <th class="p-3">Nilai Target</th>
+                                <th class="p-3">Diskon</th>
+                                <th class="p-3 text-center">Kadaluarsa</th>
                                 <th class="p-3 text-center">Status</th>
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
@@ -489,7 +481,6 @@
             </div>
         </div>
 
-        <!-- VIEW 4: HISTORY & REPORTS -->
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -546,7 +537,6 @@
             </div>
         </div>
 
-        <!-- VIEW 5: SETTINGS -->
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir</h2>
@@ -592,7 +582,7 @@
 
     </main>
 
-    <!-- MODAL: ADD / EDIT PRODUCT -->
+    <!-- MODAL: ADD / EDIT PRODUCT (DENGAN BRAND, FAMILY, PROMO) -->
     <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -615,9 +605,23 @@
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Produk</label>
                     <input type="text" id="prod-name" required placeholder="Ketik nama barang..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori</label>
+                        <input type="text" id="prod-category" placeholder="Sembako..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Brand / Merk</label>
+                        <input type="text" id="prod-brand" placeholder="Indofood..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Family</label>
+                        <input type="text" id="prod-family" placeholder="Instan..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori</label>
-                    <input type="text" id="prod-category" placeholder="Sembako, Minuman, Makanan..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Label Promo Produk</label>
+                    <input type="text" id="prod-promo" placeholder="FlashSale, Bundling, Clearance..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -689,7 +693,7 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD / EDIT VOUCHER / PROMO -->
+    <!-- MODAL: ADD / EDIT VOUCHER / PROMO (DENGAN TARGET BERDASARKAN KATEGORI, BRAND, FAMILY, PROMO) -->
     <div id="voucher-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -703,7 +707,7 @@
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Promo</label>
                     <select id="vouch-promo-type" onchange="togglePromoTypeFields()" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-bold text-indigo-700">
                         <option value="voucher">Voucher (Gunakan Kode di Keranjang)</option>
-                        <option value="auto_category">Promo Otomatis Berdasarkan Kategori</option>
+                        <option value="auto_category">Promo Otomatis Berdasarkan Target</option>
                     </select>
                 </div>
 
@@ -717,12 +721,24 @@
                     <input type="text" id="vouch-title" required placeholder="Diskon Spesial..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
 
-                <!-- TARGET KATEGORI PRODUK -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Target Kategori Produk</label>
-                    <select id="vouch-category" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-semibold">
-                        <option value="Semua">Semua Kategori (Tanpa Batasan)</option>
-                    </select>
+                <!-- TARGET BERDASARKAN KATEGORI, BRAND, FAMILY, ATAU PROMO -->
+                <div class="grid grid-cols-2 gap-2 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100">
+                    <div>
+                        <label class="block text-xs font-semibold text-indigo-900 mb-1">Target Berdasarkan</label>
+                        <select id="vouch-target-by" onchange="updateVoucherTargetValues()" class="w-full px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-semibold">
+                            <option value="all">Semua Produk</option>
+                            <option value="category">Kategori Produk</option>
+                            <option value="brand">Brand / Merk</option>
+                            <option value="family">Family Produk</option>
+                            <option value="promo">Label Promo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-indigo-900 mb-1">Pilih Target Value</label>
+                        <select id="vouch-target-value" class="w-full px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-semibold">
+                            <option value="Semua">Semua</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -980,11 +996,11 @@
         let activeUser = null;
 
         const defaultProducts = [
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', sku: 'SKU-KPI-04', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
-            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', sku: 'SKU-TEH-05', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 }
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', brand: 'Cap Ayam', family: 'Beras Keluarga', promo: 'SuperSale', purchase_price: 60000, selling_price: 68000, stock: 25 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', brand: 'Bimoli', family: 'Minyak Goreng', promo: 'Hemat', purchase_price: 28000, selling_price: 33000, stock: 40 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', sku: 'SKU-GLA-03', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', brand: 'Gulaku', family: 'Pemanis', promo: 'Reguler', purchase_price: 13500, selling_price: 16000, stock: 15 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', sku: 'SKU-KPI-04', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', brand: 'Kapal Api', family: 'Kopi Bubuk', promo: 'Bundling', purchase_price: 11000, selling_price: 13500, stock: 50 },
+            { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', sku: 'SKU-TEH-05', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', brand: 'Sosro', family: 'Teh Celup', promo: 'Reguler', purchase_price: 6000, selling_price: 8500, stock: 30 }
         ];
 
         const defaultCustomers = [
@@ -993,8 +1009,8 @@
         ];
 
         const defaultVouchers = [
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000', applicable_category: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_CAT_DEFAULT_MINUMAN', title: 'Diskon 10% Otomatis Minuman', applicable_category: 'Minuman', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000', target_by: 'all', target_value: 'Semua', applicable_category: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BRAND_BIMOLI', title: 'Diskon 10% Brand Bimoli', target_by: 'brand', target_value: 'Bimoli', applicable_category: 'Semua', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1057,8 +1073,6 @@
             document.getElementById('rec-store-name').innerText = name || 'itsuryatokoku';
             document.getElementById('rec-store-sub').innerText = sub || 'POS Kasir & Cloud Sync';
             document.getElementById('rec-footer-text').innerText = footer || 'Terima kasih telah berbelanja!';
-
-            console.log('Identitas toko disimpan!');
         }
 
         function saveSupabaseSettings() {
@@ -1069,12 +1083,10 @@
             localStorage.setItem('supabase_key', key);
 
             initSupabaseClient();
-            console.log('Koneksi Supabase diperbarui!');
         }
 
         async function connectBluetoothPrinter() {
             if (!navigator.bluetooth) {
-                console.warn('Web Bluetooth API tidak didukung pada browser ini.');
                 return;
             }
             try {
@@ -1154,7 +1166,6 @@
                     await bluetoothCharacteristic.writeValue(cmd);
                 }
             } catch (err) {
-                console.error('Direct Bluetooth print error:', err);
                 printReceipt();
             }
         }
@@ -1415,6 +1426,33 @@
             }
         }
 
+        function productMatchesVoucherTarget(product, voucher) {
+            const targetBy = voucher.target_by || 'category';
+            const targetVal = voucher.target_value || voucher.applicable_category || 'Semua';
+            if (targetVal === 'Semua' || !targetVal || targetBy === 'all') return true;
+
+            if (targetBy === 'category') return product.category === targetVal;
+            if (targetBy === 'brand') return product.brand === targetVal;
+            if (targetBy === 'family') return product.family === targetVal;
+            if (targetBy === 'promo') return product.promo === targetVal;
+            return false;
+        }
+
+        function getActiveDiscountForProduct(product) {
+            const today = new Date().setHours(0,0,0,0);
+            let activeDiscount = null;
+            vouchers.forEach(v => {
+                if (v.is_active && v.promo_type === 'auto_category') {
+                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                        if (productMatchesVoucherTarget(product, v)) {
+                            activeDiscount = v;
+                        }
+                    }
+                }
+            });
+            return activeDiscount;
+        }
+
         function renderProductGrid(filterQuery = '') {
             const grid = document.getElementById('product-grid');
             if (!grid) return;
@@ -1423,35 +1461,29 @@
             if (selectedCategory !== 'Semua') list = list.filter(p => p.category === selectedCategory);
             if (filterQuery) {
                 const q = filterQuery.toLowerCase();
-                list = list.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)));
+                list = list.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)) || (p.brand && p.brand.toLowerCase().includes(q)));
             }
 
             document.getElementById('product-count').innerText = `${list.length} Produk`;
-            const today = new Date().setHours(0,0,0,0);
 
             grid.innerHTML = list.map(p => {
-                let activeAutoPromoText = '';
+                const activeDiscount = getActiveDiscountForProduct(p);
                 let finalPrice = p.selling_price || 0;
-                let hasDiscount = false;
+                let activeAutoPromoText = '';
 
-                vouchers.forEach(v => {
-                    if (v.is_active && v.promo_type === 'auto_category' && v.applicable_category === p.category) {
-                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                            hasDiscount = true;
-                            if (v.type === 'percentage') {
-                                finalPrice = p.selling_price * (1 - v.value / 100);
-                                activeAutoPromoText = `DISC ${v.value}%`;
-                            } else {
-                                finalPrice = Math.max(0, p.selling_price - v.value);
-                                activeAutoPromoText = `POTONGAN Rp ${v.value.toLocaleString('id-ID')}`;
-                            }
-                        }
+                if (activeDiscount) {
+                    if (activeDiscount.type === 'percentage') {
+                        finalPrice = p.selling_price * (1 - activeDiscount.value / 100);
+                        activeAutoPromoText = `DISC ${activeDiscount.value}%`;
+                    } else {
+                        finalPrice = Math.max(0, p.selling_price - activeDiscount.value);
+                        activeAutoPromoText = `POTONGAN Rp ${activeDiscount.value.toLocaleString('id-ID')}`;
                     }
-                });
+                }
 
                 return `
                     <div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">
-                        ${hasDiscount ? `
+                        ${activeDiscount ? `
                             <div class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl shadow uppercase tracking-wider">
                                 <i class="fa-solid fa-tag mr-0.5"></i>${activeAutoPromoText}
                             </div>
@@ -1459,14 +1491,14 @@
                         <div>
                             <div class="flex justify-between items-start gap-1">
                                 <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md truncate max-w-[100px]">${p.category || 'Umum'}</span>
-                                ${p.sku ? `<span class="text-[9px] bg-indigo-50 text-indigo-600 font-mono font-bold px-1.5 py-0.5 rounded border border-indigo-100">${p.sku}</span>` : ''}
+                                ${p.brand ? `<span class="text-[9px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded border border-amber-200">${p.brand}</span>` : ''}
                             </div>
                             <h4 class="font-bold text-xs text-slate-800 mt-1.5 line-clamp-2">${p.name}</h4>
                         </div>
                         <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    ${hasDiscount ? `
+                                    ${activeDiscount ? `
                                         <div class="flex flex-col">
                                             <span class="text-[10px] text-slate-400 line-through">Rp ${(p.selling_price || 0).toLocaleString('id-ID')}</span>
                                             <span class="font-extrabold text-xs text-emerald-600">Rp ${finalPrice.toLocaleString('id-ID')}</span>
@@ -1489,16 +1521,10 @@
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
-            if (product.stock <= 0) {
-                console.warn(`Stok untuk ${product.name} telah habis!`);
-                return;
-            }
+            if (product.stock <= 0) return;
             const cartItem = cart.find(item => item.id === productId);
             if (cartItem) {
-                if (cartItem.qty + 1 > product.stock) {
-                    console.warn(`Sisa stok hanya ${product.stock}`);
-                    return;
-                }
+                if (cartItem.qty + 1 > product.stock) return;
                 cartItem.qty += 1;
             } else {
                 cart.push({ id: product.id, sku: product.sku || '', name: product.name, price: product.selling_price || 0, qty: 1 });
@@ -1514,24 +1540,21 @@
                 container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-cart-flatbed text-2xl mb-2 block"></i>Keranjang belanja kosong</div>`;
                 return;
             }
-            const today = new Date().setHours(0,0,0,0);
-            let manualVoucherCategory = appliedVoucher ? (appliedVoucher.applicable_category || 'Semua') : null;
+
+            let manualVoucherTargetVal = appliedVoucher ? (appliedVoucher.target_value || appliedVoucher.applicable_category) : null;
 
             container.innerHTML = cart.map(item => {
                 const product = products.find(p => p.id === item.id);
                 const origPrice = product ? product.selling_price : item.price;
 
                 let activeDiscount = null;
-                vouchers.forEach(v => {
-                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
-                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
-                        if (manualVoucherCategory !== v.applicable_category) {
-                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                                activeDiscount = v;
-                            }
-                        }
+                const autoDisc = product ? getActiveDiscountForProduct(product) : null;
+                if (autoDisc) {
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === autoDisc.id;
+                    if (!isCurrentManualVoucher) {
+                        activeDiscount = autoDisc;
                     }
-                });
+                }
 
                 let effectivePrice = origPrice;
                 let discText = '';
@@ -1583,10 +1606,7 @@
             const item = cart.find(i => i.id === productId);
             if (!item) return;
             const product = products.find(p => p.id === productId);
-            if (change > 0 && product && item.qty + change > product.stock) {
-                console.warn(`Stok maksimal tersedia: ${product.stock}`);
-                return;
-            }
+            if (change > 0 && product && item.qty + change > product.stock) return;
             item.qty += change;
             if (item.qty <= 0) removeFromCart(productId);
             else {
@@ -1660,34 +1680,15 @@
             const input = document.getElementById('cart-voucher-input');
             const code = (input.value || '').trim().toUpperCase();
 
-            if (!code) {
-                console.warn('Masukkan kode voucher terlebih dahulu!');
-                return;
-            }
+            if (!code) return;
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            if (subtotal <= 0) {
-                console.warn('Keranjang belanja masih kosong!');
-                return;
-            }
+            if (subtotal <= 0) return;
 
             const v = vouchers.find(item => item.promo_type === 'voucher' && item.code && item.code.toUpperCase() === code);
-            if (!v) {
-                console.warn(`Kode voucher "${code}" tidak ditemukan!`);
-                return;
-            }
-            if (!v.is_active) {
-                console.warn(`Kode voucher "${code}" sedang tidak aktif!`);
-                return;
-            }
-            if (v.valid_until && new Date(v.valid_until) < new Date().setHours(0,0,0,0)) {
-                console.warn(`Kode voucher "${code}" sudah kadaluarsa!`);
-                return;
-            }
-            if (v.min_purchase && subtotal < v.min_purchase) {
-                console.warn(`Minimal belanja untuk voucher "${code}" adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`);
-                return;
-            }
+            if (!v || !v.is_active) return;
+            if (v.valid_until && new Date(v.valid_until) < new Date().setHours(0,0,0,0)) return;
+            if (v.min_purchase && subtotal < v.min_purchase) return;
 
             appliedVoucher = v;
             document.getElementById('voucher-badge-text').innerText = `${v.code} (${v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})`;
@@ -1707,27 +1708,24 @@
             const today = new Date().setHours(0,0,0,0);
             let grossSubtotal = 0;
             let categoryDiscountTotal = 0;
-            let manualVoucherCategory = appliedVoucher ? (appliedVoucher.applicable_category || 'Semua') : null;
 
             cart.forEach(item => {
                 const product = products.find(p => p.id === item.id);
                 const origPrice = product ? product.selling_price : item.price;
                 let effectivePrice = origPrice;
 
-                vouchers.forEach(v => {
-                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
-                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
-                        if (manualVoucherCategory !== v.applicable_category) {
-                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                                if (v.type === 'percentage') {
-                                    effectivePrice = origPrice * (1 - v.value / 100);
-                                } else {
-                                    effectivePrice = Math.max(0, origPrice - v.value);
-                                }
-                            }
+                const autoDisc = product ? getActiveDiscountForProduct(product) : null;
+                if (autoDisc) {
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === autoDisc.id;
+                    if (!isCurrentManualVoucher) {
+                        if (autoDisc.type === 'percentage') {
+                            effectivePrice = origPrice * (1 - autoDisc.value / 100);
+                        } else {
+                            effectivePrice = Math.max(0, origPrice - autoDisc.value);
                         }
                     }
-                });
+                }
+
                 grossSubtotal += origPrice * item.qty;
                 categoryDiscountTotal += (origPrice - effectivePrice) * item.qty;
             });
@@ -1752,23 +1750,30 @@
 
             let voucherDiscAmount = 0;
             if (appliedVoucher) {
-                const targetCat = appliedVoucher.applicable_category || 'Semua';
-                let catSubtotal = subtotalAfterCat;
+                const targetBy = appliedVoucher.target_by || 'category';
+                const targetVal = appliedVoucher.target_value || appliedVoucher.applicable_category || 'Semua';
+                let targetSubtotal = subtotalAfterCat;
 
-                if (targetCat !== 'Semua') {
-                    catSubtotal = cart.reduce((sum, item) => {
+                if (targetVal !== 'Semua' && targetBy !== 'all') {
+                    targetSubtotal = cart.reduce((sum, item) => {
                         const prod = products.find(p => p.id === item.id);
-                        return (prod && prod.category === targetCat) ? sum + (item.price * item.qty) : sum;
+                        if (!prod) return sum;
+                        let matches = false;
+                        if (targetBy === 'category' && prod.category === targetVal) matches = true;
+                        if (targetBy === 'brand' && prod.brand === targetVal) matches = true;
+                        if (targetBy === 'family' && prod.family === targetVal) matches = true;
+                        if (targetBy === 'promo' && prod.promo === targetVal) matches = true;
+                        return matches ? sum + (item.price * item.qty) : sum;
                     }, 0);
                 }
 
                 if (appliedVoucher.type === 'percentage') {
-                    voucherDiscAmount = (catSubtotal * appliedVoucher.value) / 100;
+                    voucherDiscAmount = (targetSubtotal * appliedVoucher.value) / 100;
                     if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
                         voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                     }
                 } else {
-                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
+                    voucherDiscAmount = Math.min(appliedVoucher.value, targetSubtotal);
                 }
             }
 
@@ -1834,7 +1839,7 @@
             if (!tbody) return;
 
             const q = (document.getElementById('voucher-search-input')?.value || '').toLowerCase();
-            const list = vouchers.filter(v => (v.code && v.code.toLowerCase().includes(q)) || v.title.toLowerCase().includes(q) || (v.applicable_category && v.applicable_category.toLowerCase().includes(q)));
+            const list = vouchers.filter(v => (v.code && v.code.toLowerCase().includes(q)) || v.title.toLowerCase().includes(q) || (v.target_value && v.target_value.toLowerCase().includes(q)));
 
             tbody.innerHTML = list.map(v => {
                 const isAuto = v.promo_type === 'auto_category';
@@ -1842,22 +1847,17 @@
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAuto ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200'}">
-                                ${isAuto ? '⚡ Otomatis Kategori' : '🎫 Voucher Kode'}
+                                ${isAuto ? '⚡ Otomatis Target' : '🎫 Voucher Kode'}
                             </span>
                         </td>
                         <td class="p-3 font-mono font-bold text-indigo-600">${isAuto ? '-' : (v.code || '-')}</td>
                         <td class="p-3 font-bold text-slate-800">${v.title}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
-                                ${v.applicable_category || 'Semua'}
-                            </span>
-                        </td>
+                        <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">${v.target_by || 'category'}</span></td>
+                        <td class="p-3 font-semibold text-slate-700">${v.target_value || v.applicable_category || 'Semua'}</td>
                         <td class="p-3 font-semibold text-emerald-600">
                             ${v.type === 'percentage' ? `${v.value}%` : `Rp ${v.value.toLocaleString('id-ID')}`}
                         </td>
-                        <td class="p-3 text-right">Rp ${(v.min_purchase || 0).toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center text-slate-500">${v.valid_until || 'Selamanya'}</td>
-                        <td class="p-3 text-center font-semibold text-slate-700">${v.times_used || 0}x</td>
                         <td class="p-3 text-center">
                             <button onclick="toggleVoucherActive('${v.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v.is_active ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
                                 ${v.is_active ? 'Aktif' : 'Nonaktif'}
@@ -1874,23 +1874,40 @@
             renderActivePromoList();
         }
 
-        function openVoucherModal(voucherId = null) {
-            const catSelect = document.getElementById('vouch-category');
-            if (catSelect) {
-                const categories = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
-                catSelect.innerHTML = categories.map(c => `<option value="${c}">${c === 'Semua' ? 'Semua Kategori (Tanpa Batasan)' : 'Khusus Kategori: ' + c}</option>`).join('');
+        function updateVoucherTargetValues() {
+            const targetBy = document.getElementById('vouch-target-by').value;
+            const selectVal = document.getElementById('vouch-target-value');
+            if (!selectVal) return;
+
+            if (targetBy === 'all') {
+                selectVal.innerHTML = '<option value="Semua">Semua Produk</option>';
+                return;
             }
 
+            let items = [];
+            if (targetBy === 'category') items = [...new Set(products.map(p => p.category || 'Lainnya'))];
+            else if (targetBy === 'brand') items = [...new Set(products.map(p => p.brand || 'Tanpa Brand'))];
+            else if (targetBy === 'family') items = [...new Set(products.map(p => p.family || 'Tanpa Family'))];
+            else if (targetBy === 'promo') items = [...new Set(products.map(p => p.promo || 'Tanpa Promo'))];
+
+            selectVal.innerHTML = items.map(i => `<option value="${i}">${i}</option>`).join('');
+        }
+
+        function openVoucherModal(voucherId = null) {
             document.getElementById('voucher-modal').classList.remove('hidden');
             if (voucherId) {
                 const v = vouchers.find(item => item.id === voucherId);
                 document.getElementById('voucher-modal-title').innerText = 'Edit Promo / Voucher';
                 document.getElementById('vouch-id').value = v.id;
                 document.getElementById('vouch-promo-type').value = v.promo_type || 'voucher';
-                const cleanCode = v.code && !v.code.startsWith('AUTO_CAT_') ? v.code : ('PROMO' + Math.floor(10 + Math.random() * 90) + 'K');
+                const cleanCode = v.code && !v.code.startsWith('AUTO_') ? v.code : ('PROMO' + Math.floor(10 + Math.random() * 90) + 'K');
                 document.getElementById('vouch-code').value = (v.promo_type === 'voucher' ? cleanCode : '');
                 document.getElementById('vouch-title').value = v.title;
-                if (catSelect) catSelect.value = v.applicable_category || 'Semua';
+                
+                document.getElementById('vouch-target-by').value = v.target_by || 'category';
+                updateVoucherTargetValues();
+                document.getElementById('vouch-target-value').value = v.target_value || v.applicable_category || 'Semua';
+
                 document.getElementById('vouch-type').value = v.type || 'fixed';
                 document.getElementById('vouch-value').value = v.value || 0;
                 document.getElementById('vouch-min-purchase').value = v.min_purchase || 0;
@@ -1903,7 +1920,8 @@
                 document.getElementById('vouch-promo-type').value = 'voucher';
                 document.getElementById('vouch-code').value = 'PROMO' + Math.floor(10 + Math.random() * 90) + 'K';
                 document.getElementById('vouch-title').value = '';
-                if (catSelect) catSelect.value = 'Semua';
+                document.getElementById('vouch-target-by').value = 'category';
+                updateVoucherTargetValues();
                 document.getElementById('vouch-type').value = 'fixed';
                 document.getElementById('vouch-value').value = '';
                 document.getElementById('vouch-min-purchase').value = '';
@@ -1927,7 +1945,7 @@
             } else {
                 codeGroup.classList.remove('hidden');
                 codeInput.setAttribute('required', 'true');
-                if (!codeInput.value || codeInput.value.startsWith('AUTO_CAT_')) {
+                if (!codeInput.value || codeInput.value.startsWith('AUTO_')) {
                     codeInput.value = 'PROMO' + Math.floor(10 + Math.random() * 90) + 'K';
                 }
             }
@@ -1947,20 +1965,22 @@
             let voucherCode = '';
             if (promoType === 'voucher') {
                 voucherCode = document.getElementById('vouch-code').value.toUpperCase().trim();
-                if (!voucherCode) {
-                    console.warn('Kode voucher wajib diisi!');
-                    return;
-                }
+                if (!voucherCode) return;
             } else {
-                voucherCode = 'AUTO_CAT_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                voucherCode = 'AUTO_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             }
+
+            const targetByVal = document.getElementById('vouch-target-by').value;
+            const targetVal = document.getElementById('vouch-target-value').value || 'Semua';
 
             const voucherData = {
                 id: id || generateUUID(),
                 promo_type: promoType,
                 code: voucherCode,
                 title: document.getElementById('vouch-title').value.trim(),
-                applicable_category: document.getElementById('vouch-category').value || 'Semua',
+                target_by: targetByVal,
+                target_value: targetVal,
+                applicable_category: targetByVal === 'category' ? targetVal : 'Semua',
                 type: document.getElementById('vouch-type').value,
                 value: parseFloat(document.getElementById('vouch-value').value) || 0,
                 min_purchase: parseFloat(document.getElementById('vouch-min-purchase').value) || 0,
@@ -1974,7 +1994,7 @@
                 const idx = vouchers.findIndex(v => v.id === id);
                 if (idx !== -1) {
                     voucherData.times_used = vouchers[idx].times_used || 0;
-                    if (promoType === 'auto_category' && vouchers[idx].code && vouchers[idx].code.startsWith('AUTO_CAT_')) {
+                    if (promoType === 'auto_category' && vouchers[idx].code && vouchers[idx].code.startsWith('AUTO_')) {
                         voucherData.code = vouchers[idx].code;
                     }
                     vouchers[idx] = voucherData;
@@ -1992,9 +2012,7 @@
                 try {
                     await supabaseClient.from('vouchers').upsert([voucherData]);
                     syncWithSupabase();
-                } catch(err) { 
-                    console.error('Save voucher cloud error:', err);
-                }
+                } catch(err) { console.error('Save voucher cloud error:', err); }
             }
         }
 
@@ -2009,12 +2027,11 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('vouchers').update({ is_active: v.is_active }).eq('id', voucherId);
-                } catch(e) { console.error('Toggle voucher active error:', e); }
+                } catch(e) { console.error('Toggle voucher error:', e); }
             }
         }
 
         async function deleteVoucher(voucherId) {
-            if (!confirm('Apakah Anda yakin ingin menghapus promo/voucher ini?')) return;
             vouchers = vouchers.filter(v => v.id !== voucherId);
             saveLocalStorageData();
             renderVouchersTable();
@@ -2038,16 +2055,16 @@
             catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
             catSelect.value = catFilter;
 
-            let list = products.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)));
+            let list = products.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)) || (p.brand && p.brand.toLowerCase().includes(q)));
             if (catFilter !== 'Semua') list = list.filter(p => p.category === catFilter);
 
             tbody.innerHTML = list.map(p => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
                     <td class="p-3 font-mono font-bold text-indigo-600">${p.sku || '-'}</td>
-                    <td class="p-3 font-mono text-slate-500">${p.barcode || '-'}</td>
-                    <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">${p.category || 'Umum'}</span></td>
                     <td class="p-3 font-bold text-slate-800">${p.name}</td>
-                    <td class="p-3 text-right">Rp ${(p.purchase_price || 0).toLocaleString('id-ID')}</td>
+                    <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">${p.category || 'Umum'}</span></td>
+                    <td class="p-3"><span class="text-xs text-slate-700"><b>${p.brand || '-'}</b> / <span class="text-slate-500">${p.family || '-'}</span></span></td>
+                    <td class="p-3"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-semibold">${p.promo || '-'}</span></td>
                     <td class="p-3 text-right font-bold text-blue-600">Rp ${(p.selling_price || 0).toLocaleString('id-ID')}</td>
                     <td class="p-3 text-center font-bold ${p.stock <= 5 ? 'text-red-500' : 'text-slate-700'}">${p.stock}</td>
                     <td class="p-3 text-center">
@@ -2068,6 +2085,9 @@
                 document.getElementById('prod-barcode').value = p.barcode || '';
                 document.getElementById('prod-name').value = p.name;
                 document.getElementById('prod-category').value = p.category || '';
+                document.getElementById('prod-brand').value = p.brand || '';
+                document.getElementById('prod-family').value = p.family || '';
+                document.getElementById('prod-promo').value = p.promo || '';
                 document.getElementById('prod-buy-price').value = p.purchase_price || 0;
                 document.getElementById('prod-sell-price').value = p.selling_price || 0;
                 document.getElementById('prod-stock').value = p.stock || 0;
@@ -2078,6 +2098,9 @@
                 document.getElementById('prod-barcode').value = '';
                 document.getElementById('prod-name').value = '';
                 document.getElementById('prod-category').value = '';
+                document.getElementById('prod-brand').value = '';
+                document.getElementById('prod-family').value = '';
+                document.getElementById('prod-promo').value = '';
                 document.getElementById('prod-buy-price').value = '';
                 document.getElementById('prod-sell-price').value = '';
                 document.getElementById('prod-stock').value = '';
@@ -2095,6 +2118,9 @@
                 barcode: document.getElementById('prod-barcode').value,
                 name: document.getElementById('prod-name').value,
                 category: document.getElementById('prod-category').value,
+                brand: document.getElementById('prod-brand').value,
+                family: document.getElementById('prod-family').value,
+                promo: document.getElementById('prod-promo').value,
                 purchase_price: parseFloat(document.getElementById('prod-buy-price').value) || 0,
                 selling_price: parseFloat(document.getElementById('prod-sell-price').value) || 0,
                 stock: parseInt(document.getElementById('prod-stock').value) || 0
@@ -2120,7 +2146,6 @@
         }
 
         async function deleteProduct(productId) {
-            if (!confirm('Apakah Anda yakin ingin menghapus produk ini?')) return;
             products = products.filter(p => p.id !== productId);
             saveLocalStorageData();
             renderProductGrid();
@@ -2236,7 +2261,6 @@
         }
 
         async function deleteCustomer(customerId) {
-            if (!confirm('Apakah Anda yakin ingin menghapus data member ini?')) return;
             customers = customers.filter(c => c.id !== customerId);
             saveLocalStorageData();
             renderCustomersTable();
@@ -2282,10 +2306,7 @@
             const payMethod = document.getElementById('pay-method').value;
             const cashPaid = parseFloat(document.getElementById('pay-cash-amount').value) || state.grandTotal;
 
-            if (payMethod === 'Tunai' && cashPaid < state.grandTotal) {
-                console.warn('Jumlah uang pembayaran tunai kurang!');
-                return;
-            }
+            if (payMethod === 'Tunai' && cashPaid < state.grandTotal) return;
 
             if (appliedVoucher) {
                 const v = vouchers.find(item => item.id === appliedVoucher.id);
@@ -2336,7 +2357,6 @@
             transactions.unshift(newTx);
             removeAppliedVoucher();
             
-            // Reset manual discount to default after transaction is completed
             document.getElementById('cart-discount-input').value = '0';
             document.getElementById('cart-discount-type').value = 'percentage';
 
@@ -2479,7 +2499,6 @@
             closeCameraScanner();
             const product = products.find(p => p.barcode === decodedText || p.sku === decodedText);
             if (product) addToCart(product.id);
-            else console.warn(`Barcode/SKU ${decodedText} tidak ditemukan!`);
         }
     </script>
 </body>
