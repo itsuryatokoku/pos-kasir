@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Enterprise v12.0 Pro)</title>
+    <title>KASIR POS - itsuryatokoku (Enterprise v12.5 Pro)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -79,9 +79,9 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v12.0 Pro</span>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v12.5 Pro</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud & Multi-Target Discount</p>
+                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud & Multi-Criteria Promo</p>
             </div>
         </div>
 
@@ -171,7 +171,6 @@
         <a href="#settings" id="mobile-nav-settings" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
     </div>
 
-    <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-1 flex overflow-hidden relative">
         
         <div id="view-pos" class="view-page flex-1 flex flex-col md:flex-row w-full h-full overflow-hidden">
@@ -209,7 +208,6 @@
                 </div>
             </section>
 
-            <!-- CART SIDEBAR -->
             <section class="w-full md:w-80 lg:w-96 bg-slate-50 flex flex-col h-auto md:h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0">
                 <div class="p-3 bg-slate-800 text-white flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -248,7 +246,6 @@
                                 <span class="text-[9px] text-indigo-600 font-normal">Klik untuk pakai</span>
                             </div>
                             <div id="active-promo-list" class="max-h-24 overflow-y-auto custom-scrollbar space-y-1">
-                                <!-- Rendered dynamically -->
                             </div>
                         </div>
 
@@ -280,13 +277,11 @@
                         <span id="cart-subtotal" class="font-bold text-slate-800">Rp 0</span>
                     </div>
                     
-                    <!-- Diskon Otomatis (Kategori/Brand/Family/Promo) -->
                     <div id="row-category-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span class="text-slate-500">Diskon Otomatis Target</span>
+                        <span class="text-slate-500">Diskon Otomatis Kombinasi</span>
                         <span id="cart-category-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
-                    <!-- Diskon Manual dengan pilihan % atau Rp -->
                     <div class="flex justify-between text-xs text-slate-600 items-center">
                         <div class="flex items-center gap-1.5">
                             <span>Diskon Manual</span>
@@ -311,13 +306,11 @@
                         <span id="cart-manual-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
-                    <!-- Diskon VIP Member -->
                     <div id="row-vip-discount" class="hidden flex justify-between text-xs text-slate-600">
                         <span>Diskon Member VIP (5%)</span>
                         <span id="cart-vip-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
-                    <!-- Diskon Voucher Kode -->
                     <div id="row-voucher-discount" class="hidden flex justify-between text-xs text-slate-600">
                         <span>Diskon Voucher (<span id="cart-voucher-code-label">CODE</span>)</span>
                         <span id="cart-voucher-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
@@ -343,7 +336,7 @@
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU, Brand & Stok</h2>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU, Brand, Family & Promo</h2>
                     <p class="text-xs text-slate-500">Kelola katalog barang beserta brand, family, dan label promo.</p>
                 </div>
                 <button 
@@ -439,7 +432,7 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Diskon & Voucher Promo</h2>
-                    <p class="text-xs text-slate-500">Atur promo dengan target kategori, brand, family, atau promo tag.</p>
+                    <p class="text-xs text-slate-500">Atur promo dengan kombinasi target kategori, brand, family, atau promo tag.</p>
                 </div>
                 <button 
                     onclick="openVoucherModal()" 
@@ -466,8 +459,7 @@
                                 <th class="p-3">Jenis Promo</th>
                                 <th class="p-3">Kode Voucher</th>
                                 <th class="p-3">Judul Promo</th>
-                                <th class="p-3">Target Berdasarkan</th>
-                                <th class="p-3">Nilai Target</th>
+                                <th class="p-3">Kombinasi Kriteria Target</th>
                                 <th class="p-3">Diskon</th>
                                 <th class="p-3 text-center">Kadaluarsa</th>
                                 <th class="p-3 text-center">Status</th>
@@ -582,7 +574,7 @@
 
     </main>
 
-    <!-- MODAL: ADD / EDIT PRODUCT (DENGAN BRAND, FAMILY, PROMO) -->
+    <!-- MODAL: ADD / EDIT PRODUCT -->
     <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -693,9 +685,9 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD / EDIT VOUCHER / PROMO (DENGAN TARGET BERDASARKAN KATEGORI, BRAND, FAMILY, PROMO) -->
+    <!-- MODAL: ADD / EDIT VOUCHER / PROMO (DENGAN MULTI-CRITERIA COMBINATION) -->
     <div id="voucher-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="voucher-modal-title" class="font-bold text-slate-800 text-base">Tambah Promo / Voucher</h3>
                 <button onclick="closeVoucherModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
@@ -703,41 +695,53 @@
             <form onsubmit="handleVoucherSubmit(event)" class="space-y-3">
                 <input type="hidden" id="vouch-id">
                 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Promo</label>
-                    <select id="vouch-promo-type" onchange="togglePromoTypeFields()" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-bold text-indigo-700">
-                        <option value="voucher">Voucher (Gunakan Kode di Keranjang)</option>
-                        <option value="auto_category">Promo Otomatis Berdasarkan Target</option>
-                    </select>
-                </div>
-
-                <div id="voucher-code-group">
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kode Voucher</label>
-                    <input type="text" id="vouch-code" placeholder="PROMO10K" class="w-full px-3 py-2 text-xs font-mono font-bold uppercase border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Promo</label>
+                        <select id="vouch-promo-type" onchange="togglePromoTypeFields()" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-bold text-indigo-700">
+                            <option value="voucher">Voucher Kode</option>
+                            <option value="auto_category">Promo Otomatis Kombinasi</option>
+                        </select>
+                    </div>
+                    <div id="voucher-code-group">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kode Voucher</label>
+                        <input type="text" id="vouch-code" placeholder="PROMO10K" class="w-full px-3 py-2 text-xs font-mono font-bold uppercase border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Keterangan Promo</label>
-                    <input type="text" id="vouch-title" required placeholder="Diskon Spesial..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input type="text" id="vouch-title" required placeholder="Diskon Spesial Kombinasi..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
 
-                <!-- TARGET BERDASARKAN KATEGORI, BRAND, FAMILY, ATAU PROMO -->
-                <div class="grid grid-cols-2 gap-2 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100">
-                    <div>
-                        <label class="block text-xs font-semibold text-indigo-900 mb-1">Target Berdasarkan</label>
-                        <select id="vouch-target-by" onchange="updateVoucherTargetValues()" class="w-full px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-semibold">
-                            <option value="all">Semua Produk</option>
-                            <option value="category">Kategori Produk</option>
-                            <option value="brand">Brand / Merk</option>
-                            <option value="family">Family Produk</option>
-                            <option value="promo">Label Promo</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-indigo-900 mb-1">Pilih Target Value</label>
-                        <select id="vouch-target-value" class="w-full px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-semibold">
-                            <option value="Semua">Semua</option>
-                        </select>
+                <!-- MULTI-CRITERIA TARGET COMBINATIONS -->
+                <div class="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100 space-y-2.5">
+                    <span class="block text-xs font-bold text-indigo-900 uppercase tracking-wide">Kombinasi Kriteria Target Produk (Opsional / Semua)</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kategori</label>
+                            <select id="vouch-target-category" class="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white font-medium focus:ring-1 focus:ring-indigo-500">
+                                <option value="Semua">Semua Kategori</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Brand / Merk</label>
+                            <select id="vouch-target-brand" class="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white font-medium focus:ring-1 focus:ring-indigo-500">
+                                <option value="Semua">Semua Brand</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Family</label>
+                            <select id="vouch-target-family" class="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white font-medium focus:ring-1 focus:ring-indigo-500">
+                                <option value="Semua">Semua Family</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Label Promo Tag</label>
+                            <select id="vouch-target-promo" class="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white font-medium focus:ring-1 focus:ring-indigo-500">
+                                <option value="Semua">Semua Promo Tag</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -968,7 +972,6 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
         let supabaseClient = null;
         let products = [];
@@ -1009,8 +1012,8 @@
         ];
 
         const defaultVouchers = [
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000', target_by: 'all', target_value: 'Semua', applicable_category: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BRAND_BIMOLI', title: 'Diskon 10% Brand Bimoli', target_by: 'brand', target_value: 'Bimoli', applicable_category: 'Semua', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000', target_category: 'Semua', target_brand: 'Semua', target_family: 'Semua', target_promo: 'Semua', type: 'fixed', value: 10000, min_purchase: 50000, max_discount: 10000, valid_until: '2026-12-31', is_active: true, times_used: 5 },
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1086,9 +1089,7 @@
         }
 
         async function connectBluetoothPrinter() {
-            if (!navigator.bluetooth) {
-                return;
-            }
+            if (!navigator.bluetooth) return;
             try {
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
@@ -1107,7 +1108,6 @@
                     }
                     if (bluetoothCharacteristic) break;
                 }
-
                 document.getElementById('bt-printer-status').innerText = device.name || 'BT Terhubung';
             } catch (e) {
                 console.warn('Bluetooth connection cancelled or failed:', e);
@@ -1130,14 +1130,14 @@
             try {
                 const encoder = new TextEncoder();
                 const commands = [];
-                commands.push(new Uint8Array([0x1B, 0x40])); // Reset/Init
-                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center align
+                commands.push(new Uint8Array([0x1B, 0x40]));
+                commands.push(new Uint8Array([0x1B, 0x61, 0x01]));
 
                 const storeName = document.getElementById('header-store-name').innerText || 'itsuryatokoku';
                 const storeSub = document.getElementById('header-store-sub').innerText || 'POS Kasir';
 
                 commands.push(encoder.encode(`${storeName}\n${storeSub}\n--------------------------------\n`));
-                commands.push(new Uint8Array([0x1B, 0x61, 0x00])); // Left align
+                commands.push(new Uint8Array([0x1B, 0x61, 0x00]));
                 commands.push(encoder.encode(`No. Nota : ${tx.id}\n`));
                 commands.push(encoder.encode(`Tanggal  : ${new Date(tx.created_at).toLocaleString('id-ID')}\n`));
                 commands.push(encoder.encode(`Kasir    : ${tx.cashier}\n`));
@@ -1158,7 +1158,7 @@
                 commands.push(encoder.encode(`Bayar    : Rp ${tx.cash_paid.toLocaleString('id-ID')}\n`));
                 commands.push(encoder.encode(`Kembali  : Rp ${tx.change.toLocaleString('id-ID')}\n`));
                 commands.push(encoder.encode(`--------------------------------\n`));
-                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
+                commands.push(new Uint8Array([0x1B, 0x61, 0x01]));
                 const footerText = document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja!';
                 commands.push(encoder.encode(`${footerText}\n\n\n`));
 
@@ -1426,16 +1426,19 @@
             }
         }
 
+        // MULTI-CRITERIA COMBINATION MATCHING LOGIC
         function productMatchesVoucherTarget(product, voucher) {
-            const targetBy = voucher.target_by || 'category';
-            const targetVal = voucher.target_value || voucher.applicable_category || 'Semua';
-            if (targetVal === 'Semua' || !targetVal || targetBy === 'all') return true;
+            const targetCat = voucher.target_category || 'Semua';
+            const targetBrand = voucher.target_brand || 'Semua';
+            const targetFamily = voucher.target_family || 'Semua';
+            const targetPromo = voucher.target_promo || 'Semua';
 
-            if (targetBy === 'category') return product.category === targetVal;
-            if (targetBy === 'brand') return product.brand === targetVal;
-            if (targetBy === 'family') return product.family === targetVal;
-            if (targetBy === 'promo') return product.promo === targetVal;
-            return false;
+            if (targetCat !== 'Semua' && product.category !== targetCat) return false;
+            if (targetBrand !== 'Semua' && product.brand !== targetBrand) return false;
+            if (targetFamily !== 'Semua' && product.family !== targetFamily) return false;
+            if (targetPromo !== 'Semua' && product.promo !== targetPromo) return false;
+
+            return true;
         }
 
         function getActiveDiscountForProduct(product) {
@@ -1540,8 +1543,6 @@
                 container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-cart-flatbed text-2xl mb-2 block"></i>Keranjang belanja kosong</div>`;
                 return;
             }
-
-            let manualVoucherTargetVal = appliedVoucher ? (appliedVoucher.target_value || appliedVoucher.applicable_category) : null;
 
             container.innerHTML = cart.map(item => {
                 const product = products.find(p => p.id === item.id);
@@ -1705,7 +1706,6 @@
         }
 
         function calculateCartState() {
-            const today = new Date().setHours(0,0,0,0);
             let grossSubtotal = 0;
             let categoryDiscountTotal = 0;
 
@@ -1750,20 +1750,18 @@
 
             let voucherDiscAmount = 0;
             if (appliedVoucher) {
-                const targetBy = appliedVoucher.target_by || 'category';
-                const targetVal = appliedVoucher.target_value || appliedVoucher.applicable_category || 'Semua';
                 let targetSubtotal = subtotalAfterCat;
 
-                if (targetVal !== 'Semua' && targetBy !== 'all') {
+                const hasCriteria = (appliedVoucher.target_category && appliedVoucher.target_category !== 'Semua') ||
+                                     (appliedVoucher.target_brand && appliedVoucher.target_brand !== 'Semua') ||
+                                     (appliedVoucher.target_family && appliedVoucher.target_family !== 'Semua') ||
+                                     (appliedVoucher.target_promo && appliedVoucher.target_promo !== 'Semua');
+
+                if (hasCriteria) {
                     targetSubtotal = cart.reduce((sum, item) => {
                         const prod = products.find(p => p.id === item.id);
                         if (!prod) return sum;
-                        let matches = false;
-                        if (targetBy === 'category' && prod.category === targetVal) matches = true;
-                        if (targetBy === 'brand' && prod.brand === targetVal) matches = true;
-                        if (targetBy === 'family' && prod.family === targetVal) matches = true;
-                        if (targetBy === 'promo' && prod.promo === targetVal) matches = true;
-                        return matches ? sum + (item.price * item.qty) : sum;
+                        return productMatchesVoucherTarget(prod, appliedVoucher) ? sum + (item.price * item.qty) : sum;
                     }, 0);
                 }
 
@@ -1839,21 +1837,27 @@
             if (!tbody) return;
 
             const q = (document.getElementById('voucher-search-input')?.value || '').toLowerCase();
-            const list = vouchers.filter(v => (v.code && v.code.toLowerCase().includes(q)) || v.title.toLowerCase().includes(q) || (v.target_value && v.target_value.toLowerCase().includes(q)));
+            const list = vouchers.filter(v => (v.code && v.code.toLowerCase().includes(q)) || v.title.toLowerCase().includes(q));
 
             tbody.innerHTML = list.map(v => {
                 const isAuto = v.promo_type === 'auto_category';
+                const criteriaParts = [];
+                if (v.target_category && v.target_category !== 'Semua') criteriaParts.push(`Kat: ${v.target_category}`);
+                if (v.target_brand && v.target_brand !== 'Semua') criteriaParts.push(`Brand: ${v.target_brand}`);
+                if (v.target_family && v.target_family !== 'Semua') criteriaParts.push(`Fam: ${v.target_family}`);
+                if (v.target_promo && v.target_promo !== 'Semua') criteriaParts.push(`Tag: ${v.target_promo}`);
+                const criteriaText = criteriaParts.length > 0 ? criteriaParts.join(' | ') : 'Semua Produk';
+
                 return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAuto ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200'}">
-                                ${isAuto ? '⚡ Otomatis Target' : '🎫 Voucher Kode'}
+                                ${isAuto ? '⚡ Otomatis Kombinasi' : '🎫 Voucher Kode'}
                             </span>
                         </td>
                         <td class="p-3 font-mono font-bold text-indigo-600">${isAuto ? '-' : (v.code || '-')}</td>
                         <td class="p-3 font-bold text-slate-800">${v.title}</td>
-                        <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">${v.target_by || 'category'}</span></td>
-                        <td class="p-3 font-semibold text-slate-700">${v.target_value || v.applicable_category || 'Semua'}</td>
+                        <td class="p-3 font-medium text-slate-700 text-[11px]">${criteriaText}</td>
                         <td class="p-3 font-semibold text-emerald-600">
                             ${v.type === 'percentage' ? `${v.value}%` : `Rp ${v.value.toLocaleString('id-ID')}`}
                         </td>
@@ -1874,27 +1878,29 @@
             renderActivePromoList();
         }
 
-        function updateVoucherTargetValues() {
-            const targetBy = document.getElementById('vouch-target-by').value;
-            const selectVal = document.getElementById('vouch-target-value');
-            if (!selectVal) return;
+        function populateVoucherDropdowns() {
+            const catSelect = document.getElementById('vouch-target-category');
+            const brandSelect = document.getElementById('vouch-target-brand');
+            const familySelect = document.getElementById('vouch-target-family');
+            const promoSelect = document.getElementById('vouch-target-promo');
 
-            if (targetBy === 'all') {
-                selectVal.innerHTML = '<option value="Semua">Semua Produk</option>';
-                return;
-            }
+            if (!catSelect) return;
 
-            let items = [];
-            if (targetBy === 'category') items = [...new Set(products.map(p => p.category || 'Lainnya'))];
-            else if (targetBy === 'brand') items = [...new Set(products.map(p => p.brand || 'Tanpa Brand'))];
-            else if (targetBy === 'family') items = [...new Set(products.map(p => p.family || 'Tanpa Family'))];
-            else if (targetBy === 'promo') items = [...new Set(products.map(p => p.promo || 'Tanpa Promo'))];
+            const categories = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
+            const brands = ['Semua', ...new Set(products.map(p => p.brand || 'Tanpa Brand'))];
+            const families = ['Semua', ...new Set(products.map(p => p.family || 'Tanpa Family'))];
+            const promos = ['Semua', ...new Set(products.map(p => p.promo || 'Tanpa Promo'))];
 
-            selectVal.innerHTML = items.map(i => `<option value="${i}">${i}</option>`).join('');
+            catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            brandSelect.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+            familySelect.innerHTML = families.map(f => `<option value="${f}">${f}</option>`).join('');
+            promoSelect.innerHTML = promos.map(pr => `<option value="${pr}">${pr}</option>`).join('');
         }
 
         function openVoucherModal(voucherId = null) {
+            populateVoucherDropdowns();
             document.getElementById('voucher-modal').classList.remove('hidden');
+
             if (voucherId) {
                 const v = vouchers.find(item => item.id === voucherId);
                 document.getElementById('voucher-modal-title').innerText = 'Edit Promo / Voucher';
@@ -1904,9 +1910,10 @@
                 document.getElementById('vouch-code').value = (v.promo_type === 'voucher' ? cleanCode : '');
                 document.getElementById('vouch-title').value = v.title;
                 
-                document.getElementById('vouch-target-by').value = v.target_by || 'category';
-                updateVoucherTargetValues();
-                document.getElementById('vouch-target-value').value = v.target_value || v.applicable_category || 'Semua';
+                document.getElementById('vouch-target-category').value = v.target_category || 'Semua';
+                document.getElementById('vouch-target-brand').value = v.target_brand || 'Semua';
+                document.getElementById('vouch-target-family').value = v.target_family || 'Semua';
+                document.getElementById('vouch-target-promo').value = v.target_promo || 'Semua';
 
                 document.getElementById('vouch-type').value = v.type || 'fixed';
                 document.getElementById('vouch-value').value = v.value || 0;
@@ -1920,8 +1927,10 @@
                 document.getElementById('vouch-promo-type').value = 'voucher';
                 document.getElementById('vouch-code').value = 'PROMO' + Math.floor(10 + Math.random() * 90) + 'K';
                 document.getElementById('vouch-title').value = '';
-                document.getElementById('vouch-target-by').value = 'category';
-                updateVoucherTargetValues();
+                document.getElementById('vouch-target-category').value = 'Semua';
+                document.getElementById('vouch-target-brand').value = 'Semua';
+                document.getElementById('vouch-target-family').value = 'Semua';
+                document.getElementById('vouch-target-promo').value = 'Semua';
                 document.getElementById('vouch-type').value = 'fixed';
                 document.getElementById('vouch-value').value = '';
                 document.getElementById('vouch-min-purchase').value = '';
@@ -1967,20 +1976,18 @@
                 voucherCode = document.getElementById('vouch-code').value.toUpperCase().trim();
                 if (!voucherCode) return;
             } else {
-                voucherCode = 'AUTO_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                voucherCode = 'AUTO_COMBO_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             }
-
-            const targetByVal = document.getElementById('vouch-target-by').value;
-            const targetVal = document.getElementById('vouch-target-value').value || 'Semua';
 
             const voucherData = {
                 id: id || generateUUID(),
                 promo_type: promoType,
                 code: voucherCode,
                 title: document.getElementById('vouch-title').value.trim(),
-                target_by: targetByVal,
-                target_value: targetVal,
-                applicable_category: targetByVal === 'category' ? targetVal : 'Semua',
+                target_category: document.getElementById('vouch-target-category').value,
+                target_brand: document.getElementById('vouch-target-brand').value,
+                target_family: document.getElementById('vouch-target-family').value,
+                target_promo: document.getElementById('vouch-target-promo').value,
                 type: document.getElementById('vouch-type').value,
                 value: parseFloat(document.getElementById('vouch-value').value) || 0,
                 min_purchase: parseFloat(document.getElementById('vouch-min-purchase').value) || 0,
