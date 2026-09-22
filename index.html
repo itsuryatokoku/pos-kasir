@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (UUID Product Fix)</title>
+    <title>KASIR POS - itsuryatokoku (Fase 6 Integrated)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,6 +15,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- HTML5-QRCode JS CDN -->
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- Chart.js CDN for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body {
@@ -67,6 +69,7 @@
 </head>
 <body class="h-screen overflow-hidden text-slate-800 flex flex-col antialiased bg-slate-100">
 
+    <!-- HEADER / NAVIGATION BAR -->
     <header class="bg-slate-900 text-white px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
         <div class="flex items-center space-x-3">
             <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-10 h-10 shadow-lg shadow-blue-500/30 tracking-widest cursor-pointer" onclick="openStoreModal()" title="Pengaturan Toko">
@@ -75,24 +78,28 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v8.2 UUID Fix</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v9.0 Cloud Member</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Profesional & Supabase Cloud</p>
+                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir & Supabase Cloud Integration</p>
             </div>
         </div>
 
-        <nav class="hidden md:flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700/60 text-xs">
+        <nav class="hidden lg:flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700/60 text-xs">
             <a href="#pos" id="nav-link-pos" class="px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 bg-blue-600 text-white shadow">
                 <i class="fa-solid fa-calculator"></i>
                 <span>Kasir</span>
             </a>
             <a href="#products" id="nav-link-products" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-boxes-stacked"></i>
-                <span>Produk</span>
+                <span>Produk & Stok</span>
+            </a>
+            <a href="#customers" id="nav-link-customers" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-users"></i>
+                <span>Pelanggan & Member</span>
             </a>
             <a href="#history" id="nav-link-history" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Laporan</span>
+                <span>Laporan & Analitik</span>
             </a>
             <a href="#settings" id="nav-link-settings" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-gear"></i>
@@ -102,12 +109,21 @@
 
         <div class="flex items-center space-x-2 sm:space-x-3">
             <button 
+                onclick="openShiftModal()"
+                id="shift-btn"
+                title="Sesi Kasir & Modal Awal"
+                class="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
+                <i class="fa-solid fa-cash-register"></i>
+                <span class="hidden sm:inline">Shift Kasir</span>
+            </button>
+
+            <button 
                 onclick="syncWithSupabase()"
                 id="sync-btn"
                 title="Sinkronkan Data dengan Supabase Cloud"
                 class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300">
                 <i class="fa-solid fa-rotate" id="sync-icon"></i>
-                <span class="hidden lg:inline">Cloud Sync</span>
+                <span class="hidden lg:inline">Sync Cloud</span>
             </button>
 
             <button 
@@ -121,13 +137,16 @@
         </div>
     </header>
 
-    <div class="md:hidden bg-slate-900 border-b border-slate-800 px-2 py-1.5 flex gap-1 text-[11px] overflow-x-auto custom-scrollbar">
+    <!-- MOBILE NAVIGATION -->
+    <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-2 py-1.5 flex gap-1 text-[11px] overflow-x-auto custom-scrollbar">
         <a href="#pos" id="mobile-nav-pos" class="px-3 py-1.5 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
         <a href="#products" id="mobile-nav-products" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
+        <a href="#customers" id="mobile-nav-customers" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pelanggan</a>
         <a href="#history" id="mobile-nav-history" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Laporan</a>
         <a href="#settings" id="mobile-nav-settings" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
     </div>
 
+    <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-1 flex overflow-hidden relative">
         
         <!-- VIEW 1: KASIR POS -->
@@ -140,7 +159,7 @@
                             type="text" 
                             id="search-input"
                             onkeyup="handleSearch(event)"
-                            placeholder="Ketik nama produk atau barcode (Tekan Enter)..." 
+                            placeholder="Ketik nama produk atau scan barcode (Tekan Enter)..." 
                             class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                         >
                     </div>
@@ -166,6 +185,7 @@
                 </div>
             </section>
 
+            <!-- CART SIDEBAR -->
             <section class="w-full md:w-80 lg:w-96 bg-slate-50 flex flex-col h-auto md:h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0">
                 <div class="p-3 bg-slate-800 text-white flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -177,10 +197,13 @@
                     </button>
                 </div>
 
-                <div class="px-3 pt-2 bg-slate-100 border-b border-slate-200">
-                    <div class="flex items-center gap-2 text-xs py-1">
-                        <i class="fa-solid fa-user text-slate-400"></i>
-                        <input type="text" id="customer-name-input" placeholder="Nama Pelanggan / Umum" value="Pelanggan Umum" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                <!-- CUSTOMER SELECTION FOR CART -->
+                <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-1.5">
+                    <div class="flex items-center gap-2 text-xs">
+                        <i class="fa-solid fa-user-tag text-slate-400"></i>
+                        <select id="cart-customer-select" onchange="onSelectCustomerForCart()" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                            <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
+                        </select>
                     </div>
                 </div>
 
@@ -227,19 +250,27 @@
             </section>
         </div>
 
-        <!-- VIEW 2: PRODUCTS MANAGEMENT -->
+        <!-- VIEW 2: PRODUCTS & STOCK MANAGEMENT -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Produk & Stok (Supabase Cloud)</h2>
-                    <p class="text-xs text-slate-500">Kelola katalog, kategori, serta pantau sisa stok database cloud.</p>
+                    <p class="text-xs text-slate-500">Kelola katalog, kategori, restock barang, dan pantau stok database cloud.</p>
                 </div>
-                <button 
-                    onclick="openProductModal()" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Tambah Produk Baru</span>
-                </button>
+                <div class="flex gap-2">
+                    <button 
+                        onclick="openRestockModal()" 
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                        <i class="fa-solid fa-boxes-packing"></i>
+                        <span>Tambah Stok (Restock)</span>
+                    </button>
+                    <button 
+                        onclick="openProductModal()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Tambah Produk Baru</span>
+                    </button>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -277,15 +308,59 @@
             </div>
         </div>
 
-        <!-- VIEW 3: HISTORY & REPORTS -->
+        <!-- VIEW 3: CUSTOMER & MEMBER MANAGEMENT (FASE 6 COMPLETE) -->
+        <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member (Supabase Cloud)</h2>
+                    <p class="text-xs text-slate-500">Kelola riwayat belanja member, akumulasi poin loyalty, dan diskon VIP otomatis.</p>
+                </div>
+                <button 
+                    onclick="openCustomerModal()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Tambah Member Baru</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <input 
+                        type="text" 
+                        id="customer-search-input" 
+                        onkeyup="renderCustomersTable()" 
+                        placeholder="Cari nama atau nomor telepon member..." 
+                        class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
+                                <th class="p-3">Nama Pelanggan</th>
+                                <th class="p-3">No. WhatsApp</th>
+                                <th class="p-3 text-center">Tipe Member</th>
+                                <th class="p-3 text-center">Poin Loyalty</th>
+                                <th class="p-3 text-right">Total Belanja</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-tbody" class="divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: HISTORY & REPORTS WITH ANALYTICS -->
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Laporan Penjualan & Laba (Cloud)</h2>
-                    <p class="text-xs text-slate-500">Pantau Omset, Profit, dan Riwayat Transaksi dari Supabase.</p>
+                    <h2 class="text-lg font-bold text-slate-800">Laporan Penjualan & Dashboard Analitik</h2>
+                    <p class="text-xs text-slate-500">Visualisasi Grafik Omset, Profit, dan Riwayat Transaksi Supabase.</p>
                 </div>
                 <div class="flex gap-2">
-                    <select id="report-date-filter" onchange="renderHistoryTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700">
+                    <select id="report-date-filter" onchange="renderHistoryAndCharts()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700">
                         <option value="all">Semua Waktu</option>
                         <option value="today">Hari Ini</option>
                         <option value="7days">7 Hari Terakhir</option>
@@ -298,6 +373,7 @@
                 </div>
             </div>
 
+            <!-- KPI METRICS -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Omset</span>
@@ -317,6 +393,23 @@
                 </div>
             </div>
 
+            <!-- ANALYTICS CHARTS -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="lg:col-span-2 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3"><i class="fa-solid fa-chart-area text-blue-500 mr-1.5"></i> Grafik Penjualan Harian</h3>
+                    <div class="relative h-64">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3"><i class="fa-solid fa-chart-pie text-emerald-500 mr-1.5"></i> Metode Pembayaran</h3>
+                    <div class="relative h-64 flex items-center justify-center">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORY TABLE -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-3.5 border-b border-slate-100 bg-slate-50 font-bold text-xs text-slate-700 uppercase tracking-wider">
                     Daftar Transaksi Supabase
@@ -341,7 +434,7 @@
             </div>
         </div>
 
-        <!-- VIEW 4: SETTINGS -->
+        <!-- VIEW 5: SETTINGS -->
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-6">
                 <div>
@@ -383,6 +476,7 @@
         </div>
     </main>
 
+    <!-- MODAL PEMBAYARAN KASIR -->
     <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -454,6 +548,7 @@
         </div>
     </div>
 
+    <!-- MODAL SCANNER KAMERA -->
     <div id="modal-scanner" class="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center">
@@ -470,6 +565,7 @@
         </div>
     </div>
 
+    <!-- MODAL PRODUCT CRUD -->
     <div id="modal-product" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -524,6 +620,103 @@
         </div>
     </div>
 
+    <!-- MODAL RESTOCK STOK BARANG -->
+    <div id="modal-restock" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-boxes-packing text-emerald-400"></i> Tambah Stok (Restock Produk)
+                </h3>
+                <button onclick="closeRestockModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveRestock(event)" class="p-4 space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Pilih Produk</label>
+                    <select id="restock-product-select" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Jumlah Tambahan Stok (Pcs)</label>
+                    <input type="number" id="restock-qty" required min="1" value="10" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="pt-3 flex gap-2">
+                    <button type="button" onclick="closeRestockModal()" class="w-1/3 py-2 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold">Batal</button>
+                    <button type="submit" class="w-2/3 py-2 rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 font-bold shadow">Tambah Stok</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL MEMBER PELANGGAN (FASE 6) -->
+    <div id="modal-customer" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
+                <h3 id="customer-modal-title" class="font-bold text-sm">Tambah Member Baru</h3>
+                <button onclick="closeCustomerModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveCustomer(event)" class="p-4 space-y-3 text-xs">
+                <input type="hidden" id="cust-edit-id">
+                
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nama Lengkap Pelanggan</label>
+                    <input type="text" id="cust-name" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nomor Telepon / WA</label>
+                    <input type="text" id="cust-phone" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Tipe Member</label>
+                    <select id="cust-type" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                        <option value="Regular">Regular</option>
+                        <option value="VIP">VIP (Diskon 5% Otomatis)</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 flex gap-2">
+                    <button type="button" onclick="closeCustomerModal()" class="w-1/3 py-2 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold">Batal</button>
+                    <button type="submit" class="w-2/3 py-2 rounded-xl text-white bg-blue-600 hover:bg-blue-700 font-bold shadow">Simpan Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL SHIFT KASIR -->
+    <div id="modal-shift" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-cash-register text-emerald-400"></i> Shift & Modal Kasir
+                </h3>
+                <button onclick="closeShiftModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Modal Awal Laci Kasir (Rp)</label>
+                    <input type="number" id="shift-initial-cash" value="200000" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 text-sm font-bold">
+                </div>
+
+                <div class="p-3 bg-slate-50 border rounded-xl space-y-1 text-slate-600">
+                    <div class="flex justify-between">
+                        <span>Penjualan Shift Ini:</span>
+                        <span id="shift-total-sales" class="font-bold text-slate-800">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between border-t pt-1">
+                        <span>Estimasi Total Laci Kas:</span>
+                        <span id="shift-total-drawer" class="font-extrabold text-emerald-600">Rp 200.000</span>
+                    </div>
+                </div>
+
+                <button onclick="saveShiftModal()" class="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow hover:bg-emerald-700">Simpan Shift Kasir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL STRUK NOTA -->
     <div id="modal-receipt" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-3 bg-slate-800 text-white flex justify-between items-center no-print">
@@ -543,6 +736,7 @@
         </div>
     </div>
 
+    <!-- MODAL SUPABASE DB CONFIG -->
     <div id="modal-config" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -571,6 +765,7 @@
         </div>
     </div>
 
+    <!-- MODAL PROFIL TOKO -->
     <div id="modal-store" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -655,11 +850,16 @@
 
         let products = [];
         let transactions = [];
+        let customers = [];
         let cart = [];
         let selectedCategory = 'All';
         let paymentMethod = 'cash';
         let supabaseClient = null;
         let html5QrcodeScanner = null;
+        let salesChartInstance = null;
+        let paymentChartInstance = null;
+
+        let initialCashModal = 200000;
 
         let storeSettings = {
             name: 'itsuryatokoku',
@@ -670,7 +870,7 @@
 
         window.handleRoute = function() {
             const hash = window.location.hash.replace('#', '') || 'pos';
-            const routes = ['pos', 'products', 'history', 'settings'];
+            const routes = ['pos', 'products', 'customers', 'history', 'settings'];
             const activeRoute = routes.includes(hash) ? hash : 'pos';
 
             document.querySelectorAll('.view-page').forEach(el => el.classList.add('hidden'));
@@ -695,7 +895,8 @@
             });
 
             if (activeRoute === 'products') window.renderAdminProductsTable();
-            if (activeRoute === 'history') window.renderHistoryTable();
+            if (activeRoute === 'customers') window.renderCustomersTable();
+            if (activeRoute === 'history') window.renderHistoryAndCharts();
             if (activeRoute === 'settings') window.loadSettingsPageValues();
         };
 
@@ -771,6 +972,10 @@
                 { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
                 { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
             ];
+            customers = [
+                { id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c11', name: 'Budi Santoso', phone: '08123456789', type: 'VIP', points: 120, total_tx: 450000 },
+                { id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c12', name: 'Siti Rahma', phone: '08987654321', type: 'Regular', points: 30, total_tx: 120000 }
+            ];
             transactions = [];
             window.refreshAllUIs();
         };
@@ -778,11 +983,19 @@
         window.fetchDataFromSupabase = async function() {
             if (!supabaseClient) return;
             try {
+                // Fetch Products
                 const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*');
                 if (!prodErr && prodData && prodData.length > 0) {
                     products = prodData;
                 }
 
+                // Fetch Customers (Fase 6)
+                const { data: custData, error: custErr } = await supabaseClient.from('customers').select('*');
+                if (!custErr && custData) {
+                    customers = custData;
+                }
+
+                // Fetch Transactions
                 const { data: txData, error: txErr } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
                 if (!txErr && txData) {
                     transactions = txData.map(t => ({
@@ -793,7 +1006,7 @@
                 }
 
                 window.refreshAllUIs();
-                window.showToast('Data berhasil disinkronkan dari Supabase!', 'success');
+                window.showToast('Data Produk, Member, & Transaksi berhasil disinkronkan dari Cloud!', 'success');
             } catch (err) {
                 console.error("Fetch Supabase error:", err);
                 window.loadDefaultDemoData();
@@ -822,9 +1035,33 @@
         window.refreshAllUIs = function() {
             window.renderCategoryPills();
             window.renderProductGrid();
+            window.renderCustomerDropdownInCart();
             window.renderCart();
             window.renderAdminProductsTable();
-            window.renderHistoryTable();
+            window.renderCustomersTable();
+            window.renderHistoryAndCharts();
+        };
+
+        window.renderCustomerDropdownInCart = function() {
+            const select = document.getElementById('cart-customer-select');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = `<option value="Pelanggan Umum">-- Pelanggan Umum --</option>` +
+                customers.map(c => `<option value="${window.escapeHTML(c.name)}">${window.escapeHTML(c.name)} (${c.type})</option>`).join('');
+            select.value = currentVal || "Pelanggan Umum";
+        };
+
+        window.onSelectCustomerForCart = function() {
+            const select = document.getElementById('cart-customer-select');
+            if (!select) return;
+            const cust = customers.find(c => c.name === select.value);
+            if (cust && cust.type === 'VIP') {
+                document.getElementById('cart-discount-input').value = '5'; // Auto 5% discount for VIP member
+                window.showToast(`Diskon Member VIP 5% diterapkan untuk ${cust.name}!`, 'info');
+            } else {
+                document.getElementById('cart-discount-input').value = '0';
+            }
+            window.calculateCartTotals();
         };
 
         window.renderCategoryPills = function() {
@@ -1075,7 +1312,7 @@
             const discountPercent = parseFloat(document.getElementById('cart-discount-input')?.value || 0);
             const discountAmount = (subtotal * discountPercent) / 100;
             const grandTotal = subtotal - discountAmount;
-            const customerName = document.getElementById('customer-name-input')?.value || 'Pelanggan Umum';
+            const customerName = document.getElementById('cart-customer-select')?.value || 'Pelanggan Umum';
 
             let cashPaid = parseFloat(document.getElementById('pay-cash-input')?.value || 0);
             if (paymentMethod !== 'cash') cashPaid = grandTotal;
@@ -1099,12 +1336,20 @@
                 cashier: 'Kasir Utama'
             };
 
+            // Deduct local stock
             cart.forEach(item => {
                 const prod = products.find(p => p.id === item.product.id);
                 if (prod) {
                     prod.stock = Math.max(0, prod.stock - item.qty);
                 }
             });
+
+            // Update member total spent & points (Fase 6)
+            const memberObj = customers.find(c => c.name === customerName);
+            if (memberObj) {
+                memberObj.total_tx = (memberObj.total_tx || 0) + grandTotal;
+                memberObj.points = (memberObj.points || 0) + Math.floor(grandTotal / 10000); // 1 point per Rp 10.000
+            }
 
             transactions.unshift(newTx);
 
@@ -1129,16 +1374,16 @@
                         const prod = products.find(p => p.id === item.product.id);
                         if (prod) {
                             await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prod.id);
-                            await supabaseClient.from('transaction_items').insert([{
-                                transaction_id: invoiceNo,
-                                product_id: prod.id,
-                                product_name: prod.name,
-                                price: prod.selling_price,
-                                qty: item.qty,
-                                subtotal: prod.selling_price * item.qty
-                            }]);
                         }
                     }
+
+                    if (memberObj && memberObj.id) {
+                        await supabaseClient.from('customers').update({ 
+                            total_tx: memberObj.total_tx, 
+                            points: memberObj.points 
+                        }).eq('id', memberObj.id);
+                    }
+
                     window.showToast('Transaksi Berhasil & Disinkronkan ke Cloud!', 'success');
                 } catch (e) {
                     console.error("Supabase transaction save error:", e);
@@ -1154,8 +1399,7 @@
             cart = [];
             const discInput = document.getElementById('cart-discount-input');
             if (discInput) discInput.value = '0';
-            window.renderCart();
-            window.renderProductGrid();
+            window.refreshAllUIs();
         };
 
         window.renderAdminProductsTable = function() {
@@ -1238,71 +1482,37 @@
             const selling_price = parseFloat(document.getElementById('prod-selling').value || 0);
             const stock = parseInt(document.getElementById('prod-stock').value || 0, 10);
 
-            const isUUID = (str) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-
             if (editId) {
-                // UPDATE existing product
                 const index = products.findIndex(p => p.id === editId);
                 if (index !== -1) {
                     products[index] = { ...products[index], barcode, category, name, purchase_price, selling_price, stock };
                 }
 
-                if (supabaseClient && isUUID(editId)) {
+                if (supabaseClient) {
                     try {
                         const { error } = await supabaseClient.from('products').update({ barcode, category, name, purchase_price, selling_price, stock }).eq('id', editId);
                         if (error) throw error;
-                        window.showToast('Produk berhasil diperbarui di Cloud!', 'success');
+                        window.showToast('Produk diperbarui di Cloud!', 'success');
                     } catch (err) {
-                        console.error("Supabase update product error:", err);
                         window.showToast('Gagal update ke cloud: ' + err.message, 'error');
-                    }
-                } else if (supabaseClient && !isUUID(editId)) {
-                    // Convert old non-UUID product into a valid UUID entry in Supabase
-                    const newUuid = window.generateUUID();
-                    const newProd = { id: newUuid, barcode, category, name, purchase_price, selling_price, stock };
-                    try {
-                        const { data, error } = await supabaseClient.from('products').insert([newProd]).select();
-                        if (error) throw error;
-                        if (data && data[0]) {
-                            if (index !== -1) products[index] = data[0];
-                        }
-                        window.showToast('Produk lama dikonversi ke UUID & tersimpan di Cloud!', 'success');
-                    } catch (err) {
-                        console.error("Supabase convert insert product error:", err);
-                        window.showToast('Gagal simpan ke cloud: ' + err.message, 'error');
                     }
                 }
             } else {
-                // INSERT brand new product with client-generated UUID
                 const newUuid = window.generateUUID();
-                const newProd = {
-                    id: newUuid,
-                    barcode,
-                    category,
-                    name,
-                    purchase_price,
-                    selling_price,
-                    stock
-                };
+                const newProd = { id: newUuid, barcode, category, name, purchase_price, selling_price, stock };
 
                 if (supabaseClient) {
                     try {
                         const { data, error } = await supabaseClient.from('products').insert([newProd]).select();
                         if (error) throw error;
-                        if (data && data[0]) {
-                            products.unshift(data[0]);
-                        } else {
-                            products.unshift(newProd);
-                        }
-                        window.showToast('Produk baru tersimpan di Supabase!', 'success');
+                        products.unshift(data && data[0] ? data[0] : newProd);
+                        window.showToast('Produk tersimpan di Supabase!', 'success');
                     } catch (err) {
-                        console.error("Supabase insert product error:", err);
                         window.showToast('Gagal simpan ke cloud: ' + err.message, 'error');
-                        products.unshift(newProd); // Keep local fallback
+                        products.unshift(newProd);
                     }
                 } else {
                     products.unshift(newProd);
-                    window.showToast('Produk disimpan lokal (Offline)', 'success');
                 }
             }
 
@@ -1315,12 +1525,136 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('products').delete().eq('id', id);
-                } catch (err) {
-                    console.error("Supabase delete error:", err);
-                }
+                } catch (err) {}
             }
             window.refreshAllUIs();
             window.showToast('Produk berhasil dihapus', 'info');
+        };
+
+        window.openRestockModal = function() {
+            const select = document.getElementById('restock-product-select');
+            if (select) {
+                select.innerHTML = products.map(p => `<option value="${window.escapeHTML(p.id)}">${window.escapeHTML(p.name)} (Stok Saat Ini: ${p.stock})</option>`).join('');
+            }
+            document.getElementById('modal-restock').classList.remove('hidden');
+        };
+
+        window.closeRestockModal = function() {
+            document.getElementById('modal-restock').classList.add('hidden');
+        };
+
+        window.saveRestock = async function(e) {
+            if (e) e.preventDefault();
+            const prodId = document.getElementById('restock-product-select').value;
+            const addQty = parseInt(document.getElementById('restock-qty').value || 0, 10);
+            const prod = products.find(p => p.id === prodId);
+
+            if (prod && addQty > 0) {
+                prod.stock += addQty;
+                if (supabaseClient) {
+                    try {
+                        await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prodId);
+                    } catch (err) {}
+                }
+                window.showToast(`Stok ${prod.name} bertambah +${addQty}!`, 'success');
+                window.refreshAllUIs();
+            }
+            window.closeRestockModal();
+        };
+
+        // CUSTOMER & MEMBER FUNCTIONS (FASE 6 COMPLETE)
+        window.renderCustomersTable = function() {
+            const tbody = document.getElementById('customers-tbody');
+            if (!tbody) return;
+
+            const query = (document.getElementById('customer-search-input')?.value || '').toLowerCase();
+            const filtered = customers.filter(c => c.name.toLowerCase().includes(query) || (c.phone && c.phone.includes(query)));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada data member</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(c => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-bold text-slate-800">${window.escapeHTML(c.name)}</td>
+                    <td class="p-3 text-slate-600">${window.escapeHTML(c.phone || '-')}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.type === 'VIP' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}">${window.escapeHTML(c.type || 'Regular')}</span></td>
+                    <td class="p-3 text-center font-bold text-blue-600">${c.points || 0} Pts</td>
+                    <td class="p-3 text-right font-extrabold text-slate-800">${window.formatRupiah(c.total_tx || 0)}</td>
+                    <td class="p-3 text-center space-x-1">
+                        <button data-id="${window.escapeHTML(c.id)}" onclick="deleteCustomer(this.getAttribute('data-id'))" class="px-2 py-1 bg-red-50 text-red-600 rounded-lg font-semibold hover:bg-red-100 text-[11px]"><i class="fa-solid fa-trash"></i> Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.openCustomerModal = function() {
+            document.getElementById('cust-name').value = '';
+            document.getElementById('cust-phone').value = '';
+            document.getElementById('modal-customer').classList.remove('hidden');
+        };
+
+        window.closeCustomerModal = function() {
+            document.getElementById('modal-customer').classList.add('hidden');
+        };
+
+        window.saveCustomer = async function(e) {
+            if (e) e.preventDefault();
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const type = document.getElementById('cust-type').value;
+
+            const newCust = {
+                id: window.generateUUID(),
+                name,
+                phone,
+                type,
+                points: 0,
+                total_tx: 0
+            };
+
+            customers.unshift(newCust);
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('customers').insert([newCust]);
+                    window.showToast('Member baru tersimpan di Supabase Cloud!', 'success');
+                } catch (err) {
+                    window.showToast('Gagal simpan member ke cloud: ' + err.message, 'error');
+                }
+            } else {
+                window.showToast('Member baru tersimpan lokal!', 'info');
+            }
+            window.refreshAllUIs();
+            window.closeCustomerModal();
+        };
+
+        window.deleteCustomer = async function(id) {
+            customers = customers.filter(c => c.id !== id);
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('customers').delete().eq('id', id);
+                } catch (err) {}
+            }
+            window.refreshAllUIs();
+            window.showToast('Member berhasil dihapus', 'info');
+        };
+
+        window.openShiftModal = function() {
+            const todaySales = transactions.reduce((sum, t) => sum + (t.total || 0), 0);
+            document.getElementById('shift-total-sales').innerText = window.formatRupiah(todaySales);
+            document.getElementById('shift-total-drawer').innerText = window.formatRupiah(initialCashModal + todaySales);
+            document.getElementById('modal-shift').classList.remove('hidden');
+        };
+
+        window.closeShiftModal = function() {
+            document.getElementById('modal-shift').classList.add('hidden');
+        };
+
+        window.saveShiftModal = function() {
+            initialCashModal = parseFloat(document.getElementById('shift-initial-cash').value || 0);
+            window.showToast('Modal shift kasir diperbarui!', 'success');
+            window.closeShiftModal();
         };
 
         window.showReceiptModal = function(txOrId) {
@@ -1397,7 +1731,7 @@
             document.getElementById('modal-receipt').classList.add('hidden');
         };
 
-        window.renderHistoryTable = function() {
+        window.renderHistoryAndCharts = function() {
             const tbody = document.getElementById('history-tbody');
             if (!tbody) return;
             const filterType = document.getElementById('report-date-filter')?.value || 'all';
@@ -1438,29 +1772,90 @@
 
             if (filteredTx.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Belum ada transaksi pada periode ini</td></tr>`;
-                return;
+            } else {
+                tbody.innerHTML = filteredTx.map(t => {
+                    const items = Array.isArray(t.items) ? t.items : (typeof t.items === 'string' ? window.safeJSONParse(t.items, []) : []);
+                    const itemCount = items.reduce((s, i) => s + (i.qty || 0), 0);
+                    const notaDisplay = t.invoice_number || t.id;
+                    return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-mono font-bold text-slate-700">${window.escapeHTML(notaDisplay)}</td>
+                        <td class="p-3 text-slate-500 text-[11px]">${window.escapeHTML(t.created_at_display || new Date(t.created_at).toLocaleString('id-ID'))}</td>
+                        <td class="p-3 font-semibold text-slate-700">${window.escapeHTML(t.customer_name || 'Umum')}</td>
+                        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${window.escapeHTML(t.payment_method || 'CASH')}</span></td>
+                        <td class="p-3 text-center font-bold text-slate-700">${itemCount} pcs</td>
+                        <td class="p-3 text-right font-extrabold text-blue-600">${window.formatRupiah(t.total)}</td>
+                        <td class="p-3 text-center">
+                            <button data-id="${window.escapeHTML(t.id)}" onclick="showReceiptModal(this.getAttribute('data-id'))" class="px-2.5 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 font-semibold text-[11px]">
+                                <i class="fa-solid fa-receipt mr-1"></i> Struk
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                }).join('');
             }
 
-            tbody.innerHTML = filteredTx.map(t => {
-                const items = Array.isArray(t.items) ? t.items : (typeof t.items === 'string' ? window.safeJSONParse(t.items, []) : []);
-                const itemCount = items.reduce((s, i) => s + (i.qty || 0), 0);
-                const notaDisplay = t.invoice_number || t.id;
-                return `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-3 font-mono font-bold text-slate-700">${window.escapeHTML(notaDisplay)}</td>
-                    <td class="p-3 text-slate-500 text-[11px]">${window.escapeHTML(t.created_at_display || new Date(t.created_at).toLocaleString('id-ID'))}</td>
-                    <td class="p-3 font-semibold text-slate-700">${window.escapeHTML(t.customer_name || 'Umum')}</td>
-                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${window.escapeHTML(t.payment_method || 'CASH')}</span></td>
-                    <td class="p-3 text-center font-bold text-slate-700">${itemCount} pcs</td>
-                    <td class="p-3 text-right font-extrabold text-blue-600">${window.formatRupiah(t.total)}</td>
-                    <td class="p-3 text-center">
-                        <button data-id="${window.escapeHTML(t.id)}" onclick="showReceiptModal(this.getAttribute('data-id'))" class="px-2.5 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 font-semibold text-[11px]">
-                            <i class="fa-solid fa-receipt mr-1"></i> Struk
-                        </button>
-                    </td>
-                </tr>
-            `;
-            }).join('');
+            // Render Charts
+            window.renderAnalyticsCharts(filteredTx);
+        };
+
+        window.renderAnalyticsCharts = function(filteredTx) {
+            if (typeof Chart === 'undefined') return;
+
+            // Chart 1: Sales Trend
+            const salesCanvas = document.getElementById('salesChart');
+            if (salesCanvas) {
+                const datesMap = {};
+                filteredTx.slice().reverse().forEach(t => {
+                    const dateStr = new Date(t.created_at).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
+                    datesMap[dateStr] = (datesMap[dateStr] || 0) + (t.total || 0);
+                });
+
+                const labels = Object.keys(datesMap).length > 0 ? Object.keys(datesMap) : ['Hari Ini'];
+                const data = Object.values(datesMap).length > 0 ? Object.values(datesMap) : [0];
+
+                if (salesChartInstance) salesChartInstance.destroy();
+
+                salesChartInstance = new Chart(salesCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Omset Penjualan (Rp)',
+                            data: data,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            // Chart 2: Payment Method Breakdown
+            const paymentCanvas = document.getElementById('paymentChart');
+            if (paymentCanvas) {
+                const methodMap = { CASH: 0, QRIS: 0, TRANSFER: 0 };
+                filteredTx.forEach(t => {
+                    const m = (t.payment_method || 'CASH').toUpperCase();
+                    methodMap[m] = (methodMap[m] || 0) + (t.total || 0);
+                });
+
+                if (paymentChartInstance) paymentChartInstance.destroy();
+
+                paymentChartInstance = new Chart(paymentCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Tunai (Cash)', 'QRIS', 'Transfer'],
+                        datasets: [{
+                            data: [methodMap.CASH || 0, methodMap.QRIS || 0, methodMap.TRANSFER || 0],
+                            backgroundColor: ['#2563eb', '#10b981', '#f59e0b']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
         };
 
         window.exportReportsCSV = function() {
