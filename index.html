@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Invoice Fix)</title>
+    <title>KASIR POS - itsuryatokoku (UUID Product Fix)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -75,7 +75,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v8.0 Invoice Fix</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v8.2 UUID Fix</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Profesional & Supabase Cloud</p>
             </div>
@@ -1072,7 +1072,6 @@
 
             const newTx = {
                 id: invoiceNo,
-                invoice_number: invoiceNo,
                 created_at: now.toISOString(),
                 created_at_display: now.toLocaleString('id-ID'),
                 customer_name: customerName,
@@ -1099,7 +1098,6 @@
                 try {
                     const { error: txErr } = await supabaseClient.from('transactions').insert([{
                         id: invoiceNo,
-                        invoice_number: invoiceNo,
                         cashier: 'Kasir Utama',
                         customer_name: customerName,
                         subtotal: subtotal,
@@ -1241,9 +1239,9 @@
                     }
                 }
             } else {
-                const newProdId = 'PROD-' + Date.now().toString().slice(-6);
+                // Jangan kirim id buatan ("PROD-xxx") karena Supabase products.id bertipe UUID. 
+                // Biarkan Supabase otomatis menghasilkan UUID via DEFAULT gen_random_uuid().
                 const newProd = {
-                    id: newProdId,
                     barcode, category, name, purchase_price, selling_price, stock
                 };
                 if (supabaseClient) {
@@ -1258,7 +1256,11 @@
                         window.showToast('Gagal simpan ke cloud: ' + err.message, 'error');
                     }
                 } else {
-                    products.unshift(newProd);
+                    const localProd = {
+                        id: 'local-' + Date.now(),
+                        barcode, category, name, purchase_price, selling_price, stock
+                    };
+                    products.unshift(localProd);
                 }
             }
 
