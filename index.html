@@ -1139,7 +1139,6 @@
             showNotification("Konfigurasi Supabase disimpan!", "success");
         }
 
-        /* WEB BLUETOOTH THERMAL PRINTER DRIVER */
         async function connectBluetoothPrinter() {
             if (!navigator.bluetooth) {
                 showNotification("Web Bluetooth tidak didukung di browser ini. Gunakan Chrome/Edge.", "error");
@@ -1589,11 +1588,13 @@
                     }
                 }
 
+                const isBogo = activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y';
+
                 return `
                     <div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">
                         ${activeDiscount ? `
-                            <div class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded-bl-xl shadow uppercase tracking-wider">
-                                <i class="fa-solid fa-tag mr-0.5"></i>${activeAutoPromoText}
+                            <div class="absolute top-0 right-0 ${isBogo ? 'bg-amber-600' : 'bg-red-600'} text-white text-[9px] font-black px-2.5 py-1 rounded-bl-xl shadow uppercase tracking-wider">
+                                <i class="fa-solid ${isBogo ? 'fa-gift' : 'fa-tag'} mr-0.5"></i>${activeAutoPromoText}
                             </div>
                         ` : ''}
                         <div>
@@ -1617,7 +1618,7 @@
                                     ` : activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y' ? `
                                         <div class="flex flex-col">
                                             <span class="font-extrabold text-xs text-blue-600">Rp ${(p.selling_price || 0).toLocaleString('id-ID')}</span>
-                                            <span class="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-0.5 inline-block w-fit">
+                                            <span class="text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-0.5 inline-block w-fit">
                                                 <i class="fa-solid fa-gift mr-0.5"></i>${activeAutoPromoText}
                                             </span>
                                         </div>
@@ -1770,7 +1771,6 @@
                 customers.map(c => `<option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>`).join('');
         }
 
-        /* SMART COMPACT MULTI-VOUCHER DROPDOWN */
         function renderCartVoucherDropdown() {
             const dropdown = document.getElementById('cart-voucher-dropdown');
             if (!dropdown) return;
@@ -2134,7 +2134,7 @@
                 document.getElementById('vouch-target-family').value = v.target_family || 'Semua';
                 document.getElementById('vouch-target-promo').value = v.target_promo || 'Semua';
 
-                const inferredBenefit = v.benefit_type || ((v.buy_qty > 0 && v.get_qty > 0 && !v.value) ? 'buy_x_get_y' : 'discount');
+                const inferredBenefit = v.benefit_type || ((v.buy_qty > 0 && v.get_qty > 0 && (!v.value || v.value === 0)) ? 'buy_x_get_y' : 'discount');
                 document.getElementById('vouch-benefit-type').value = inferredBenefit;
                 document.getElementById('vouch-type').value = v.type || 'fixed';
                 document.getElementById('vouch-value').value = v.value || 0;
