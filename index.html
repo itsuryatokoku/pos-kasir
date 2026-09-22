@@ -227,7 +227,7 @@
             </section>
         </div>
 
-        <!-- VIEW 2: PRODUCTS -->
+        <!-- VIEW 2: PRODUCTS MANAGEMENT -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -612,6 +612,20 @@
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
+        // Universal UUID Generator Helper
+        window.generateUUID = function() {
+            if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+                try {
+                    return crypto.randomUUID();
+                } catch (e) {}
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        };
+
         window.escapeHTML = function(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -750,12 +764,12 @@
             if (statusText) statusText.innerText = "Mode Offline (Lokal)";
 
             products = [
-                { id: '1', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
-                { id: '2', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
-                { id: '3', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
-                { id: '4', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
-                { id: '5', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
-                { id: '6', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
             ];
             transactions = [];
             window.refreshAllUIs();
@@ -1224,49 +1238,76 @@
             const selling_price = parseFloat(document.getElementById('prod-selling').value || 0);
             const stock = parseInt(document.getElementById('prod-stock').value || 0, 10);
 
+            const isUUID = (str) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
             if (editId) {
+                // UPDATE existing product
                 const index = products.findIndex(p => p.id === editId);
                 if (index !== -1) {
-                    products[index] = { id: editId, barcode, category, name, purchase_price, selling_price, stock };
+                    products[index] = { ...products[index], barcode, category, name, purchase_price, selling_price, stock };
                 }
-                if (supabaseClient) {
+
+                if (supabaseClient && isUUID(editId)) {
                     try {
                         const { error } = await supabaseClient.from('products').update({ barcode, category, name, purchase_price, selling_price, stock }).eq('id', editId);
                         if (error) throw error;
+                        window.showToast('Produk berhasil diperbarui di Cloud!', 'success');
                     } catch (err) {
                         console.error("Supabase update product error:", err);
                         window.showToast('Gagal update ke cloud: ' + err.message, 'error');
                     }
+                } else if (supabaseClient && !isUUID(editId)) {
+                    // Convert old non-UUID product into a valid UUID entry in Supabase
+                    const newUuid = window.generateUUID();
+                    const newProd = { id: newUuid, barcode, category, name, purchase_price, selling_price, stock };
+                    try {
+                        const { data, error } = await supabaseClient.from('products').insert([newProd]).select();
+                        if (error) throw error;
+                        if (data && data[0]) {
+                            if (index !== -1) products[index] = data[0];
+                        }
+                        window.showToast('Produk lama dikonversi ke UUID & tersimpan di Cloud!', 'success');
+                    } catch (err) {
+                        console.error("Supabase convert insert product error:", err);
+                        window.showToast('Gagal simpan ke cloud: ' + err.message, 'error');
+                    }
                 }
             } else {
-                // Jangan kirim id buatan ("PROD-xxx") karena Supabase products.id bertipe UUID. 
-                // Biarkan Supabase otomatis menghasilkan UUID via DEFAULT gen_random_uuid().
+                // INSERT brand new product with client-generated UUID
+                const newUuid = window.generateUUID();
                 const newProd = {
-                    barcode, category, name, purchase_price, selling_price, stock
+                    id: newUuid,
+                    barcode,
+                    category,
+                    name,
+                    purchase_price,
+                    selling_price,
+                    stock
                 };
+
                 if (supabaseClient) {
                     try {
                         const { data, error } = await supabaseClient.from('products').insert([newProd]).select();
                         if (error) throw error;
                         if (data && data[0]) {
                             products.unshift(data[0]);
+                        } else {
+                            products.unshift(newProd);
                         }
+                        window.showToast('Produk baru tersimpan di Supabase!', 'success');
                     } catch (err) {
                         console.error("Supabase insert product error:", err);
                         window.showToast('Gagal simpan ke cloud: ' + err.message, 'error');
+                        products.unshift(newProd); // Keep local fallback
                     }
                 } else {
-                    const localProd = {
-                        id: 'local-' + Date.now(),
-                        barcode, category, name, purchase_price, selling_price, stock
-                    };
-                    products.unshift(localProd);
+                    products.unshift(newProd);
+                    window.showToast('Produk disimpan lokal (Offline)', 'success');
                 }
             }
 
             window.refreshAllUIs();
             window.closeProductModal();
-            window.showToast('Produk berhasil disimpan!', 'success');
         };
 
         window.deleteProduct = async function(id) {
