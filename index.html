@@ -231,7 +231,7 @@
                         </select>
                     </div>
 
-                    <!-- MULTI-VOUCHER DROPDOWN SELECTOR -->
+                    <!-- COMPACT MULTI-VOUCHER DROPDOWN SELECTOR -->
                     <div class="space-y-1">
                         <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
                             <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Pilih Voucher / Promo</span>
@@ -1043,8 +1043,8 @@
         ];
 
         const defaultVouchers = [
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000 (Min. Bimoli 50rb)', target_category: 'Semua', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'fixed', value: 10000, min_purchase: 50000, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 0, get_qty: 0, max_discount: 10000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 5 },
-            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'percentage', value: 10, min_purchase: 0, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 0, get_qty: 0, max_discount: 15000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 12 }
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v11', promo_type: 'voucher', code: 'PROMO10K', title: 'Potongan Rp 10.000 (Min. Bimoli 50rb)', target_category: 'Semua', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'fixed', value: 10000, min_purchase: 50000, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 1, get_qty: 1, max_discount: 10000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 5 },
+            { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', promo_type: 'auto_category', code: 'AUTO_BIMOLI_HEMAT', title: 'Diskon 10% Sembako Bimoli', target_category: 'Sembako', target_brand: 'Bimoli', target_family: 'Semua', target_promo: 'Semua', benefit_type: 'discount', type: 'percentage', value: 10, min_purchase: 0, min_purchase_scope: 'criteria', min_qty: 0, buy_qty: 1, get_qty: 1, max_discount: 15000, valid_from: '2026-01-01', valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1548,7 +1548,7 @@
             vouchers.forEach(v => {
                 if (v.is_active && v.promo_type === 'auto_category' && isVoucherDateValid(v)) {
                     if (productMatchesVoucherTarget(product, v)) {
-                        if (v.min_qty && v.min_qty > 0) {
+                        if (v.min_qty && v.min_qty > 0 && v.min_purchase_scope === 'criteria') {
                             const matchingItemInCart = cart.find(i => i.id === product.id);
                             if (!matchingItemInCart || matchingItemInCart.qty < v.min_qty) return;
                         }
@@ -1770,14 +1770,13 @@
                 customers.map(c => `<option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>`).join('');
         }
 
-        /* SMART MULTI-VOUCHER DROPDOWN */
+        /* SMART COMPACT MULTI-VOUCHER DROPDOWN */
         function renderCartVoucherDropdown() {
             const dropdown = document.getElementById('cart-voucher-dropdown');
             if (!dropdown) return;
 
             const appliedIds = appliedVouchers.map(v => v.id);
 
-            // Compute gross subtotal for overall scope check
             let grossSubtotal = 0;
             let totalCartQty = 0;
             cart.forEach(item => {
@@ -2135,7 +2134,8 @@
                 document.getElementById('vouch-target-family').value = v.target_family || 'Semua';
                 document.getElementById('vouch-target-promo').value = v.target_promo || 'Semua';
 
-                document.getElementById('vouch-benefit-type').value = v.benefit_type || 'discount';
+                const inferredBenefit = v.benefit_type || ((v.buy_qty > 0 && v.get_qty > 0 && !v.value) ? 'buy_x_get_y' : 'discount');
+                document.getElementById('vouch-benefit-type').value = inferredBenefit;
                 document.getElementById('vouch-type').value = v.type || 'fixed';
                 document.getElementById('vouch-value').value = v.value || 0;
                 document.getElementById('vouch-min-purchase').value = v.min_purchase || 0;
