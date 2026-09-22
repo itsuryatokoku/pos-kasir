@@ -702,6 +702,10 @@ CREATE TABLE transactions (
             footer: 'Terima kasih telah berbelanja!'
         };
 
+        // Supabase Default Credentials
+        const DEFAULT_SUPABASE_URL = 'https://zxsyggyekdbxtumdpisq.supabase.co';
+        const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4c3lnZ3lla2RieHR1bWRwaXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzI5MTgsImV4cCI6MjEwNTU0ODkxOH0.b2HoXlKgchtRwOmqRyb9pPQp9tHCQ6x4EibLH6W_tQI';
+
         // Data State
         let products = JSON.parse(localStorage.getItem('fase5_products')) || [
             { id: '1', barcode: '8991001', category: 'Minuman', name: 'Minyak Goreng 1L', purchase_price: 14000, selling_price: 16500, stock: 20 },
@@ -818,19 +822,19 @@ CREATE TABLE transactions (
         }
 
         function initSupabaseClient() {
-            const url = localStorage.getItem('supabase_url');
-            const key = localStorage.getItem('supabase_key');
+            let url = localStorage.getItem('supabase_url');
+            let key = localStorage.getItem('supabase_key');
 
-            if (url) {
-                const urlEl = document.getElementById('cfg-url');
-                if (urlEl) urlEl.value = url;
-            }
-            if (key) {
-                const keyEl = document.getElementById('cfg-key');
-                if (keyEl) keyEl.value = key;
-            }
+            if (url === null) url = DEFAULT_SUPABASE_URL;
+            if (key === null) key = DEFAULT_SUPABASE_KEY;
 
-            if (url && key && window.supabase) {
+            const urlEl = document.getElementById('cfg-url');
+            if (urlEl) urlEl.value = (url === 'OFFLINE') ? '' : url;
+            
+            const keyEl = document.getElementById('cfg-key');
+            if (keyEl) keyEl.value = (key === 'OFFLINE') ? '' : key;
+
+            if (url && key && url !== 'OFFLINE' && key !== 'OFFLINE' && window.supabase) {
                 try {
                     supabaseClient = window.supabase.createClient(url, key);
                     updateDbStatus(true, "Terhubung Supabase");
@@ -868,8 +872,8 @@ CREATE TABLE transactions (
         }
 
         function useDemoMode() {
-            localStorage.removeItem('supabase_url');
-            localStorage.removeItem('supabase_key');
+            localStorage.setItem('supabase_url', 'OFFLINE');
+            localStorage.setItem('supabase_key', 'OFFLINE');
             supabaseClient = null;
             updateDbStatus(false, "Mode Offline (Lokal)");
             closeConfigModal();
