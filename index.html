@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Enterprise v12.5 Pro)</title>
+    <title>MY KSR - Enterprise POS & Cloud v12.5 Pro</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -71,6 +71,9 @@
 </head>
 <body class="h-screen overflow-hidden text-slate-800 flex flex-col antialiased bg-slate-100">
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <header class="bg-slate-900 text-white px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
         <div class="flex items-center space-x-3">
             <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-10 h-10 shadow-lg shadow-blue-500/35 tracking-widest cursor-pointer" onclick="openStoreModal()" title="Pengaturan Toko">
@@ -78,7 +81,7 @@
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
+                    <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">MY KSR</h1>
                     <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v12.5 Pro</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud & Multi-Criteria Promo</p>
@@ -173,6 +176,7 @@
 
     <main class="flex-1 flex overflow-hidden relative">
         
+        <!-- POS VIEW -->
         <div id="view-pos" class="view-page flex-1 flex flex-col md:flex-row w-full h-full overflow-hidden">
             <section class="flex-1 p-3 sm:p-4 flex flex-col gap-3 overflow-hidden bg-white border-r border-slate-200">
                 <div class="flex gap-2">
@@ -227,26 +231,15 @@
                         </select>
                     </div>
 
-                    <!-- VOUCHER PROMO INPUT IN CART -->
+                    <!-- COMPACT VOUCHER DROPDOWN SELECTOR -->
                     <div class="space-y-1">
-                        <div class="flex gap-1.5">
-                            <div class="relative flex-1">
-                                <i class="fa-solid fa-ticket absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
-                                <input type="text" id="cart-voucher-input" placeholder="Kode Voucher (misal: PROMO10K)..." class="w-full pl-7 pr-2 py-1 text-xs font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-indigo-500 focus:outline-none uppercase">
-                            </div>
-                            <button onclick="applyVoucherCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 text-xs rounded-lg transition shrink-0">
-                                Pakai
-                            </button>
+                        <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                            <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Pilih Voucher Tersedia</span>
                         </div>
-
-                        <!-- LIST VOUCHER KODE AKTIF -->
-                        <div class="bg-white border border-slate-200 rounded-lg p-2 space-y-1">
-                            <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
-                                <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Daftar Voucher Kode</span>
-                                <span class="text-[9px] text-indigo-600 font-normal">Klik untuk pakai</span>
-                            </div>
-                            <div id="active-promo-list" class="max-h-24 overflow-y-auto custom-scrollbar space-y-1">
-                            </div>
+                        <div class="flex gap-1.5">
+                            <select id="cart-voucher-dropdown" onchange="applyDropdownVoucher(this)" class="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="">-- Pilih Voucher / Promo --</option>
+                            </select>
                         </div>
 
                         <div id="applied-voucher-badge" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-1 rounded-lg text-[11px] font-semibold flex justify-between items-center">
@@ -278,7 +271,7 @@
                     </div>
                     
                     <div id="row-category-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span class="text-slate-500">Diskon Otomatis Kombinasi</span>
+                        <span class="text-slate-500">Diskon Otomatis Kategori</span>
                         <span id="cart-category-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
@@ -333,6 +326,7 @@
             </section>
         </div>
 
+        <!-- PRODUCTS VIEW -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -383,6 +377,7 @@
             </div>
         </div>
 
+        <!-- CUSTOMERS VIEW -->
         <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -428,6 +423,7 @@
             </div>
         </div>
 
+        <!-- VOUCHERS VIEW -->
         <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -473,6 +469,7 @@
             </div>
         </div>
 
+        <!-- HISTORY VIEW -->
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -529,6 +526,7 @@
             </div>
         </div>
 
+        <!-- SETTINGS VIEW -->
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir</h2>
@@ -540,7 +538,7 @@
                     <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Identitas Toko</h3>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Toko</label>
-                        <input type="text" id="setting-store-name" value="itsuryatokoku" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" id="setting-store-name" value="MY KSR" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Sub-judul / Slogan</label>
@@ -548,7 +546,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Header Footer Nota</label>
-                        <input type="text" id="setting-receipt-footer" value="Terima kasih telah berbelanja di itsuryatokoku!" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" id="setting-receipt-footer" value="Terima kasih telah berbelanja di MY KSR!" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <button onclick="saveStoreSettings()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition">
                         Simpan Identitas Toko
@@ -685,7 +683,7 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD / EDIT VOUCHER / PROMO (DENGAN MULTI-CRITERIA COMBINATION & DATE RANGE) -->
+    <!-- MODAL: ADD / EDIT VOUCHER / PROMO -->
     <div id="voucher-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -700,7 +698,7 @@
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Promo</label>
                         <select id="vouch-promo-type" onchange="togglePromoTypeFields()" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-bold text-indigo-700">
                             <option value="voucher">Voucher Kode</option>
-                            <option value="auto_category">Promo Otomatis Kombinasi</option>
+                            <option value="auto_category">Promo Otomatis Kategori / Kombinasi</option>
                         </select>
                     </div>
                     <div id="voucher-code-group">
@@ -854,7 +852,7 @@
         <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div id="printable-receipt" class="font-mono-receipt text-xs space-y-3 text-slate-800 p-2 border border-dashed border-slate-300 rounded-xl bg-slate-50">
                 <div class="text-center space-y-0.5">
-                    <h3 id="rec-store-name" class="font-bold text-sm uppercase tracking-wider">itsuryatokoku</h3>
+                    <h3 id="rec-store-name" class="font-bold text-sm uppercase tracking-wider">MY KSR</h3>
                     <p id="rec-store-sub" class="text-[10px] text-slate-500">POS Kasir & Cloud Sync</p>
                     <div class="text-[10px] text-slate-400 border-b border-dashed border-slate-300 pb-2">--------------------------------</div>
                 </div>
@@ -1032,7 +1030,7 @@
             renderCategories();
             renderProductGrid();
             renderCartItems();
-            renderActivePromoList();
+            renderCartVoucherDropdown();
             renderAdminProductsTable();
             renderCustomersTable();
             renderCartCustomerDropdown();
@@ -1040,6 +1038,24 @@
             renderHistoryTable();
             initCharts();
         });
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-red-600 text-white' : 'bg-slate-800 text-white';
+            toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold pointer-events-auto transition transform translate-y-2 opacity-0 duration-300 flex items-center gap-2`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
         function loadSavedStoreSettings() {
             const name = localStorage.getItem('pos_store_name');
@@ -1077,11 +1093,12 @@
             localStorage.setItem('pos_store_sub', sub);
             localStorage.setItem('pos_receipt_footer', footer);
 
-            document.getElementById('header-store-name').innerText = name || 'itsuryatokoku';
+            document.getElementById('header-store-name').innerText = name || 'MY KSR';
             document.getElementById('header-store-sub').innerText = sub || 'Sistem Kasir Cloud';
-            document.getElementById('rec-store-name').innerText = name || 'itsuryatokoku';
+            document.getElementById('rec-store-name').innerText = name || 'MY KSR';
             document.getElementById('rec-store-sub').innerText = sub || 'POS Kasir & Cloud Sync';
-            document.getElementById('rec-footer-text').innerText = footer || 'Terima kasih telah berbelanja!';
+            document.getElementById('rec-footer-text').innerText = footer || 'Terima kasih telah berbelanja di MY KSR!';
+            showNotification("Identitas toko berhasil disimpan!", "success");
         }
 
         function saveSupabaseSettings() {
@@ -1092,36 +1109,70 @@
             localStorage.setItem('supabase_key', key);
 
             initSupabaseClient();
+            showNotification("Konfigurasi Supabase disimpan!", "success");
         }
 
+        /* WEB BLUETOOTH THERMAL PRINTER DRIVER */
         async function connectBluetoothPrinter() {
-            if (!navigator.bluetooth) return;
+            if (!navigator.bluetooth) {
+                showNotification("Web Bluetooth tidak didukung di browser ini. Gunakan Chrome/Edge.", "error");
+                return;
+            }
             try {
+                document.getElementById('bt-printer-status').innerText = 'Mencari...';
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
-                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', '000018p0-0000-1000-8000-00805f9b34fb', '0000ff00-0000-1000-8000-00805f9b34fb']
+                    optionalServices: [
+                        '000018f0-0000-1000-8000-00805f9b34fb', 
+                        '0000ff00-0000-1000-8000-00805f9b34fb', 
+                        '000018p0-0000-1000-8000-00805f9b34fb'
+                    ]
                 });
                 bluetoothDevice = device;
+                device.addEventListener('gattserverdisconnected', onBluetoothDisconnected);
+
                 const server = await device.gatt.connect();
+                let foundChar = null;
                 const services = await server.getPrimaryServices();
                 for (const service of services) {
-                    const characteristics = await service.getCharacteristics();
-                    for (const char of characteristics) {
-                        if (char.properties.write || char.properties.writeWithoutResponse) {
-                            bluetoothCharacteristic = char;
-                            break;
+                    try {
+                        const characteristics = await service.getCharacteristics();
+                        for (const char of characteristics) {
+                            if (char.properties.write || char.properties.writeWithoutResponse) {
+                                foundChar = char;
+                                break;
+                            }
                         }
+                    } catch(err) {
+                        console.warn("Could not get characteristics for service", service.uuid);
                     }
-                    if (bluetoothCharacteristic) break;
+                    if (foundChar) break;
                 }
+
+                if (!foundChar) {
+                    throw new Error("Karakteristik printer tulis (writable) tidak ditemukan.");
+                }
+
+                bluetoothCharacteristic = foundChar;
                 document.getElementById('bt-printer-status').innerText = device.name || 'BT Terhubung';
+                showNotification("Printer Bluetooth berhasil terhubung!", "success");
             } catch (e) {
-                console.warn('Bluetooth connection cancelled or failed:', e);
+                console.warn('Bluetooth connection error:', e);
+                document.getElementById('bt-printer-status').innerText = 'BT Gagal';
+                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Manual.", "error");
             }
         }
 
+        function onBluetoothDisconnected() {
+            bluetoothCharacteristic = null;
+            bluetoothDevice = null;
+            const btnStatus = document.getElementById('bt-printer-status');
+            if (btnStatus) btnStatus.innerText = 'BT Terputus';
+            showNotification("Printer Bluetooth terputus.", "info");
+        }
+
         async function handleThermalPrintAction() {
-            if (bluetoothCharacteristic) {
+            if (bluetoothCharacteristic && bluetoothDevice && bluetoothDevice.gatt.connected) {
                 await printBluetoothReceipt(currentTransactionRecord);
             } else {
                 printReceipt();
@@ -1129,21 +1180,22 @@
         }
 
         async function printBluetoothReceipt(tx) {
-            if (!bluetoothCharacteristic || !tx) {
+            if (!bluetoothCharacteristic || !bluetoothDevice || !bluetoothDevice.gatt.connected) {
+                showNotification("Printer Bluetooth belum terhubung. Mencetak via sistem...", "info");
                 printReceipt();
                 return;
             }
             try {
                 const encoder = new TextEncoder();
                 const commands = [];
-                commands.push(new Uint8Array([0x1B, 0x40]));
-                commands.push(new Uint8Array([0x1B, 0x61, 0x01]));
+                commands.push(new Uint8Array([0x1B, 0x40])); // Init
+                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
 
-                const storeName = document.getElementById('header-store-name').innerText || 'itsuryatokoku';
+                const storeName = document.getElementById('header-store-name').innerText || 'MY KSR';
                 const storeSub = document.getElementById('header-store-sub').innerText || 'POS Kasir';
 
                 commands.push(encoder.encode(`${storeName}\n${storeSub}\n--------------------------------\n`));
-                commands.push(new Uint8Array([0x1B, 0x61, 0x00]));
+                commands.push(new Uint8Array([0x1B, 0x61, 0x00])); // Left
                 commands.push(encoder.encode(`No. Nota : ${tx.id}\n`));
                 commands.push(encoder.encode(`Tanggal  : ${new Date(tx.created_at).toLocaleString('id-ID')}\n`));
                 commands.push(encoder.encode(`Kasir    : ${tx.cashier}\n`));
@@ -1164,14 +1216,23 @@
                 commands.push(encoder.encode(`Bayar    : Rp ${tx.cash_paid.toLocaleString('id-ID')}\n`));
                 commands.push(encoder.encode(`Kembali  : Rp ${tx.change.toLocaleString('id-ID')}\n`));
                 commands.push(encoder.encode(`--------------------------------\n`));
-                commands.push(new Uint8Array([0x1B, 0x61, 0x01]));
-                const footerText = document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja!';
+                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
+                const footerText = document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja di MY KSR!';
                 commands.push(encoder.encode(`${footerText}\n\n\n`));
+                commands.push(new Uint8Array([0x1D, 0x56, 0x41, 0x00])); // Cut
 
                 for (const cmd of commands) {
-                    await bluetoothCharacteristic.writeValue(cmd);
+                    if (bluetoothCharacteristic.properties.writeWithoutResponse) {
+                        await bluetoothCharacteristic.writeValueWithoutResponse(cmd);
+                    } else {
+                        await bluetoothCharacteristic.writeValue(cmd);
+                    }
+                    await new Promise(r => setTimeout(r, 20));
                 }
+                showNotification("Nota berhasil dicetak via Bluetooth!", "success");
             } catch (err) {
+                console.error("Bluetooth print error:", err);
+                showNotification("Gagal mencetak Bluetooth. Menggunakan cetak browser...", "error");
                 printReceipt();
             }
         }
@@ -1182,6 +1243,7 @@
         function changeBranch() {
             currentBranch = document.getElementById('branch-select').value;
             localStorage.setItem('pos_current_branch', currentBranch);
+            showNotification(`Cabang diubah ke: ${currentBranch}`, "info");
         }
 
         function initSupabaseClient() {
@@ -1283,6 +1345,7 @@
                 applyUserRolePermissions(foundUser);
                 document.getElementById('login-modal').classList.add('hidden');
                 errorMsg.classList.add('hidden');
+                showNotification(`Selamat datang, ${foundUser.name}!`, "success");
             } else {
                 errorMsg.innerText = 'PIN atau Akun tidak valid!';
                 errorMsg.classList.remove('hidden');
@@ -1365,7 +1428,7 @@
                     vouchers = cloudVouch;
                     saveLocalStorageData();
                     renderVouchersTable();
-                    renderActivePromoList();
+                    renderCartVoucherDropdown();
                 }
 
                 const { data: cloudTx } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
@@ -1432,7 +1495,6 @@
             }
         }
 
-        // MULTI-CRITERIA COMBINATION MATCHING LOGIC WITH DATE RANGE CHECK
         function isVoucherDateValid(v) {
             const today = new Date().setHours(0,0,0,0);
             const fromOk = !v.valid_from || new Date(v.valid_from).setHours(0,0,0,0) <= today;
@@ -1487,10 +1549,10 @@
                 if (activeDiscount) {
                     if (activeDiscount.type === 'percentage') {
                         finalPrice = p.selling_price * (1 - activeDiscount.value / 100);
-                        activeAutoPromoText = `DISC ${activeDiscount.value}%`;
+                        activeAutoPromoText = `Diskon ${activeDiscount.value}%`;
                     } else {
                         finalPrice = Math.max(0, p.selling_price - activeDiscount.value);
-                        activeAutoPromoText = `POTONGAN Rp ${activeDiscount.value.toLocaleString('id-ID')}`;
+                        activeAutoPromoText = `Potongan Rp ${activeDiscount.value.toLocaleString('id-ID')}`;
                     }
                 }
 
@@ -1659,50 +1721,51 @@
                 customers.map(c => `<option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>`).join('');
         }
 
-        function renderActivePromoList() {
-            const container = document.getElementById('active-promo-list');
-            if (!container) return;
+        /* DYNAMIC FILTERED VOUCHER DROPDOWN IN CART SIDEBAR */
+        function renderCartVoucherDropdown() {
+            const dropdown = document.getElementById('cart-voucher-dropdown');
+            if (!dropdown) return;
 
-            const activeList = vouchers.filter(v => v.is_active && v.promo_type === 'voucher' && isVoucherDateValid(v));
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            // Filter vouchers that are active, code type, date valid, and minimum purchase met
+            const availableVouchers = vouchers.filter(v => {
+                if (!v.is_active || v.promo_type !== 'voucher' || !isVoucherDateValid(v)) return false;
+                if (v.min_purchase && subtotal < v.min_purchase) return false;
+                return true;
+            });
 
-            if (activeList.length === 0) {
-                container.innerHTML = `<div class="text-[10px] text-slate-400 text-center py-1">Tidak ada voucher kode aktif</div>`;
+            const currentCode = appliedVoucher ? appliedVoucher.code : '';
+
+            dropdown.innerHTML = `<option value="">-- Pilih Voucher / Promo (${availableVouchers.length} Tersedia) --</option>` +
+                availableVouchers.map(v => `
+                    <option value="${v.code}" ${currentCode === v.code ? 'selected' : ''}>
+                        ${v.code} - ${v.title} (${v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})
+                    </option>
+                `).join('');
+        }
+
+        function applyDropdownVoucher(selectEl) {
+            const code = selectEl.value;
+            if (!code) {
+                removeAppliedVoucher();
                 return;
             }
 
-            container.innerHTML = activeList.map(v => `
-                <div onclick="quickApplyPromo('${v.code}')" class="flex justify-between items-center bg-indigo-50/60 hover:bg-indigo-100 p-1.5 rounded cursor-pointer transition border border-indigo-100 text-[11px]">
-                    <div>
-                        <span class="font-mono font-bold text-indigo-700">${v.code}</span>
-                        <span class="text-slate-600 ml-1 truncate max-w-[120px] inline-block align-bottom">${v.title}</span>
-                    </div>
-                    <span class="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold">Pakai</span>
-                </div>
-            `).join('');
-        }
-
-        function quickApplyPromo(code) {
-            document.getElementById('cart-voucher-input').value = code;
-            applyVoucherCode();
-        }
-
-        function applyVoucherCode() {
-            const input = document.getElementById('cart-voucher-input');
-            const code = (input.value || '').trim().toUpperCase();
-
-            if (!code) return;
+            const v = vouchers.find(item => item.promo_type === 'voucher' && item.code && item.code.toUpperCase() === code.toUpperCase());
+            if (!v) return;
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            if (subtotal <= 0) return;
-
-            const v = vouchers.find(item => item.promo_type === 'voucher' && item.code && item.code.toUpperCase() === code);
-            if (!v || !v.is_active || !isVoucherDateValid(v)) return;
-            if (v.min_purchase && subtotal < v.min_purchase) return;
+            if (v.min_purchase && subtotal < v.min_purchase) {
+                showNotification(`Minimum belanja untuk voucher ini adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`, "error");
+                selectEl.value = appliedVoucher ? appliedVoucher.code : '';
+                return;
+            }
 
             appliedVoucher = v;
             document.getElementById('voucher-badge-text').innerText = `${v.code} (${v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})`;
             document.getElementById('applied-voucher-badge').classList.remove('hidden');
-            input.value = '';
+            showNotification(`Voucher ${v.code} berhasil diterapkan!`, "success");
 
             calculateCartTotals();
         }
@@ -1710,6 +1773,8 @@
         function removeAppliedVoucher() {
             appliedVoucher = null;
             document.getElementById('applied-voucher-badge').classList.add('hidden');
+            const dropdown = document.getElementById('cart-voucher-dropdown');
+            if (dropdown) dropdown.value = '';
             calculateCartTotals();
         }
 
@@ -1838,6 +1903,8 @@
 
             document.getElementById('cart-grand-total').innerText = `Rp ${state.grandTotal.toLocaleString('id-ID')}`;
             document.getElementById('btn-checkout').disabled = cart.length === 0;
+
+            renderCartVoucherDropdown();
         }
 
         function renderVouchersTable() {
@@ -1862,7 +1929,7 @@
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAuto ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200'}">
-                                ${isAuto ? '⚡ Otomatis Kombinasi' : '🎫 Voucher Kode'}
+                                ${isAuto ? '⚡ Otomatis Kategori' : '🎫 Voucher Kode'}
                             </span>
                         </td>
                         <td class="p-3 font-mono font-bold text-indigo-600">${isAuto ? '-' : (v.code || '-')}</td>
@@ -1885,7 +1952,7 @@
                 `;
             }).join('');
 
-            renderActivePromoList();
+            renderCartVoucherDropdown();
         }
 
         function populateVoucherDropdowns() {
@@ -2027,6 +2094,7 @@
             renderVouchersTable();
             renderProductGrid();
             closeVoucherModal();
+            showNotification("Promo & Voucher berhasil disimpan!", "success");
 
             if (supabaseClient) {
                 try {
@@ -2043,6 +2111,7 @@
             saveLocalStorageData();
             renderVouchersTable();
             renderProductGrid();
+            showNotification(`Status promo ${v.title} diubah.`, "info");
 
             if (supabaseClient) {
                 try {
@@ -2056,6 +2125,7 @@
             saveLocalStorageData();
             renderVouchersTable();
             renderProductGrid();
+            showNotification("Promo berhasil dihapus.", "info");
 
             if (supabaseClient) {
                 try {
@@ -2156,6 +2226,7 @@
             renderAdminProductsTable();
             renderCategories();
             closeProductModal();
+            showNotification("Produk berhasil disimpan!", "success");
 
             if (supabaseClient) {
                 try {
@@ -2170,6 +2241,7 @@
             saveLocalStorageData();
             renderProductGrid();
             renderAdminProductsTable();
+            showNotification("Produk dihapus.", "info");
 
             if (supabaseClient) {
                 try {
@@ -2271,6 +2343,7 @@
             renderCustomersTable();
             renderCartCustomerDropdown();
             closeCustomerModal();
+            showNotification("Data pelanggan disimpan!", "success");
 
             if (supabaseClient) {
                 try {
@@ -2285,6 +2358,7 @@
             saveLocalStorageData();
             renderCustomersTable();
             renderCartCustomerDropdown();
+            showNotification("Pelanggan dihapus.", "info");
 
             if (supabaseClient) {
                 try {
@@ -2326,7 +2400,10 @@
             const payMethod = document.getElementById('pay-method').value;
             const cashPaid = parseFloat(document.getElementById('pay-cash-amount').value) || state.grandTotal;
 
-            if (payMethod === 'Tunai' && cashPaid < state.grandTotal) return;
+            if (payMethod === 'Tunai' && cashPaid < state.grandTotal) {
+                showNotification("Uang pembayaran kurang!", "error");
+                return;
+            }
 
             if (appliedVoucher) {
                 const v = vouchers.find(item => item.id === appliedVoucher.id);
@@ -2377,6 +2454,7 @@
             transactions.unshift(newTx);
             removeAppliedVoucher();
             
+            // Reset manual discount inputs back to default
             document.getElementById('cart-discount-input').value = '0';
             document.getElementById('cart-discount-type').value = 'percentage';
 
@@ -2390,6 +2468,7 @@
             renderCustomersTable();
             renderHistoryTable();
             updateCharts();
+            showNotification("Transaksi berhasil diselesaikan!", "success");
 
             if (supabaseClient) {
                 try {
@@ -2502,6 +2581,7 @@
             a.setAttribute('href', url);
             a.setAttribute('download', `laporan_penjualan_${new Date().toISOString().slice(0,10)}.csv`);
             a.click();
+            showNotification("Laporan CSV berhasil diunduh!", "success");
         }
 
         function openCameraScanner() {
@@ -2518,7 +2598,12 @@
         function onScanSuccess(decodedText) {
             closeCameraScanner();
             const product = products.find(p => p.barcode === decodedText || p.sku === decodedText);
-            if (product) addToCart(product.id);
+            if (product) {
+                addToCart(product.id);
+                showNotification(`Produk ditemukan: ${product.name}`, "success");
+            } else {
+                showNotification(`Barcode ${decodedText} tidak ditemukan!`, "error");
+            }
         }
     </script>
 </body>
