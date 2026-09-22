@@ -120,13 +120,16 @@
                 </select>
             </div>
 
-            <!-- ROLE SELECTOR -->
-            <div class="flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
-                <i class="fa-solid fa-user-shield text-blue-400 ml-1.5 mr-1 text-xs"></i>
-                <select id="user-role-select" onchange="changeUserRole()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
-                    <option value="admin" class="bg-slate-800 text-white">Owner/Admin</option>
-                    <option value="cashier" class="bg-slate-800 text-white">Kasir (Staff)</option>
-                </select>
+            <!-- LOGIN / USER PROFILE BADGE -->
+            <div class="flex items-center gap-2 bg-slate-800 border border-slate-700/60 rounded-xl px-2.5 py-1 text-xs">
+                <i class="fa-solid fa-user-circle text-blue-400 text-sm"></i>
+                <div class="flex flex-col text-left">
+                    <span id="user-display-name" class="font-bold text-white text-[11px] leading-tight">Admin</span>
+                    <span id="user-display-role" class="text-[9px] text-blue-300 font-semibold uppercase">Owner/Admin</span>
+                </div>
+                <button onclick="openLoginModal()" title="Ganti Akun / Logout" class="ml-1 text-slate-400 hover:text-red-400 transition p-1">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
 
             <!-- WEB BLUETOOTH PRINTER CONNECTOR -->
@@ -732,6 +735,75 @@
         </div>
     </div>
 
+    <!-- MODAL: LOGIN USER / ROLE ACCESS -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-5 text-center relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-500/30 mb-3">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="font-black text-xl text-slate-800 tracking-tight">Otentikasi Kasir & Admin</h3>
+                <p class="text-xs text-slate-500 mt-1">Masukkan PIN untuk masuk ke sistem</p>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Pilih Akun / Peran</label>
+                    <select id="login-username" class="w-full px-3 py-2.5 text-xs font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50">
+                        <option value="admin">👑 Owner / Admin (PIN: 1234)</option>
+                        <option value="kasir1">🛒 Kasir 1 - Utama (PIN: 0000)</option>
+                        <option value="kasir2">🛒 Kasir 2 - Shift Malam (PIN: 1111)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">PIN Keamanan (4 Digit)</label>
+                    <input 
+                        type="password" 
+                        id="login-pin" 
+                        required 
+                        maxlength="6" 
+                        placeholder="••••" 
+                        class="w-full px-3 py-2.5 text-center text-xl tracking-widest font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    >
+                </div>
+
+                <div id="login-error-msg" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs p-2.5 rounded-xl font-semibold text-center">
+                    PIN tidak valid! Silakan coba lagi.
+                </div>
+
+                <!-- KEYPAD DIGIT PIN -->
+                <div class="grid grid-cols-3 gap-1.5 pt-1">
+                    <button type="button" onclick="appendPin('1')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">1</button>
+                    <button type="button" onclick="appendPin('2')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">2</button>
+                    <button type="button" onclick="appendPin('3')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">3</button>
+                    <button type="button" onclick="appendPin('4')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">4</button>
+                    <button type="button" onclick="appendPin('5')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">5</button>
+                    <button type="button" onclick="appendPin('6')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">6</button>
+                    <button type="button" onclick="appendPin('7')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">7</button>
+                    <button type="button" onclick="appendPin('8')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">8</button>
+                    <button type="button" onclick="appendPin('9')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">9</button>
+                    <button type="button" onclick="clearPin()" class="py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl text-xs active:scale-95 transition">Hapus</button>
+                    <button type="button" onclick="appendPin('0')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base active:scale-95 transition">0</button>
+                    <button type="button" onclick="deletePin()" class="py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl text-xs active:scale-95 transition"><i class="fa-solid fa-backspace"></i></button>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition active:scale-[0.99] flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>MASUK SISTEM</span>
+                </button>
+            </form>
+
+            <div class="text-[10px] text-slate-400 border-t pt-2">
+                Default PIN: Admin = <b class="text-slate-600">1234</b> | Kasir 1 = <b class="text-slate-600">0000</b> | Kasir 2 = <b class="text-slate-600">1111</b>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
         // GLOBAL STATE
@@ -747,6 +819,14 @@
         let currentRole = 'admin';
         let currentBranch = 'Pusat Utama';
         let activeVoucher = null;
+
+        // USER ACCOUNTS
+        const defaultAccounts = [
+            { username: 'admin', name: 'Owner / Admin', role: 'admin', pin: '1234' },
+            { username: 'kasir1', name: 'Kasir Utama', role: 'cashier', pin: '0000' },
+            { username: 'kasir2', name: 'Kasir Shift Malam', role: 'cashier', pin: '1111' }
+        ];
+        let activeUser = null;
 
         // SEED DATA FALLBACK
         const defaultProducts = [
@@ -767,6 +847,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initSupabaseClient();
             loadLocalStorageData();
+            initAuthSystem();
             setupHashNavigation();
             renderCategories();
             renderProductGrid();
@@ -777,6 +858,86 @@
             renderHistoryTable();
             initCharts();
         });
+
+        // AUTHENTICATION LOGIC
+        function initAuthSystem() {
+            const savedUser = localStorage.getItem('pos_active_user');
+            if (savedUser) {
+                try {
+                    activeUser = JSON.parse(savedUser);
+                    applyUserRolePermissions(activeUser);
+                } catch(e) {
+                    openLoginModal();
+                }
+            } else {
+                openLoginModal();
+            }
+        }
+
+        function openLoginModal() {
+            document.getElementById('login-pin').value = '';
+            document.getElementById('login-error-msg').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const pin = document.getElementById('login-pin').value;
+            const errorMsg = document.getElementById('login-error-msg');
+
+            const accounts = JSON.parse(localStorage.getItem('pos_accounts')) || defaultAccounts;
+            const foundUser = accounts.find(acc => acc.username === username && acc.pin === pin);
+
+            if (foundUser) {
+                activeUser = foundUser;
+                localStorage.setItem('pos_active_user', JSON.stringify(foundUser));
+                applyUserRolePermissions(foundUser);
+                document.getElementById('login-modal').classList.add('hidden');
+                errorMsg.classList.add('hidden');
+            } else {
+                errorMsg.innerText = 'PIN atau Akun tidak cocok!';
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function applyUserRolePermissions(user) {
+            currentRole = user.role;
+            document.getElementById('user-display-name').innerText = user.name;
+            document.getElementById('user-display-role').innerText = user.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
+
+            // Show or hide admin navigation items
+            const adminNavs = document.querySelectorAll('.nav-admin-only');
+            adminNavs.forEach(el => {
+                if (user.role === 'admin') {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            // Redirect cashier if attempting to access protected view
+            const currentHash = window.location.hash;
+            if (user.role === 'cashier' && currentHash !== '#pos' && currentHash !== '') {
+                window.location.hash = '#pos';
+            }
+        }
+
+        function appendPin(num) {
+            const pinInput = document.getElementById('login-pin');
+            if (pinInput.value.length < 6) {
+                pinInput.value += num;
+            }
+        }
+
+        function clearPin() {
+            document.getElementById('login-pin').value = '';
+        }
+
+        function deletePin() {
+            const pinInput = document.getElementById('login-pin');
+            pinInput.value = pinInput.value.slice(0, -1);
+        }
 
         function generateUUID() {
             if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -1364,7 +1525,7 @@
 
             const newTx = {
                 id: invoiceNum,
-                cashier: currentRole === 'admin' ? 'Owner Admin' : 'Kasir Staff',
+                cashier: activeUser ? activeUser.name : (currentRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'),
                 customer_name: customerName,
                 subtotal: subtotal,
                 discount: manualDiscAmount + voucherDisc,
