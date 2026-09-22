@@ -856,7 +856,7 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="printReceipt()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
+                <button onclick="handleThermalPrintAction()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-print"></i> Print Thermal
                 </button>
                 <button onclick="sendWhatsAppReceipt()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
@@ -969,6 +969,9 @@
         let selectedCategory = 'Semua';
         let currentRole = 'admin';
         let currentBranch = 'Pusat Utama';
+        let bluetoothDevice = null;
+        let bluetoothCharacteristic = null;
+        let currentTransactionRecord = null;
 
         const defaultAccounts = [
             { username: 'admin', name: 'Owner / Admin', role: 'admin', pin: '1234' },
@@ -1072,18 +1075,93 @@
 
         async function connectBluetoothPrinter() {
             if (!navigator.bluetooth) {
-                alert('Browser ini belum mendukung Web Bluetooth API. Silakan gunakan Chrome/Edge versi desktop atau Android.');
+                alert('Browser ini belum mendukung Web Bluetooth API. Gunakan Google Chrome (Desktop/Android) dengan koneksi HTTPS.');
                 return;
             }
             try {
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
-                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', '000018p0-0000-1000-8000-00805f9b34fb', '0000ff00-0000-1000-8000-00805f9b34fb']
                 });
+                bluetoothDevice = device;
+                const server = await device.gatt.connect();
+                const services = await server.getPrimaryServices();
+                for (const service of services) {
+                    const characteristics = await service.getCharacteristics();
+                    for (const char of characteristics) {
+                        if (char.properties.write || char.properties.writeWithoutResponse) {
+                            bluetoothCharacteristic = char;
+                            break;
+                        }
+                    }
+                    if (bluetoothCharacteristic) break;
+                }
+
                 document.getElementById('bt-printer-status').innerText = device.name || 'BT Terhubung';
-                alert(`Terhubung dengan Printer Bluetooth: ${device.name || 'Printer Thermal'}`);
+                alert(`Terhubung dengan Printer Bluetooth Thermal: ${device.name || 'Printer Thermal'}`);
             } catch (e) {
                 console.warn('Bluetooth connection error or cancelled:', e);
+                alert('Koneksi Bluetooth dibatalkan atau gagal.');
+            }
+        }
+
+        async function handleThermalPrintAction() {
+            if (bluetoothCharacteristic) {
+                await printBluetoothReceipt(currentTransactionRecord);
+            } else {
+                printReceipt();
+            }
+        }
+
+        async function printBluetoothReceipt(tx) {
+            if (!bluetoothCharacteristic || !tx) {
+                printReceipt();
+                return;
+            }
+            try {
+                const encoder = new TextEncoder();
+                const commands = [];
+                // ESC/POS raw commands
+                commands.push(new Uint8Array([0x1B, 0x40])); // Reset/Init
+                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center align
+
+                const storeName = document.getElementById('header-store-name').innerText || 'itsuryatokoku';
+                const storeSub = document.getElementById('header-store-sub').innerText || 'POS Kasir';
+
+                commands.push(encoder.encode(`${storeName}\n${storeSub}\n--------------------------------\n`));
+                commands.push(new Uint8Array([0x1B, 0x61, 0x00])); // Left align
+                commands.push(encoder.encode(`No. Nota : ${tx.id}\n`));
+                commands.push(encoder.encode(`Tanggal  : ${new Date(tx.created_at).toLocaleString('id-ID')}\n`));
+                commands.push(encoder.encode(`Kasir    : ${tx.cashier}\n`));
+                commands.push(encoder.encode(`Pelanggan: ${tx.customer_name}\n`));
+                commands.push(encoder.encode(`--------------------------------\n`));
+
+                tx.items.forEach(item => {
+                    commands.push(encoder.encode(`${item.name}\n`));
+                    commands.push(encoder.encode(`  ${item.qty} x Rp ${item.price.toLocaleString('id-ID')} = Rp ${(item.qty * item.price).toLocaleString('id-ID')}\n`));
+                });
+
+                commands.push(encoder.encode(`--------------------------------\n`));
+                commands.push(encoder.encode(`Subtotal : Rp ${tx.subtotal.toLocaleString('id-ID')}\n`));
+                if (tx.discount > 0) {
+                    commands.push(encoder.encode(`Diskon   : - Rp ${tx.discount.toLocaleString('id-ID')}\n`));
+                }
+                commands.push(encoder.encode(`TOTAL    : Rp ${tx.total.toLocaleString('id-ID')}\n`));
+                commands.push(encoder.encode(`Bayar    : Rp ${tx.cash_paid.toLocaleString('id-ID')}\n`));
+                commands.push(encoder.encode(`Kembali  : Rp ${tx.change.toLocaleString('id-ID')}\n`));
+                commands.push(encoder.encode(`--------------------------------\n`));
+                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
+                const footerText = document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja!';
+                commands.push(encoder.encode(`${footerText}\n\n\n`));
+
+                for (const cmd of commands) {
+                    await bluetoothCharacteristic.writeValue(cmd);
+                }
+                alert('Struk berhasil dicetak langsung melalui printer thermal Bluetooth!');
+            } catch (err) {
+                console.error('Direct Bluetooth print error:', err);
+                alert('Gagal mencetak via Bluetooth, beralih ke print browser.');
+                printReceipt();
             }
         }
 
@@ -1712,7 +1790,6 @@
 
             document.getElementById('cart-subtotal').innerText = `Rp ${state.grossSubtotal.toLocaleString('id-ID')}`;
 
-            // Category discount row
             const rowCat = document.getElementById('row-category-discount');
             if (state.categoryDiscountTotal > 0) {
                 rowCat.classList.remove('hidden');
@@ -1721,7 +1798,6 @@
                 rowCat.classList.add('hidden');
             }
 
-            // Manual discount row
             const rowMan = document.getElementById('row-manual-discount');
             if (state.manualDiscAmount > 0) {
                 rowMan.classList.remove('hidden');
@@ -1730,7 +1806,6 @@
                 rowMan.classList.add('hidden');
             }
 
-            // VIP discount row
             const rowVip = document.getElementById('row-vip-discount');
             if (state.vipDiscAmount > 0) {
                 rowVip.classList.remove('hidden');
@@ -1739,7 +1814,6 @@
                 rowVip.classList.add('hidden');
             }
 
-            // Voucher discount row
             const rowVouch = document.getElementById('row-voucher-discount');
             if (appliedVoucher && state.voucherDiscAmount > 0) {
                 rowVouch.classList.remove('hidden');
@@ -2252,6 +2326,7 @@
         }
 
         function showReceipt(tx) {
+            currentTransactionRecord = tx;
             document.getElementById('rec-id').innerText = tx.id;
             document.getElementById('rec-date').innerText = new Date(tx.created_at).toLocaleString('id-ID');
             document.getElementById('rec-cashier').innerText = tx.cashier;
@@ -2280,9 +2355,8 @@
         function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
         function printReceipt() { window.print(); }
         function sendWhatsAppReceipt() {
-            const id = document.getElementById('rec-id').innerText;
-            const total = document.getElementById('rec-total').innerText;
-            const text = encodeURIComponent(`Halo, terima kasih telah berbelanja di itsuryatokoku!\nNota: ${id}\nTotal Belanja: ${total}\nSemoga hari Anda menyenangkan!`);
+            if (!currentTransactionRecord) return;
+            const text = encodeURIComponent(`Halo ${currentTransactionRecord.customer_name}, terima kasih telah berbelanja di *${document.getElementById('header-store-name').innerText}*!\n\nNo. Nota: ${currentTransactionRecord.id}\nTotal: Rp ${currentTransactionRecord.total.toLocaleString('id-ID')}\nMetode: ${currentTransactionRecord.payment_method}\n\nSemoga hari Anda menyenangkan!`);
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
