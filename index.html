@@ -15,6 +15,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- HTML5-QRCode JS CDN -->
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- JsBarcode CDN for Barcode Generator & Printing -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <!-- Chart.js CDN for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -308,259 +310,92 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CUSTOMER & MEMBER MANAGEMENT (FASE 6 COMPLETE) -->
-        <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member (Supabase Cloud)</h2>
-                    <p class="text-xs text-slate-500">Kelola riwayat belanja member, akumulasi poin loyalty, dan diskon VIP otomatis.</p>
-                </div>
-                <button 
-                    onclick="openCustomerModal()" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Tambah Member Baru</span>
+    <!-- MODAL SCANNER KAMERA (ENHANCED PHASE 4) -->
+    <div id="modal-scanner" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center hidden p-3 sm:p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <!-- Header Modal -->
+            <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-barcode text-blue-400"></i> Barcode Scanner Kamera Pro
+                </h3>
+                <button onclick="closeCameraScanner()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                    <input 
-                        type="text" 
-                        id="customer-search-input" 
-                        onkeyup="renderCustomersTable()" 
-                        placeholder="Cari nama atau nomor telepon member..." 
-                        class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
-                                <th class="p-3">Nama Pelanggan</th>
-                                <th class="p-3">No. WhatsApp</th>
-                                <th class="p-3 text-center">Tipe Member</th>
-                                <th class="p-3 text-center">Poin Loyalty</th>
-                                <th class="p-3 text-right">Total Belanja</th>
-                                <th class="p-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customers-tbody" class="divide-y divide-slate-100">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 4: HISTORY & REPORTS WITH ANALYTICS -->
-        <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Laporan Penjualan & Dashboard Analitik</h2>
-                    <p class="text-xs text-slate-500">Visualisasi Grafik Omset, Profit, dan Riwayat Transaksi Supabase.</p>
-                </div>
-                <div class="flex gap-2">
-                    <select id="report-date-filter" onchange="renderHistoryAndCharts()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700">
-                        <option value="all">Semua Waktu</option>
-                        <option value="today">Hari Ini</option>
-                        <option value="7days">7 Hari Terakhir</option>
-                        <option value="month">Bulan Ini</option>
-                    </select>
-                    <button onclick="exportReportsCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
-                        <i class="fa-solid fa-file-csv"></i>
-                        <span>Ekspor CSV</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- KPI METRICS -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Omset</span>
-                    <div id="report-total-revenue" class="text-xl font-black text-blue-600 mt-1">Rp 0</div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Estimasi Laba Bersih</span>
-                    <div id="report-total-profit" class="text-xl font-black text-emerald-600 mt-1">Rp 0</div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Jumlah Transaksi</span>
-                    <div id="report-total-tx" class="text-xl font-black text-slate-800 mt-1">0 TRX</div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Produk Terjual</span>
-                    <div id="report-total-items" class="text-xl font-black text-indigo-600 mt-1">0 Pcs</div>
-                </div>
-            </div>
-
-            <!-- ANALYTICS CHARTS -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="lg:col-span-2 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3"><i class="fa-solid fa-chart-area text-blue-500 mr-1.5"></i> Grafik Penjualan Harian</h3>
-                    <div class="relative h-64">
-                        <canvas id="salesChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3"><i class="fa-solid fa-chart-pie text-emerald-500 mr-1.5"></i> Metode Pembayaran</h3>
-                    <div class="relative h-64 flex items-center justify-center">
-                        <canvas id="paymentChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HISTORY TABLE -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-3.5 border-b border-slate-100 bg-slate-50 font-bold text-xs text-slate-700 uppercase tracking-wider">
-                    Daftar Transaksi Supabase
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
-                                <th class="p-3">No. Nota</th>
-                                <th class="p-3">Waktu Transaksi</th>
-                                <th class="p-3">Pelanggan</th>
-                                <th class="p-3 text-center">Metode</th>
-                                <th class="p-3 text-center">Total Item</th>
-                                <th class="p-3 text-right">Total Bayar</th>
-                                <th class="p-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-tbody" class="divide-y divide-slate-100">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 5: SETTINGS -->
-        <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-6">
-                <div>
-                    <h2 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-blue-600"></i> Pengaturan Toko & Cloud DB
-                    </h2>
-                    <p class="text-xs text-slate-500">Ubah profil identitas toko serta konfigurasi koneksi database Supabase.</p>
-                </div>
-
-                <form onsubmit="saveStoreSettingsPage(event)" class="space-y-4 text-xs">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Nama Toko</label>
-                            <input type="text" id="page-store-name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">No. Telepon / WhatsApp</label>
-                            <input type="text" id="page-store-phone" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-
+            <div class="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1">
+                <!-- Controls: Camera Selection & Continuous Mode Toggle -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">Alamat Toko</label>
-                        <input type="text" id="page-store-address" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500">
+                        <label class="block font-bold text-slate-700 mb-1">Pilih Kamera</label>
+                        <select id="scanner-camera-select" onchange="switchCameraDevice()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="environment">Kamera Belakang (Default)</option>
+                            <option value="user">Kamera Depan</option>
+                        </select>
                     </div>
+                    <div class="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-4">
+                        <span class="font-bold text-slate-700">Scan Kontinu:</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="scan-continuous-toggle" checked class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
 
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Pesan Footer Struk Nota</label>
-                        <input type="text" id="page-store-footer" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500">
+                <!-- Live Camera Viewport Container -->
+                <div class="relative">
+                    <div id="reader" class="w-full rounded-xl overflow-hidden border-2 border-slate-300 bg-slate-900 min-h-[220px] shadow-inner"></div>
+                    <div id="scanner-flash-overlay" class="absolute inset-0 bg-emerald-500/30 opacity-0 pointer-events-none rounded-xl transition-opacity duration-200 flex items-center justify-center">
+                        <span class="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">BERHASIL TERSCAN!</span>
                     </div>
+                </div>
 
-                    <div class="pt-2 flex justify-end">
-                        <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition">
-                            Simpan Perubahan Toko
-                        </button>
+                <p class="text-[11px] text-center text-slate-500 font-medium">
+                    Arahkan kamera ke barcode produk. Pastikan pencahayaan cukup dan garis barcode jelas.
+                </p>
+
+                <!-- Scanned Items Log in Current Session -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+                    <div class="flex justify-between items-center text-[11px] font-bold text-slate-600 mb-1">
+                        <span><i class="fa-solid fa-list-check text-blue-500 mr-1"></i> Terbaca Kamera Ini:</span>
+                        <span id="scanner-session-count" class="text-blue-600">0 Item</span>
                     </div>
-                </form>
+                    <div id="scanner-session-log" class="text-[11px] text-slate-500 max-h-20 overflow-y-auto custom-scrollbar space-y-1 divide-y divide-slate-100">
+                        <div class="text-center py-2 text-slate-400 italic">Belum ada barang yang ter-scan</div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
 
-    <!-- MODAL PEMBAYARAN KASIR -->
-    <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
-                <h3 class="font-bold text-base flex items-center gap-2">
-                    <i class="fa-solid fa-cash-register"></i> Pembayaran Kasir
-                </h3>
-                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="p-5 space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Pembayaran</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="setPaymentMethod('cash')" id="pay-method-cash" class="py-2 px-3 border-2 border-blue-600 bg-blue-50 text-blue-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-money-bill-wave"></i> Tunai
-                        </button>
-                        <button type="button" onclick="setPaymentMethod('qris')" id="pay-method-qris" class="py-2 px-3 border-2 border-slate-200 bg-white text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-qrcode"></i> QRIS
-                        </button>
-                        <button type="button" onclick="setPaymentMethod('transfer')" id="pay-method-transfer" class="py-2 px-3 border-2 border-slate-200 bg-white text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-building-columns"></i> Transfer
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
-                    <span class="text-xs text-slate-500 uppercase font-semibold">Total Yang Harus Dibayar</span>
-                    <div id="pay-modal-grandtotal" class="text-2xl font-black text-blue-600 mt-0.5">Rp 0</div>
-                </div>
-
-                <div id="cash-input-section">
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Uang Tunai Diterima (Rp)</label>
-                    <input 
-                        type="number" 
-                        id="pay-cash-input" 
-                        onkeyup="calculateChange()" 
-                        placeholder="Masukkan nominal uang..." 
-                        class="w-full text-lg font-bold px-3 py-2 border-2 border-blue-500 rounded-xl focus:outline-none"
-                    >
-
-                    <div class="grid grid-cols-4 gap-2 mt-2">
-                        <button onclick="setQuickCash('exact')" class="text-xs font-semibold py-2 bg-slate-100 hover:bg-slate-200 rounded-lg border text-slate-700">Uang Pas</button>
-                        <button onclick="setQuickCash(20000)" class="text-xs font-semibold py-2 bg-slate-100 hover:bg-slate-200 rounded-lg border text-slate-700">20.000</button>
-                        <button onclick="setQuickCash(50000)" class="text-xs font-semibold py-2 bg-slate-100 hover:bg-slate-200 rounded-lg border text-slate-700">50.000</button>
-                        <button onclick="setQuickCash(100000)" class="text-xs font-semibold py-2 bg-slate-100 hover:bg-slate-200 rounded-lg border text-slate-700">100.000</button>
-                    </div>
-                </div>
-
-                <div id="non-cash-info" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-xl text-center text-xs text-blue-800">
-                    <p class="font-bold"><i class="fa-solid fa-circle-check text-blue-600 mr-1"></i> Pembayaran Non-Tunai Dipilih</p>
-                    <p class="text-[11px] text-blue-600 mt-0.5">Nominal pembayaran pas sesuai total transaksi.</p>
-                </div>
-
-                <div class="bg-slate-800 text-white p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-xs">Kembalian:</span>
-                    <span id="pay-modal-change" class="text-lg font-bold text-emerald-400">Rp 0</span>
-                </div>
-
-                <div class="pt-2 flex gap-2">
-                    <button onclick="closePaymentModal()" class="w-1/3 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">Batal</button>
-                    <button 
-                        id="btn-process-tx" 
-                        onclick="processTransaction()" 
-                        disabled 
-                        class="w-2/3 py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed shadow transition">
-                        Selesaikan & Cetak
-                    </button>
-                </div>
+            <!-- Footer Action -->
+            <div class="p-3 bg-slate-100 border-t border-slate-200 shrink-0">
+                <button onclick="closeCameraScanner()" class="w-full py-2 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-700 transition shadow">
+                    Selesai / Tutup Kamera
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL SCANNER KAMERA -->
-    <div id="modal-scanner" class="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center">
-                <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-camera"></i> Scan Barcode Produk
+    <!-- MODAL CETAK LABEL BARCODE (FASE 4 EXTRA) -->
+    <div id="modal-barcode-print" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-xs rounded-2xl shadow-2xl overflow-hidden text-center">
+            <div class="p-3 bg-slate-800 text-white flex justify-between items-center">
+                <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-barcode"></i> Label Barcode
                 </h3>
-                <button onclick="closeCameraScanner()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeBarcodeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-4 space-y-3">
-                <div id="reader" class="w-full rounded-xl overflow-hidden border border-slate-300 min-h-[200px]"></div>
-                <p class="text-[11px] text-center text-slate-500">Arahkan kamera smartphone atau webcam ke kode barcode barang.</p>
-                <button onclick="closeCameraScanner()" class="w-full py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200">Tutup Kamera</button>
+            <div class="p-5 space-y-3 bg-white" id="printable-barcode-card">
+                <h4 id="barcode-modal-name" class="font-bold text-xs text-slate-800 truncate">Nama Produk</h4>
+                <div class="flex justify-center my-2">
+                    <svg id="barcode-svg" class="max-w-full h-auto"></svg>
+                </div>
+                <div id="barcode-modal-price" class="font-extrabold text-sm text-blue-600">Rp 0</div>
+            </div>
+            <div class="p-3 bg-slate-100 border-t border-slate-200 flex gap-2">
+                <button onclick="closeBarcodeModal()" class="w-1/2 py-2 bg-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-300">Tutup</button>
+                <button onclick="window.print()" class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs hover:bg-blue-700 flex items-center justify-center gap-1 shadow">
+                    <i class="fa-solid fa-print"></i> Cetak
+                </button>
             </div>
         </div>
     </div>
@@ -856,6 +691,8 @@
         let paymentMethod = 'cash';
         let supabaseClient = null;
         let html5QrcodeScanner = null;
+        let isScannerCooldown = false;
+        let scannedSessionCount = 0;
         let salesChartInstance = null;
         let paymentChartInstance = null;
 
@@ -1435,6 +1272,7 @@
                     <td class="p-3 text-right font-extrabold text-blue-600">${window.formatRupiah(p.selling_price || 0)}</td>
                     <td class="p-3 text-center"><span class="font-bold ${p.stock < 5 ? 'text-red-500' : 'text-slate-800'}">${p.stock}</span></td>
                     <td class="p-3 text-center space-x-1">
+                        <button data-id="${window.escapeHTML(p.id)}" onclick="generateProductBarcodeModal(this.getAttribute('data-id'))" title="Cetak Stiker Barcode" class="px-2 py-1 bg-amber-50 text-amber-600 rounded-lg font-semibold hover:bg-amber-100 text-[11px]"><i class="fa-solid fa-barcode"></i> Label</button>
                         <button data-id="${window.escapeHTML(p.id)}" onclick="editProduct(this.getAttribute('data-id'))" class="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg font-semibold hover:bg-blue-100 text-[11px]"><i class="fa-solid fa-pen"></i> Edit</button>
                         <button data-id="${window.escapeHTML(p.id)}" onclick="deleteProduct(this.getAttribute('data-id'))" class="px-2 py-1 bg-red-50 text-red-600 rounded-lg font-semibold hover:bg-red-100 text-[11px]"><i class="fa-solid fa-trash"></i> Hapus</button>
                     </td>
@@ -1879,34 +1717,133 @@
             window.showToast('Laporan CSV berhasil diunduh!', 'success');
         };
 
-        window.openCameraScanner = function() {
+        // FASE 4 ENHANCED: CAMERA BARCODE SCANNER LOGIC
+        window.openCameraScanner = async function() {
+            scannedSessionCount = 0;
+            const sessionLog = document.getElementById('scanner-session-log');
+            const sessionCountEl = document.getElementById('scanner-session-count');
+            if (sessionLog) sessionLog.innerHTML = `<div class="text-center py-2 text-slate-400 italic">Belum ada barang yang ter-scan</div>`;
+            if (sessionCountEl) sessionCountEl.innerText = `0 Item`;
+
             document.getElementById('modal-scanner').classList.remove('hidden');
+
             try {
                 if (typeof Html5Qrcode === 'undefined') {
                     window.showToast('Modul scanner belum termuat sempurna', 'error');
                     return;
                 }
+
                 if (!html5QrcodeScanner) {
                     html5QrcodeScanner = new Html5Qrcode("reader");
                 }
-                html5QrcodeScanner.start(
-                    { facingMode: "environment" },
-                    { fps: 10, qrbox: { width: 250, height: 150 } },
-                    (decodedText) => {
-                        const searchInput = document.getElementById('search-input');
-                        if (searchInput) {
-                            searchInput.value = decodedText;
-                            window.handleSearch({ key: 'Enter', target: searchInput });
+
+                // Populate Camera Devices Dropdown if available
+                const selectEl = document.getElementById('scanner-camera-select');
+                if (selectEl && selectEl.options.length <= 2) {
+                    try {
+                        const devices = await Html5Qrcode.getCameras();
+                        if (devices && devices.length > 0) {
+                            selectEl.innerHTML = devices.map(d => `<option value="${d.id}">${window.escapeHTML(d.label || `Kamera (${d.id.slice(0, 5)}...)`)}</option>`).join('');
                         }
-                        window.closeCameraScanner();
-                        window.showToast(`Barcode terdeteksi: ${decodedText}`, 'success');
-                    },
-                    () => {}
-                ).catch(err => {
-                    window.showToast("Kamera tidak tersedia / izin ditolak", "error");
-                });
+                    } catch (e) {}
+                }
+
+                window.startScannerEngine();
             } catch (err) {
                 console.warn("Scanner init error:", err);
+                window.showToast("Gagal menginisialisasi kamera", "error");
+            }
+        };
+
+        window.startScannerEngine = function() {
+            if (!html5QrcodeScanner) return;
+
+            const selectedCam = document.getElementById('scanner-camera-select')?.value || 'environment';
+            const cameraConfig = (selectedCam === 'environment' || selectedCam === 'user') 
+                ? { facingMode: selectedCam } 
+                : { deviceId: { exact: selectedCam } };
+
+            html5QrcodeScanner.start(
+                cameraConfig,
+                { fps: 15, qrbox: { width: 260, height: 160 } },
+                window.onBarcodeScanSuccess,
+                () => {}
+            ).catch(err => {
+                console.warn("Camera start error:", err);
+                window.showToast("Kamera tidak tersedia / izin akses ditolak", "error");
+            });
+        };
+
+        window.switchCameraDevice = function() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    window.startScannerEngine();
+                }).catch(() => {
+                    window.startScannerEngine();
+                });
+            }
+        };
+
+        window.onBarcodeScanSuccess = function(decodedText) {
+            if (isScannerCooldown) return;
+            isScannerCooldown = true;
+
+            window.playBeep();
+
+            // Flash Overlay Effect
+            const flashEl = document.getElementById('scanner-flash-overlay');
+            if (flashEl) {
+                flashEl.classList.remove('opacity-0');
+                setTimeout(() => flashEl.classList.add('opacity-0'), 400);
+            }
+
+            // Find matching product
+            const exactBarcodeProduct = products.find(p => p.barcode && p.barcode.toLowerCase() === decodedText.trim().toLowerCase());
+
+            const sessionLog = document.getElementById('scanner-session-log');
+            const sessionCountEl = document.getElementById('scanner-session-count');
+
+            if (exactBarcodeProduct) {
+                window.addToCart(exactBarcodeProduct.id);
+                scannedSessionCount++;
+                if (sessionCountEl) sessionCountEl.innerText = `${scannedSessionCount} Item`;
+
+                if (sessionLog) {
+                    if (scannedSessionCount === 1) sessionLog.innerHTML = '';
+                    const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    sessionLog.insertAdjacentHTML('afterbegin', `
+                        <div class="flex justify-between items-center py-1 text-slate-700">
+                            <span class="font-bold truncate text-emerald-600"><i class="fa-solid fa-circle-check text-[10px] mr-1"></i>${window.escapeHTML(exactBarcodeProduct.name)}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
+                        </div>
+                    `);
+                }
+                window.showToast(`Berhasil Ditambah: ${exactBarcodeProduct.name}`, 'success');
+            } else {
+                if (sessionLog) {
+                    if (scannedSessionCount === 0 && sessionLog.children.length === 1 && sessionLog.children[0].classList.contains('italic')) sessionLog.innerHTML = '';
+                    sessionLog.insertAdjacentHTML('afterbegin', `
+                        <div class="flex justify-between items-center py-1 text-slate-500">
+                            <span class="truncate text-amber-600"><i class="fa-solid fa-triangle-exclamation text-[10px] mr-1"></i>Barcode: ${window.escapeHTML(decodedText)} (Tidak Ditemukan)</span>
+                            <span class="text-[10px] text-slate-400">Baru</span>
+                        </div>
+                    `);
+                }
+                window.showToast(`Barcode ${decodedText} tidak ada di katalog`, 'error');
+            }
+
+            const isContinuousMode = document.getElementById('scan-continuous-toggle')?.checked;
+
+            if (!isContinuousMode) {
+                setTimeout(() => {
+                    window.closeCameraScanner();
+                    isScannerCooldown = false;
+                }, 500);
+            } else {
+                // Cooldown 1.2s before accepting next scan in continuous mode
+                setTimeout(() => {
+                    isScannerCooldown = false;
+                }, 1200);
             }
         };
 
@@ -1914,12 +1851,48 @@
             if (html5QrcodeScanner) {
                 html5QrcodeScanner.stop().then(() => {
                     document.getElementById('modal-scanner').classList.add('hidden');
+                    isScannerCooldown = false;
                 }).catch(() => {
                     document.getElementById('modal-scanner').classList.add('hidden');
+                    isScannerCooldown = false;
                 });
             } else {
                 document.getElementById('modal-scanner').classList.add('hidden');
+                isScannerCooldown = false;
             }
+        };
+
+        // BARCODE LABEL GENERATOR & PRINTING
+        window.generateProductBarcodeModal = function(productId) {
+            const p = products.find(item => item.id === productId);
+            if (!p || !p.barcode) {
+                window.showToast('Produk ini belum memiliki kode barcode!', 'error');
+                return;
+            }
+
+            document.getElementById('barcode-modal-name').innerText = p.name;
+            document.getElementById('barcode-modal-price').innerText = window.formatRupiah(p.selling_price);
+
+            if (typeof JsBarcode !== 'undefined') {
+                try {
+                    JsBarcode("#barcode-svg", p.barcode, {
+                        format: "CODE128",
+                        lineColor: "#000",
+                        width: 2,
+                        height: 50,
+                        displayValue: true,
+                        fontSize: 12
+                    });
+                } catch (e) {
+                    console.warn("JsBarcode render error:", e);
+                }
+            }
+
+            document.getElementById('modal-barcode-print').classList.remove('hidden');
+        };
+
+        window.closeBarcodeModal = function() {
+            document.getElementById('modal-barcode-print').classList.add('hidden');
         };
 
         window.openConfigModal = function() {
