@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Fase 10 Pro)</title>
+    <title>KASIR POS - itsuryatokoku (Fase 11 Enterprise)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -80,7 +80,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v10.0 Pro</span>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v11.0 Enterprise</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir & Analytics Cloud Integration</p>
             </div>
@@ -110,7 +110,17 @@
         </nav>
 
         <div class="flex items-center space-x-2 sm:space-x-3">
-            <!-- ROLE SELECTOR (FASE 10) -->
+            <!-- MULTI CABANG SELECTOR (FASE 11) -->
+            <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
+                <i class="fa-solid fa-store text-amber-400 ml-1.5 mr-1 text-xs"></i>
+                <select id="branch-select" onchange="changeBranch()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
+                    <option value="Pusat Utama" class="bg-slate-800 text-white">Cabang: Pusat</option>
+                    <option value="Cabang Susukanlebak" class="bg-slate-800 text-white">Cabang: Susukanlebak</option>
+                    <option value="Cabang Cirebon" class="bg-slate-800 text-white">Cabang: Cirebon</option>
+                </select>
+            </div>
+
+            <!-- ROLE SELECTOR -->
             <div class="flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
                 <i class="fa-solid fa-user-shield text-blue-400 ml-1.5 mr-1 text-xs"></i>
                 <select id="user-role-select" onchange="changeUserRole()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
@@ -118,6 +128,16 @@
                     <option value="cashier" class="bg-slate-800 text-white">Kasir (Staff)</option>
                 </select>
             </div>
+
+            <!-- WEB BLUETOOTH PRINTER CONNECTOR (FASE 11) -->
+            <button 
+                onclick="connectBluetoothPrinter()"
+                id="bt-printer-btn"
+                title="Koneksi Printer Bluetooth Thermal"
+                class="flex items-center gap-1.5 bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
+                <i class="fa-solid fa-print"></i>
+                <span class="hidden xl:inline" id="bt-printer-status">BT Printer</span>
+            </button>
 
             <button 
                 onclick="openShiftModal()"
@@ -139,9 +159,10 @@
                 onclick="syncWithSupabase()"
                 id="sync-btn"
                 title="Sinkronkan Data dengan Supabase Cloud"
-                class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300">
+                class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
                 <i class="fa-solid fa-rotate" id="sync-icon"></i>
                 <span class="hidden lg:inline">Sync Cloud</span>
+                <span id="offline-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
             </button>
 
             <button 
@@ -224,7 +245,7 @@
                         </select>
                     </div>
 
-                    <!-- VOUCHER / PROMO CODE INPUT (FASE 10) -->
+                    <!-- VOUCHER / PROMO CODE INPUT -->
                     <div class="flex gap-1.5">
                         <input 
                             type="text" 
@@ -517,7 +538,7 @@
 
     </main>
 
-    <!-- MODAL AUDIT LOG SISTEM (FASE 10) -->
+    <!-- MODAL AUDIT LOG SISTEM -->
     <div id="modal-audit-log" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
             <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center">
@@ -847,7 +868,7 @@
         </div>
     </div>
 
-    <!-- MODAL STRUK NOTA -->
+    <!-- MODAL STRUK NOTA (FASE 11: Direct Bluetooth & WA Export) -->
     <div id="modal-receipt" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-3 bg-slate-800 text-white flex justify-between items-center no-print">
@@ -858,11 +879,21 @@
             </div>
             <div class="p-4 overflow-y-auto flex-1 font-mono-receipt text-xs bg-white text-slate-800" id="printable-receipt">
             </div>
-            <div class="p-3 bg-slate-100 border-t border-slate-200 flex gap-2 no-print">
-                <button onclick="closeReceiptModal()" class="w-1/2 py-2 bg-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-300">Tutup</button>
-                <button onclick="window.print()" class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs hover:bg-blue-700 flex items-center justify-center gap-1.5 shadow">
-                    <i class="fa-solid fa-print"></i> Cetak Struk
-                </button>
+            <div class="p-3 bg-slate-100 border-t border-slate-200 flex flex-col gap-2 no-print">
+                <div class="flex gap-2">
+                    <button id="btn-wa-receipt" onclick="sendWhatsAppReceipt()" class="w-1/2 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700 flex items-center justify-center gap-1.5 shadow">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Kirim WA
+                    </button>
+                    <button id="btn-bt-print" onclick="printBluetoothReceipt()" class="w-1/2 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs hover:bg-indigo-700 flex items-center justify-center gap-1.5 shadow">
+                        <i class="fa-solid fa-bluetooth text-sm"></i> Print BT
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="closeReceiptModal()" class="w-1/2 py-2 bg-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-300">Tutup</button>
+                    <button onclick="window.print()" class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs hover:bg-blue-700 flex items-center justify-center gap-1.5 shadow">
+                        <i class="fa-solid fa-print"></i> Cetak Browser
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -984,6 +1015,7 @@
         let customers = [];
         let cart = [];
         let auditLogs = [];
+        let offlineQueue = [];
         let selectedCategory = 'All';
         let paymentMethod = 'cash';
         let supabaseClient = null;
@@ -993,8 +1025,13 @@
         let salesChartInstance = null;
         let paymentChartInstance = null;
         let currentUserRole = 'admin'; // 'admin' | 'cashier'
+        let currentBranch = 'Pusat Utama'; // Multi-cabang
 
-        let activeVoucher = null; // { code: 'PROMO10K', type: 'fixed'|'percent', value: 10000 }
+        // Web Bluetooth Printer Variables (Fase 11)
+        let bluetoothDevice = null;
+        let bluetoothCharacteristic = null;
+
+        let activeVoucher = null;
         const VOUCHERS = {
             'PROMO10K': { type: 'fixed', value: 10000 },
             'DISKON10': { type: 'percent', value: 10 },
@@ -1002,6 +1039,7 @@
         };
 
         let initialCashModal = 200000;
+        let activeReceiptTx = null;
 
         let storeSettings = {
             name: 'itsuryatokoku',
@@ -1014,10 +1052,21 @@
             const entry = {
                 timestamp: new Date().toLocaleString('id-ID'),
                 role: currentUserRole.toUpperCase(),
+                branch: currentBranch,
                 action,
                 details
             };
             auditLogs.unshift(entry);
+        };
+
+        window.changeBranch = function() {
+            const select = document.getElementById('branch-select');
+            if (select) {
+                currentBranch = select.value;
+                window.logAudit('Branch Switched', `Beralih ke cabang: ${currentBranch}`);
+                window.showToast(`Cabang aktif: ${currentBranch}`, 'info');
+                window.renderHistoryAndCharts();
+            }
         };
 
         window.changeUserRole = function() {
@@ -1208,6 +1257,17 @@
             }
 
             try {
+                // Process offline queue if available
+                if (offlineQueue.length > 0) {
+                    window.showToast(`Memproses ${offlineQueue.length} antrean transaksi offline...`, 'info');
+                    for (const pendingTx of offlineQueue) {
+                        await supabaseClient.from('transactions').insert([pendingTx]);
+                    }
+                    offlineQueue = [];
+                    const badge = document.getElementById('offline-badge');
+                    if (badge) badge.classList.add('hidden');
+                }
+
                 await window.fetchDataFromSupabase();
             } catch (err) {
                 window.showToast('Gagal sinkronisasi: ' + err.message, 'error');
@@ -1576,7 +1636,8 @@
                 total: grandTotal,
                 cash_paid: cashPaid,
                 change: change,
-                cashier: currentUserRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'
+                cashier: currentUserRole === 'admin' ? 'Owner Admin' : 'Kasir Staff',
+                branch: currentBranch
             };
 
             // Deduct local stock
@@ -1595,6 +1656,7 @@
             }
 
             transactions.unshift(newTx);
+            activeReceiptTx = newTx;
             window.logAudit('Checkout', `Transaksi ${invoiceNo} berhasil diselesaikan. Total: ${window.formatRupiah(grandTotal)}`);
 
             if (supabaseClient) {
@@ -1631,7 +1693,13 @@
                     window.showToast('Transaksi Berhasil & Disinkronkan ke Cloud!', 'success');
                 } catch (e) {
                     console.error("Supabase transaction save error:", e);
-                    window.showToast('Tersimpan lokal, Gagal ke Cloud: ' + e.message, 'error');
+                    offlineQueue.push(newTx);
+                    const badge = document.getElementById('offline-badge');
+                    if (badge) {
+                        badge.innerText = offlineQueue.length;
+                        badge.classList.remove('hidden');
+                    }
+                    window.showToast('Masuk Antrean Offline, Gagal Sync ke Cloud', 'info');
                 }
             } else {
                 window.showToast('Transaksi Berhasil Disimpan (Offline Mode)!', 'success');
@@ -1649,6 +1717,112 @@
             window.refreshAllUIs();
         };
 
+        // WEB BLUETOOTH THERMAL PRINTING (FASE 11)
+        window.connectBluetoothPrinter = async function() {
+            if (!navigator.bluetooth) {
+                window.showToast('Browser Anda belum mendukung Web Bluetooth API', 'error');
+                return;
+            }
+            try {
+                window.showToast('Mencari printer Bluetooth Thermal...', 'info');
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', '49535343-fe7d-4ae5-8fa9-9fafd205e455']
+                });
+                
+                const server = await bluetoothDevice.gatt.connect();
+                const services = await server.getPrimaryServices();
+                
+                if (services.length > 0) {
+                    const characteristics = await services[0].getCharacteristics();
+                    if (characteristics.length > 0) {
+                        bluetoothCharacteristic = characteristics[0];
+                        document.getElementById('bt-printer-status').innerText = 'BT Connected';
+                        window.showToast(`Terhubung ke printer: ${bluetoothDevice.name || 'Thermal Printer'}`, 'success');
+                    }
+                }
+            } catch (err) {
+                console.warn("Bluetooth connection error:", err);
+                window.showToast('Gagal terhubung ke Bluetooth Printer', 'error');
+            }
+        };
+
+        window.printBluetoothReceipt = async function() {
+            if (!bluetoothCharacteristic) {
+                window.showToast('Printer Bluetooth belum terhubung! Hubungkan via tombol BT Printer', 'error');
+                window.connectBluetoothPrinter();
+                return;
+            }
+
+            if (!activeReceiptTx) return;
+
+            try {
+                const tx = activeReceiptTx;
+                let printData = `\x1B\x40`; // ESC @ Init
+                printData += `\x1B\x61\x01`; // Center Align
+                printData += `${storeSettings.name.toUpperCase()}\n`;
+                printData += `${storeSettings.address}\n`;
+                printData += `Telp: ${storeSettings.phone}\n`;
+                printData += `--------------------------------\n`;
+                printData += `\x1B\x61\x00`; // Left Align
+                printData += `Nota: ${tx.id}\n`;
+                printData += `Waktu: ${tx.created_at_display}\n`;
+                printData += `Pelanggan: ${tx.customer_name}\n`;
+                printData += `--------------------------------\n`;
+
+                tx.items.forEach(i => {
+                    const name = i.product ? i.product.name : (i.name || 'Produk');
+                    const price = i.product ? i.product.selling_price : (i.price || 0);
+                    printData += `${name}\n`;
+                    printData += `${i.qty} x ${price} = ${i.qty * price}\n`;
+                });
+
+                printData += `--------------------------------\n`;
+                printData += `TOTAL: Rp ${tx.total}\n`;
+                printData += `BAYAR: Rp ${tx.cash_paid}\n`;
+                printData += `KEMBALI: Rp ${tx.change}\n`;
+                printData += `\x1B\x61\x01`; // Center
+                printData += `${storeSettings.footer}\n\n\n`;
+
+                const encoder = new TextEncoder();
+                await bluetoothCharacteristic.writeValue(encoder.encode(printData));
+                window.showToast('Berhasil mengirim struk ke Printer Bluetooth!', 'success');
+            } catch (err) {
+                console.error("Bluetooth print error:", err);
+                window.showToast('Gagal mencetak ke Bluetooth printer', 'error');
+            }
+        };
+
+        // KIRIM STRUK VIA WHATSAPP DIRECT (FASE 11)
+        window.sendWhatsAppReceipt = function() {
+            if (!activeReceiptTx) return;
+            const tx = activeReceiptTx;
+            const member = customers.find(c => c.name === tx.customer_name);
+            const phone = member?.phone || '';
+
+            let text = `*STRUK BELANJA - ${storeSettings.name.toUpperCase()}*\n`;
+            text += `*Nota:* ${tx.id}\n`;
+            text += `*Tanggal:* ${tx.created_at_display}\n`;
+            text += `*Pelanggan:* ${tx.customer_name}\n`;
+            text += `--------------------------------\n`;
+
+            tx.items.forEach(i => {
+                const name = i.product ? i.product.name : (i.name || 'Produk');
+                const price = i.product ? i.product.selling_price : (i.price || 0);
+                text += `• ${name} x${i.qty} = *${window.formatRupiah(price * i.qty)}*\n`;
+            });
+
+            text += `--------------------------------\n`;
+            text += `*Total Belanja:* ${window.formatRupiah(tx.total)}\n`;
+            text += `*Metode Bayar:* ${tx.payment_method}\n`;
+            text += `\n_${storeSettings.footer}_`;
+
+            const encoded = encodeURIComponent(text);
+            const targetPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+            const waUrl = targetPhone ? `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encoded}` : `https://api.whatsapp.com/send?text=${encoded}`;
+            window.open(waUrl, '_blank');
+        };
+
         window.openAuditLogModal = function() {
             const listContainer = document.getElementById('audit-log-list');
             if (listContainer) {
@@ -1659,7 +1833,7 @@
                         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-0.5">
                             <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold">
                                 <span><i class="fa-solid fa-clock mr-1"></i>${log.timestamp}</span>
-                                <span class="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded border border-indigo-100">${log.role}</span>
+                                <span class="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded border border-indigo-100">${log.role} (${log.branch || 'Pusat'})</span>
                             </div>
                             <div class="font-bold text-slate-800 text-xs">${window.escapeHTML(log.action)}</div>
                             <div class="text-slate-600 text-[11px]">${window.escapeHTML(log.details)}</div>
@@ -1952,6 +2126,7 @@
             }
             if (!tx) return;
 
+            activeReceiptTx = tx;
             const items = Array.isArray(tx.items) ? tx.items : (typeof tx.items === 'string' ? window.safeJSONParse(tx.items, []) : []);
             const notaCode = tx.invoice_number || tx.id;
 
