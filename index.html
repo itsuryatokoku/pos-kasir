@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Fase 7 Cloud)</title>
+    <title>KASIR POS - itsuryatokoku (Supabase Sync)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -75,7 +75,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v7.2 Cloud</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v7.4 Schema Matched</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Profesional & Supabase Sync</p>
             </div>
@@ -93,10 +93,6 @@
             <a href="#history" id="nav-link-history" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Laporan</span>
-            </a>
-            <a href="#customers" id="nav-link-customers" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
-                <i class="fa-solid fa-users"></i>
-                <span>Pelanggan</span>
             </a>
             <a href="#settings" id="nav-link-settings" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-gear"></i>
@@ -117,7 +113,7 @@
             <button 
                 onclick="openConfigModal()"
                 id="db-status-badge"
-                title="Atur Koneksi Supabase & Skema Tabel"
+                title="Atur Koneksi Supabase"
                 class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" id="db-status-dot"></span>
                 <span id="db-status-text" class="text-slate-300 hidden md:inline">Supabase</span>
@@ -129,7 +125,6 @@
         <a href="#pos" id="mobile-nav-pos" class="px-3 py-1.5 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
         <a href="#products" id="mobile-nav-products" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
         <a href="#history" id="mobile-nav-history" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Laporan</a>
-        <a href="#customers" id="mobile-nav-customers" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pelanggan</a>
         <a href="#settings" id="mobile-nav-settings" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
     </div>
 
@@ -185,9 +180,7 @@
                 <div class="px-3 pt-2 bg-slate-100 border-b border-slate-200">
                     <div class="flex items-center gap-2 text-xs py-1">
                         <i class="fa-solid fa-user text-slate-400"></i>
-                        <select id="customer-select" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
-                            <option value="Umum">Pelanggan Umum (Non-Member)</option>
-                        </select>
+                        <input type="text" id="customer-name-input" placeholder="Nama Pelanggan / Umum" value="Pelanggan Umum" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -234,6 +227,7 @@
             </section>
         </div>
 
+        <!-- VIEW 2: PRODUCTS -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -283,6 +277,7 @@
             </div>
         </div>
 
+        <!-- VIEW 3: HISTORY & REPORTS -->
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -346,41 +341,7 @@
             </div>
         </div>
 
-        <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member (Cloud)</h2>
-                    <p class="text-xs text-slate-500">Kelola daftar pelanggan dan catatan riwayat transaksi Supabase.</p>
-                </div>
-                <button onclick="openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Tambah Pelanggan</span>
-                </button>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-3 border-b border-slate-100 bg-slate-50">
-                    <input type="text" id="customer-search-input" onkeyup="renderCustomersTable()" placeholder="Cari nama atau no HP pelanggan..." class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
-                                <th class="p-3">ID Pelanggan</th>
-                                <th class="p-3">Nama Pelanggan</th>
-                                <th class="p-3">No. Telepon / WA</th>
-                                <th class="p-3">Status Member</th>
-                                <th class="p-3 text-center">Total Transaksi</th>
-                                <th class="p-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customers-tbody" class="divide-y divide-slate-100">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+        <!-- VIEW 4: SETTINGS -->
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-6">
                 <div>
@@ -422,7 +383,6 @@
         </div>
     </main>
 
-    <!-- MODAL PAYMENT -->
     <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -494,7 +454,6 @@
         </div>
     </div>
 
-    <!-- MODAL SCANNER -->
     <div id="modal-scanner" class="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center">
@@ -511,7 +470,6 @@
         </div>
     </div>
 
-    <!-- MODAL PRODUCT CRUD -->
     <div id="modal-product" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -566,7 +524,6 @@
         </div>
     </div>
 
-    <!-- MODAL RECEIPT -->
     <div id="modal-receipt" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-3 bg-slate-800 text-white flex justify-between items-center no-print">
@@ -586,17 +543,16 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIG & AUTO SETUP TABLES -->
     <div id="modal-config" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
                 <h3 class="font-bold text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-database"></i> Pengaturan Supabase DB & Auto-Setup
+                    <i class="fa-solid fa-database"></i> Pengaturan Supabase DB
                 </h3>
                 <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-4 space-y-3 text-xs">
-                <p class="text-slate-600">Hubungkan aplikasi dengan database PostgreSQL Supabase Anda. Anda juga dapat membuat tabel secara otomatis jika belum ada.</p>
+                <p class="text-slate-600">Hubungkan aplikasi dengan database PostgreSQL Supabase Anda.</p>
                 
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Supabase URL</label>
@@ -608,20 +564,13 @@
                     <input type="password" id="cfg-key" placeholder="eyJhbG..." class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-amber-800 text-[11px] space-y-1">
-                    <p class="font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Belum membuat tabel di Supabase?</p>
-                    <p>Pastikan Anda sudah menjalankan perintah SQL Setup di Supabase SQL Editor atau klik tombol Setup otomatis di bawah.</p>
-                </div>
-
                 <div class="flex gap-2 pt-2">
-                    <button onclick="setupSupabaseTablesSQL()" class="w-1/2 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl font-bold shadow">Auto-Setup SQL Tabel</button>
-                    <button onclick="saveSupabaseConfig()" class="w-1/2 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-bold shadow">Simpan & Connect</button>
+                    <button onclick="saveSupabaseConfig()" class="w-full py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-bold shadow">Simpan & Connect</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL STORE -->
     <div id="modal-store" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -654,39 +603,6 @@
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="closeStoreModal()" class="w-1/3 py-2 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold">Batal</button>
                     <button type="submit" class="w-2/3 py-2 rounded-xl text-white bg-blue-600 hover:bg-blue-700 font-bold shadow">Simpan Pengaturan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL CUSTOMER -->
-    <div id="modal-customer" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
-                <h3 class="font-bold text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-user-plus"></i> Tambah Pelanggan Baru
-                </h3>
-                <button onclick="closeCustomerModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="saveCustomer(event)" class="p-4 space-y-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nama Lengkap</label>
-                    <input type="text" id="cust-name" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">No. Telepon / WA</label>
-                    <input type="text" id="cust-phone" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Tipe Member</label>
-                    <select id="cust-type" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 bg-white">
-                        <option value="Reguler">Reguler</option>
-                        <option value="VIP Member">VIP Member</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeCustomerModal()" class="w-1/3 py-2 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold">Batal</button>
-                    <button type="submit" class="w-2/3 py-2 rounded-xl text-white bg-blue-600 hover:bg-blue-700 font-bold shadow">Simpan Pelanggan</button>
                 </div>
             </form>
         </div>
@@ -725,7 +641,6 @@
 
         let products = [];
         let transactions = [];
-        let customers = [];
         let cart = [];
         let selectedCategory = 'All';
         let paymentMethod = 'cash';
@@ -741,7 +656,7 @@
 
         window.handleRoute = function() {
             const hash = window.location.hash.replace('#', '') || 'pos';
-            const routes = ['pos', 'products', 'history', 'customers', 'settings'];
+            const routes = ['pos', 'products', 'history', 'settings'];
             const activeRoute = routes.includes(hash) ? hash : 'pos';
 
             document.querySelectorAll('.view-page').forEach(el => el.classList.add('hidden'));
@@ -767,7 +682,6 @@
 
             if (activeRoute === 'products') window.renderAdminProductsTable();
             if (activeRoute === 'history') window.renderHistoryTable();
-            if (activeRoute === 'customers') window.renderCustomersTable();
             if (activeRoute === 'settings') window.loadSettingsPageValues();
         };
 
@@ -836,18 +750,14 @@
             if (statusText) statusText.innerText = "Mode Offline (Lokal)";
 
             products = [
-                { id: '1', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
-                { id: '2', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
-                { id: '3', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
-                { id: '4', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
-                { id: '5', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
-                { id: '6', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
+                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
             ];
             transactions = [];
-            customers = [
-                { id: 'CUST-01', name: 'Pelanggan Umum', phone: '-', type: 'Reguler', total_tx: 0 },
-                { id: 'CUST-02', name: 'Budi Santoso', phone: '08123456789', type: 'VIP Member', total_tx: 0 }
-            ];
             window.refreshAllUIs();
         };
 
@@ -858,14 +768,6 @@
                 const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*');
                 if (!prodErr && prodData && prodData.length > 0) {
                     products = prodData;
-                } else if (prodErr && prodErr.code === '42P01') {
-                    console.warn("Table products not found in Supabase.");
-                }
-
-                // Fetch Customers
-                const { data: custData, error: custErr } = await supabaseClient.from('customers').select('*');
-                if (!custErr && custData && custData.length > 0) {
-                    customers = custData;
                 }
 
                 // Fetch Transactions
@@ -909,21 +811,8 @@
             window.renderCategoryPills();
             window.renderProductGrid();
             window.renderCart();
-            window.renderCustomerDropdown();
             window.renderAdminProductsTable();
             window.renderHistoryTable();
-            window.renderCustomersTable();
-        };
-
-        window.renderCustomerDropdown = function() {
-            const select = document.getElementById('customer-select');
-            if (!select) return;
-            const currentVal = select.value;
-            select.innerHTML = `
-                <option value="Umum">Pelanggan Umum (Non-Member)</option>
-                ${customers.map(c => `<option value="${window.escapeHTML(c.name)}">${window.escapeHTML(c.name)} (${window.escapeHTML(c.type)})</option>`).join('')}
-            `;
-            select.value = currentVal;
         };
 
         window.renderCategoryPills = function() {
@@ -1174,7 +1063,7 @@
             const discountPercent = parseFloat(document.getElementById('cart-discount-input')?.value || 0);
             const discountAmount = (subtotal * discountPercent) / 100;
             const grandTotal = subtotal - discountAmount;
-            const customerName = document.getElementById('customer-select')?.value || 'Umum';
+            const customerName = document.getElementById('customer-name-input')?.value || 'Pelanggan Umum';
 
             let cashPaid = parseFloat(document.getElementById('pay-cash-input')?.value || 0);
             if (paymentMethod !== 'cash') cashPaid = grandTotal;
@@ -1207,7 +1096,7 @@
 
             transactions.unshift(newTx);
 
-            // Sync with Supabase if available
+            // Sync with Supabase (transactions + transaction_items)
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('transactions').insert([{
@@ -1227,6 +1116,16 @@
                         const prod = products.find(p => p.id === item.product.id);
                         if (prod) {
                             await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+                            
+                            // Insert into transaction_items table
+                            await supabaseClient.from('transaction_items').insert([{
+                                transaction_id: txId,
+                                product_id: prod.id,
+                                product_name: prod.name,
+                                price: prod.selling_price,
+                                qty: item.qty,
+                                subtotal: prod.selling_price * item.qty
+                            }]);
                         }
                     }
                 } catch (e) {
@@ -1339,16 +1238,24 @@
                 }
             } else {
                 const newProd = {
-                    id: crypto.randomUUID ? crypto.randomUUID() : ('PROD-' + Date.now()),
                     barcode, category, name, purchase_price, selling_price, stock
                 };
-                products.unshift(newProd);
                 if (supabaseClient) {
                     try {
-                        await supabaseClient.from('products').insert([newProd]);
+                        const { data, error } = await supabaseClient.from('products').insert([newProd]).select();
+                        if (!error && data && data[0]) {
+                            products.unshift(data[0]);
+                        } else {
+                            newProd.id = 'prod-' + Date.now();
+                            products.unshift(newProd);
+                        }
                     } catch (err) {
-                        console.error("Supabase insert product error:", err);
+                        newProd.id = 'prod-' + Date.now();
+                        products.unshift(newProd);
                     }
+                } else {
+                    newProd.id = 'prod-' + Date.now();
+                    products.unshift(newProd);
                 }
             }
 
@@ -1368,68 +1275,6 @@
             }
             window.refreshAllUIs();
             window.showToast('Produk berhasil dihapus', 'info');
-        };
-
-        window.openCustomerModal = function() {
-            document.getElementById('cust-name').value = '';
-            document.getElementById('cust-phone').value = '';
-            document.getElementById('cust-type').value = 'Reguler';
-            document.getElementById('modal-customer').classList.remove('hidden');
-        };
-
-        window.closeCustomerModal = function() {
-            document.getElementById('modal-customer').classList.add('hidden');
-        };
-
-        window.saveCustomer = async function(e) {
-            if (e) e.preventDefault();
-            const name = document.getElementById('cust-name').value;
-            const phone = document.getElementById('cust-phone').value;
-            const type = document.getElementById('cust-type').value;
-
-            const newCust = {
-                id: 'CUST-' + Date.now().toString().slice(-6),
-                name, phone, type, total_tx: 0
-            };
-            customers.unshift(newCust);
-
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('customers').insert([newCust]);
-                } catch (err) {
-                    console.error("Supabase customer insert error:", err);
-                }
-            }
-
-            window.renderCustomersTable();
-            window.renderCustomerDropdown();
-            window.closeCustomerModal();
-            window.showToast('Pelanggan berhasil ditambahkan & disinkronkan!', 'success');
-        };
-
-        window.renderCustomersTable = function() {
-            const tbody = document.getElementById('customers-tbody');
-            if (!tbody) return;
-            const query = (document.getElementById('customer-search-input')?.value || '').toLowerCase();
-            const filtered = customers.filter(c => c.name.toLowerCase().includes(query) || c.phone.includes(query));
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Data pelanggan tidak ditemukan</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(c => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-3 font-mono font-semibold text-slate-600">${window.escapeHTML(c.id)}</td>
-                    <td class="p-3 font-bold text-slate-800">${window.escapeHTML(c.name)}</td>
-                    <td class="p-3 text-slate-600">${window.escapeHTML(c.phone)}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.type === 'VIP Member' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}">${window.escapeHTML(c.type)}</span></td>
-                    <td class="p-3 text-center font-bold text-slate-800">${c.total_tx || 0} TRX</td>
-                    <td class="p-3 text-center">
-                        <button data-name="${window.escapeHTML(c.name)}" onclick="showToast('Pelanggan: ' + this.getAttribute('data-name'), 'info')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold text-[11px]">Detail</button>
-                    </td>
-                </tr>
-            `).join('');
         };
 
         window.showReceiptModal = function(txOrId) {
@@ -1656,59 +1501,6 @@
             window.initSupabaseClient();
             window.closeConfigModal();
             window.showToast('Konfigurasi Supabase disimpan & terhubung!', 'success');
-        };
-
-        window.setupSupabaseTablesSQL = async function() {
-            const url = document.getElementById('cfg-url').value.trim() || DEFAULT_URL;
-            const key = document.getElementById('cfg-key').value.trim() || DEFAULT_KEY;
-            
-            const sqlInstructions = `
-CREATE TABLE IF NOT EXISTS products (
-  id TEXT PRIMARY KEY,
-  barcode TEXT,
-  name TEXT NOT NULL,
-  category TEXT,
-  purchase_price NUMERIC DEFAULT 0,
-  selling_price NUMERIC DEFAULT 0,
-  stock INT DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS customers (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  phone TEXT,
-  type TEXT DEFAULT 'Reguler',
-  total_tx INT DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS transactions (
-  id TEXT PRIMARY KEY,
-  cashier TEXT,
-  customer_name TEXT,
-  subtotal NUMERIC DEFAULT 0,
-  discount NUMERIC DEFAULT 0,
-  total NUMERIC DEFAULT 0,
-  cash_paid NUMERIC DEFAULT 0,
-  change NUMERIC DEFAULT 0,
-  payment_method TEXT,
-  items JSONB,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-            `;
-
-            try {
-                // Copy SQL to clipboard or display prompt
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    await navigator.clipboard.writeText(sqlInstructions);
-                    window.showToast('Skrip SQL berhasil disalin ke Clipboard! Tempel di SQL Editor Supabase.', 'success', 5000);
-                } else {
-                    prompt("Salin skrip SQL ini dan jalankan di Supabase SQL Editor:", sqlInstructions);
-                }
-            } catch (e) {
-                alert("Silakan buat tabel 'products', 'customers', dan 'transactions' di Supabase SQL Editor Anda.");
-            }
         };
 
         window.openStoreModal = function() {
