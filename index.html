@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Supabase Sync Fixed)</title>
+    <title>KASIR POS - itsuryatokoku (Invoice Fix)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -75,7 +75,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v7.6 Sync Fix</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v8.0 Invoice Fix</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Profesional & Supabase Cloud</p>
             </div>
@@ -719,8 +719,8 @@
             let url = DEFAULT_URL;
             let key = DEFAULT_KEY;
             try {
-                url = localStorage.getItem('fase7_sb_url') || DEFAULT_URL;
-                key = localStorage.getItem('fase7_sb_key') || DEFAULT_KEY;
+                url = localStorage.getItem('fase8_sb_url') || DEFAULT_URL;
+                key = localStorage.getItem('fase8_sb_key') || DEFAULT_KEY;
             } catch (e) {
                 console.warn("Storage read error:", e);
             }
@@ -750,12 +750,12 @@
             if (statusText) statusText.innerText = "Mode Offline (Lokal)";
 
             products = [
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
-                { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
+                { id: '1', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
+                { id: '2', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
+                { id: '3', barcode: '8991003', name: 'Gula Pasir 1kg', category: 'Sembako', purchase_price: 13500, selling_price: 16000, stock: 15 },
+                { id: '4', barcode: '8991004', name: 'Kopi Kapal Api 165g', category: 'Minuman', purchase_price: 11000, selling_price: 13500, stock: 50 },
+                { id: '5', barcode: '8991005', name: 'Teh Celup Sosro', category: 'Minuman', purchase_price: 6000, selling_price: 8500, stock: 30 },
+                { id: '6', barcode: '8991006', name: 'Indomie Goreng Original', category: 'Makanan', purchase_price: 2800, selling_price: 3500, stock: 120 }
             ];
             transactions = [];
             window.refreshAllUIs();
@@ -764,13 +764,11 @@
         window.fetchDataFromSupabase = async function() {
             if (!supabaseClient) return;
             try {
-                // Fetch Products
                 const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*');
                 if (!prodErr && prodData && prodData.length > 0) {
                     products = prodData;
                 }
 
-                // Fetch Transactions
                 const { data: txData, error: txErr } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
                 if (!txErr && txData) {
                     transactions = txData.map(t => ({
@@ -1070,10 +1068,11 @@
             const change = cashPaid - grandTotal;
 
             const now = new Date();
-            const txId = 'TRX-' + Date.now().toString().slice(-6);
+            const invoiceNo = 'TRX-' + Date.now().toString().slice(-6);
 
             const newTx = {
-                id: txId,
+                id: invoiceNo,
+                invoice_number: invoiceNo,
                 created_at: now.toISOString(),
                 created_at_display: now.toLocaleString('id-ID'),
                 customer_name: customerName,
@@ -1087,7 +1086,6 @@
                 cashier: 'Kasir Utama'
             };
 
-            // Update local stock
             cart.forEach(item => {
                 const prod = products.find(p => p.id === item.product.id);
                 if (prod) {
@@ -1097,11 +1095,11 @@
 
             transactions.unshift(newTx);
 
-            // Sync with Supabase with error reporting
             if (supabaseClient) {
                 try {
                     const { error: txErr } = await supabaseClient.from('transactions').insert([{
-                        id: txId,
+                        id: invoiceNo,
+                        invoice_number: invoiceNo,
                         cashier: 'Kasir Utama',
                         customer_name: customerName,
                         subtotal: subtotal,
@@ -1118,18 +1116,15 @@
                     for (const item of cart) {
                         const prod = products.find(p => p.id === item.product.id);
                         if (prod) {
-                            const { error: stockErr } = await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prod.id);
-                            if (stockErr) console.warn("Gagal update stok produk di cloud:", stockErr.message);
-                            
-                            const { error: itemErr } = await supabaseClient.from('transaction_items').insert([{
-                                transaction_id: txId,
+                            await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+                            await supabaseClient.from('transaction_items').insert([{
+                                transaction_id: invoiceNo,
                                 product_id: prod.id,
                                 product_name: prod.name,
                                 price: prod.selling_price,
                                 qty: item.qty,
                                 subtotal: prod.selling_price * item.qty
                             }]);
-                            if (itemErr) console.warn("Gagal insert transaction_items:", itemErr.message);
                         }
                     }
                     window.showToast('Transaksi Berhasil & Disinkronkan ke Cloud!', 'success');
@@ -1246,7 +1241,9 @@
                     }
                 }
             } else {
+                const newProdId = 'PROD-' + Date.now().toString().slice(-6);
                 const newProd = {
+                    id: newProdId,
                     barcode, category, name, purchase_price, selling_price, stock
                 };
                 if (supabaseClient) {
@@ -1261,7 +1258,6 @@
                         window.showToast('Gagal simpan ke cloud: ' + err.message, 'error');
                     }
                 } else {
-                    newProd.id = 'prod-' + Date.now();
                     products.unshift(newProd);
                 }
             }
@@ -1289,11 +1285,12 @@
             if (!container) return;
             let tx = txOrId;
             if (typeof txOrId === 'string') {
-                tx = transactions.find(t => t.id === txOrId);
+                tx = transactions.find(t => t.id === txOrId || t.invoice_number === txOrId);
             }
             if (!tx) return;
 
             const items = Array.isArray(tx.items) ? tx.items : (typeof tx.items === 'string' ? window.safeJSONParse(tx.items, []) : []);
+            const notaCode = tx.invoice_number || tx.id;
 
             container.innerHTML = `
                 <div class="text-center space-y-1 mb-3 border-b border-dashed border-slate-300 pb-3">
@@ -1301,7 +1298,7 @@
                     <p class="text-[10px] text-slate-500">${window.escapeHTML(storeSettings.address)}</p>
                     <p class="text-[10px] text-slate-500">Telp: ${window.escapeHTML(storeSettings.phone)}</p>
                     <div class="text-[10px] text-slate-500 pt-1">
-                        <p>Nota: ${window.escapeHTML(tx.id)} | ${window.escapeHTML(tx.created_at_display || '')}</p>
+                        <p>Nota: ${window.escapeHTML(notaCode)} | ${window.escapeHTML(tx.created_at_display || '')}</p>
                         <p>Pelanggan: ${window.escapeHTML(tx.customer_name || 'Umum')} | Metode: ${window.escapeHTML(tx.payment_method || 'CASH')}</p>
                     </div>
                 </div>
@@ -1404,9 +1401,10 @@
             tbody.innerHTML = filteredTx.map(t => {
                 const items = Array.isArray(t.items) ? t.items : (typeof t.items === 'string' ? window.safeJSONParse(t.items, []) : []);
                 const itemCount = items.reduce((s, i) => s + (i.qty || 0), 0);
+                const notaDisplay = t.invoice_number || t.id;
                 return `
                 <tr class="hover:bg-slate-50 transition">
-                    <td class="p-3 font-mono font-bold text-slate-700">${window.escapeHTML(t.id)}</td>
+                    <td class="p-3 font-mono font-bold text-slate-700">${window.escapeHTML(notaDisplay)}</td>
                     <td class="p-3 text-slate-500 text-[11px]">${window.escapeHTML(t.created_at_display || new Date(t.created_at).toLocaleString('id-ID'))}</td>
                     <td class="p-3 font-semibold text-slate-700">${window.escapeHTML(t.customer_name || 'Umum')}</td>
                     <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${window.escapeHTML(t.payment_method || 'CASH')}</span></td>
@@ -1431,7 +1429,7 @@
             transactions.forEach(t => {
                 const items = Array.isArray(t.items) ? t.items : (typeof t.items === 'string' ? window.safeJSONParse(t.items, []) : []);
                 const totalItem = items.reduce((sum, i) => sum + (i.qty || 0), 0);
-                csv += `"${t.id}","${t.created_at_display || ''}","${t.customer_name || 'Umum'}","${t.payment_method || 'CASH'}",${totalItem},${t.subtotal || 0},${t.discount || 0},${t.total || 0},${t.cash_paid || 0},${t.change || 0}\n`;
+                csv += `"${t.invoice_number || t.id}","${t.created_at_display || ''}","${t.customer_name || 'Umum'}","${t.payment_method || 'CASH'}",${totalItem},${t.subtotal || 0},${t.discount || 0},${t.total || 0},${t.cash_paid || 0},${t.change || 0}\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
@@ -1488,8 +1486,8 @@
 
         window.openConfigModal = function() {
             try {
-                document.getElementById('cfg-url').value = localStorage.getItem('fase7_sb_url') || DEFAULT_URL;
-                document.getElementById('cfg-key').value = localStorage.getItem('fase7_sb_key') || DEFAULT_KEY;
+                document.getElementById('cfg-url').value = localStorage.getItem('fase8_sb_url') || DEFAULT_URL;
+                document.getElementById('cfg-key').value = localStorage.getItem('fase8_sb_key') || DEFAULT_KEY;
             } catch (e) {}
             document.getElementById('modal-config').classList.remove('hidden');
         };
@@ -1502,8 +1500,8 @@
             const url = document.getElementById('cfg-url').value.trim();
             const key = document.getElementById('cfg-key').value.trim();
             try {
-                localStorage.setItem('fase7_sb_url', url);
-                localStorage.setItem('fase7_sb_key', key);
+                localStorage.setItem('fase8_sb_url', url);
+                localStorage.setItem('fase8_sb_key', key);
             } catch (e) {}
             window.initSupabaseClient();
             window.closeConfigModal();
