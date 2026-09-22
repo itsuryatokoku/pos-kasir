@@ -231,10 +231,10 @@
                         </select>
                     </div>
 
-                    <!-- COMPACT VOUCHER DROPDOWN SELECTOR -->
+                    <!-- MULTI-VOUCHER DROPDOWN SELECTOR -->
                     <div class="space-y-1">
                         <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
-                            <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Pilih Voucher Tersedia</span>
+                            <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Tambah Voucher / Promo</span>
                         </div>
                         <div class="flex gap-1.5">
                             <select id="cart-voucher-dropdown" onchange="applyDropdownVoucher(this)" class="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
@@ -242,14 +242,8 @@
                             </select>
                         </div>
 
-                        <div id="applied-voucher-badge" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-1 rounded-lg text-[11px] font-semibold flex justify-between items-center">
-                            <span class="flex items-center gap-1">
-                                <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                                <span id="voucher-badge-text">Voucher Dipakai</span>
-                            </span>
-                            <button onclick="removeAppliedVoucher()" class="text-red-500 hover:text-red-700 font-bold ml-2">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
+                        <!-- APPLIED VOUCHERS BADGES CONTAINER (MULTI) -->
+                        <div id="applied-vouchers-container" class="space-y-1 pt-1 hidden">
                         </div>
                     </div>
 
@@ -271,7 +265,7 @@
                     </div>
                     
                     <div id="row-category-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span class="text-slate-500">Diskon Otomatis Kategori / Promo</span>
+                        <span class="text-slate-500">Diskon Otomatis Kategori / Produk</span>
                         <span id="cart-category-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
@@ -305,7 +299,7 @@
                     </div>
 
                     <div id="row-voucher-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span>Diskon Voucher (<span id="cart-voucher-code-label">CODE</span>)</span>
+                        <span>Diskon Voucher (<span id="cart-voucher-code-label">KODE</span>)</span>
                         <span id="cart-voucher-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                     </div>
 
@@ -714,7 +708,7 @@
 
                 <!-- MULTI-CRITERIA TARGET COMBINATIONS -->
                 <div class="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100 space-y-2.5">
-                    <span class="block text-xs font-bold text-indigo-900 uppercase tracking-wide">Kombinasi Kriteria Target Produk (Bisa Pilih Banyak)</span>
+                    <span class="block text-xs font-bold text-indigo-900 uppercase tracking-wide">Kombinasi Kriteria Target Produk (Bisa Dipilih Bersamaan)</span>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kategori</label>
@@ -1009,7 +1003,7 @@
         let cart = [];
         let userAccounts = [];
         let vouchers = [];
-        let appliedVoucher = null;
+        let appliedVouchers = []; // Multi-voucher array
         let html5QrcodeScanner = null;
         let salesChartInstance = null;
         let paymentChartInstance = null;
@@ -1546,7 +1540,6 @@
             vouchers.forEach(v => {
                 if (v.is_active && v.promo_type === 'auto_category' && isVoucherDateValid(v)) {
                     if (productMatchesVoucherTarget(product, v)) {
-                        // Check min qty if specified
                         if (v.min_qty && v.min_qty > 0) {
                             const matchingItemInCart = cart.find(i => i.id === product.id);
                             if (!matchingItemInCart || matchingItemInCart.qty < v.min_qty) return;
@@ -1662,8 +1655,8 @@
                 let activeDiscount = null;
                 const autoDisc = product ? getActiveDiscountForProduct(product) : null;
                 if (autoDisc) {
-                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === autoDisc.id;
-                    if (!isCurrentManualVoucher) {
+                    const isVoucherApplied = appliedVouchers.some(v => v.id === autoDisc.id);
+                    if (!isVoucherApplied) {
                         activeDiscount = autoDisc;
                     }
                 }
@@ -1742,6 +1735,8 @@
 
         function clearCart() {
             cart = [];
+            appliedVouchers = [];
+            renderAppliedVouchersBadges();
             renderCartItems();
             calculateCartTotals();
         }
@@ -1767,13 +1762,16 @@
                 customers.map(c => `<option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>`).join('');
         }
 
-        /* SMART VOUCHER DROPDOWN WITH CRITERIA, MIN PURCHASE & MIN QTY CHECK */
+        /* SMART MULTI-VOUCHER DROPDOWN */
         function renderCartVoucherDropdown() {
             const dropdown = document.getElementById('cart-voucher-dropdown');
             if (!dropdown) return;
 
+            const appliedIds = appliedVouchers.map(v => v.id);
+
             const availableVouchers = vouchers.filter(v => {
                 if (!v.is_active || v.promo_type !== 'voucher' || !isVoucherDateValid(v)) return false;
+                if (appliedIds.includes(v.id)) return false; // Exclude already applied
                 
                 const matchingItems = cart.filter(item => {
                     const prod = products.find(p => p.id === item.id);
@@ -1789,11 +1787,9 @@
                 return true;
             });
 
-            const currentCode = appliedVoucher ? appliedVoucher.code : '';
-
             dropdown.innerHTML = `<option value="">-- Pilih Voucher / Promo (${availableVouchers.length} Tersedia) --</option>` +
                 availableVouchers.map(v => `
-                    <option value="${v.code}" ${currentCode === v.code ? 'selected' : ''}>
+                    <option value="${v.code}">
                         ${v.code} - ${v.title} (${v.benefit_type === 'buy_x_get_y' ? `Beli ${v.buy_qty} Gratis ${v.get_qty}` : v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})
                     </option>
                 `).join('');
@@ -1801,13 +1797,16 @@
 
         function applyDropdownVoucher(selectEl) {
             const code = selectEl.value;
-            if (!code) {
-                removeAppliedVoucher();
-                return;
-            }
+            if (!code) return;
 
             const v = vouchers.find(item => item.promo_type === 'voucher' && item.code && item.code.toUpperCase() === code.toUpperCase());
             if (!v) return;
+
+            if (appliedVouchers.some(item => item.id === v.id)) {
+                showNotification("Voucher ini sudah diterapkan!", "info");
+                selectEl.value = '';
+                return;
+            }
 
             const matchingItems = cart.filter(item => {
                 const prod = products.find(p => p.id === item.id);
@@ -1817,29 +1816,49 @@
             const matchingQty = matchingItems.reduce((sum, item) => sum + item.qty, 0);
 
             if (v.min_purchase && matchingSubtotal < v.min_purchase) {
-                showNotification(`Minimum pembelian untuk voucher ini adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`, "error");
-                selectEl.value = appliedVoucher ? appliedVoucher.code : '';
+                showNotification(`Minimum pembelian target untuk voucher ${v.code} adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`, "error");
+                selectEl.value = '';
                 return;
             }
             if (v.min_qty && matchingQty < v.min_qty) {
-                showNotification(`Minimum kuantitas barang untuk voucher ini adalah ${v.min_qty} pcs`, "error");
-                selectEl.value = appliedVoucher ? appliedVoucher.code : '';
+                showNotification(`Minimum kuantitas target untuk voucher ${v.code} adalah ${v.min_qty} pcs`, "error");
+                selectEl.value = '';
                 return;
             }
 
-            appliedVoucher = v;
-            document.getElementById('voucher-badge-text').innerText = `${v.code} (${v.benefit_type === 'buy_x_get_y' ? `Beli ${v.buy_qty} Gratis ${v.get_qty}` : v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})`;
-            document.getElementById('applied-voucher-badge').classList.remove('hidden');
-            showNotification(`Voucher ${v.code} berhasil diterapkan!`, "success");
-
+            appliedVouchers.push(v);
+            selectEl.value = '';
+            renderAppliedVouchersBadges();
             calculateCartTotals();
+            showNotification(`Voucher ${v.code} berhasil ditambahkan!`, "success");
         }
 
-        function removeAppliedVoucher() {
-            appliedVoucher = null;
-            document.getElementById('applied-voucher-badge').classList.add('hidden');
-            const dropdown = document.getElementById('cart-voucher-dropdown');
-            if (dropdown) dropdown.value = '';
+        function renderAppliedVouchersBadges() {
+            const container = document.getElementById('applied-vouchers-container');
+            if (!container) return;
+            if (appliedVouchers.length === 0) {
+                container.innerHTML = '';
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+            container.innerHTML = appliedVouchers.map(v => `
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-1 rounded-lg text-[11px] font-semibold flex justify-between items-center">
+                    <span class="flex items-center gap-1 truncate">
+                        <i class="fa-solid fa-circle-check text-emerald-500 shrink-0"></i>
+                        <span class="truncate">${v.code} (${v.benefit_type === 'buy_x_get_y' ? `Beli ${v.buy_qty} Gratis ${v.get_qty}` : v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})</span>
+                    </span>
+                    <button onclick="removeAppliedVoucher('${v.id}')" class="text-red-500 hover:text-red-700 font-bold ml-2 shrink-0">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeAppliedVoucher(id) {
+            appliedVouchers = appliedVouchers.filter(v => v.id !== id);
+            renderAppliedVouchersBadges();
+            renderCartVoucherDropdown();
             calculateCartTotals();
         }
 
@@ -1854,10 +1873,9 @@
 
                 const autoDisc = product ? getActiveDiscountForProduct(product) : null;
                 if (autoDisc) {
-                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === autoDisc.id;
-                    if (!isCurrentManualVoucher) {
+                    const isVoucherApplied = appliedVouchers.some(v => v.id === autoDisc.id);
+                    if (!isVoucherApplied) {
                         if (autoDisc.benefit_type === 'buy_x_get_y') {
-                            // BOGO calculation handled below or per item
                             const sets = Math.floor(item.qty / (autoDisc.buy_qty + autoDisc.get_qty));
                             const freeQty = sets * autoDisc.get_qty;
                             if (freeQty > 0) {
@@ -1895,34 +1913,36 @@
             }
 
             let voucherDiscAmount = 0;
-            if (appliedVoucher) {
+            let voucherCodesList = [];
+
+            appliedVouchers.forEach(v => {
                 const matchingItems = cart.filter(item => {
                     const prod = products.find(p => p.id === item.id);
-                    return prod ? productMatchesVoucherTarget(prod, appliedVoucher) : false;
+                    return prod ? productMatchesVoucherTarget(prod, v) : false;
                 });
                 let targetSubtotal = matchingItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
                 let targetQty = matchingItems.reduce((sum, item) => sum + item.qty, 0);
 
-                if ((appliedVoucher.min_purchase && targetSubtotal < appliedVoucher.min_purchase) || (appliedVoucher.min_qty && targetQty < appliedVoucher.min_qty)) {
-                    voucherDiscAmount = 0;
-                } else {
-                    if (appliedVoucher.benefit_type === 'buy_x_get_y') {
-                        // calculate BOGO for voucher
+                if (!((v.min_purchase && targetSubtotal < v.min_purchase) || (v.min_qty && targetQty < v.min_qty))) {
+                    let currentVoucherDisc = 0;
+                    if (v.benefit_type === 'buy_x_get_y') {
                         matchingItems.forEach(item => {
-                            const sets = Math.floor(item.qty / (appliedVoucher.buy_qty + appliedVoucher.get_qty));
-                            const freeQty = sets * appliedVoucher.get_qty;
-                            voucherDiscAmount += (item.price * freeQty);
+                            const sets = Math.floor(item.qty / (v.buy_qty + v.get_qty));
+                            const freeQty = sets * v.get_qty;
+                            currentVoucherDisc += (item.price * freeQty);
                         });
-                    } else if (appliedVoucher.type === 'percentage') {
-                        voucherDiscAmount = (targetSubtotal * appliedVoucher.value) / 100;
-                        if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
-                            voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
+                    } else if (v.type === 'percentage') {
+                        currentVoucherDisc = (targetSubtotal * v.value) / 100;
+                        if (v.max_discount && v.max_discount > 0) {
+                            currentVoucherDisc = Math.min(currentVoucherDisc, v.max_discount);
                         }
                     } else {
-                        voucherDiscAmount = Math.min(appliedVoucher.value, targetSubtotal);
+                        currentVoucherDisc = Math.min(v.value, targetSubtotal);
                     }
+                    voucherDiscAmount += currentVoucherDisc;
+                    voucherCodesList.push(v.code);
                 }
-            }
+            });
 
             const totalOtherDiscounts = manualDiscAmount + vipDiscAmount + voucherDiscAmount;
             const grandTotalDiscount = categoryDiscountTotal + totalOtherDiscounts;
@@ -1934,6 +1954,7 @@
                 manualDiscAmount,
                 vipDiscAmount,
                 voucherDiscAmount,
+                voucherCodesList,
                 grandTotalDiscount,
                 grandTotal
             };
@@ -1969,9 +1990,9 @@
             }
 
             const rowVouch = document.getElementById('row-voucher-discount');
-            if (appliedVoucher && state.voucherDiscAmount > 0) {
+            if (appliedVouchers.length > 0 && state.voucherDiscAmount > 0) {
                 rowVouch.classList.remove('hidden');
-                document.getElementById('cart-voucher-code-label').innerText = appliedVoucher.code;
+                document.getElementById('cart-voucher-code-label').innerText = state.voucherCodesList.join(', ');
                 document.getElementById('cart-voucher-discount-amount').innerText = `- Rp ${state.voucherDiscAmount.toLocaleString('id-ID')}`;
             } else {
                 rowVouch.classList.add('hidden');
@@ -2518,8 +2539,8 @@
                 return;
             }
 
-            if (appliedVoucher) {
-                const v = vouchers.find(item => item.id === appliedVoucher.id);
+            appliedVouchers.forEach(async (vObj) => {
+                const v = vouchers.find(item => item.id === vObj.id);
                 if (v) {
                     v.times_used = (v.times_used || 0) + 1;
                     if (supabaseClient) {
@@ -2528,7 +2549,7 @@
                         } catch(e) { console.error('Update voucher usage error:', e); }
                     }
                 }
-            }
+            });
 
             const invoiceNum = 'TRX-' + Math.floor(100000 + Math.random() * 900000);
             const customerName = document.getElementById('cart-customer-select').value;
@@ -2565,7 +2586,8 @@
             }
 
             transactions.unshift(newTx);
-            removeAppliedVoucher();
+            appliedVouchers = [];
+            renderAppliedVouchersBadges();
             
             document.getElementById('cart-discount-input').value = '0';
             document.getElementById('cart-discount-type').value = 'percentage';
