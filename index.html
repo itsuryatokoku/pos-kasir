@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Enterprise v11.0)</title>
+    <title>KASIR POS - itsuryatokoku (Enterprise v11.0 Pro)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -80,9 +80,9 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v11.0 Cloud</span>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v11.0 Pro</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud Database Integration</p>
+                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud Database & Diskon Kategori</p>
             </div>
         </div>
 
@@ -114,7 +114,6 @@
         </nav>
 
         <div class="flex items-center space-x-2 sm:space-x-3">
-            <!-- MULTI CABANG SELECTOR -->
             <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
                 <i class="fa-solid fa-store text-amber-400 ml-1.5 mr-1 text-xs"></i>
                 <select id="branch-select" onchange="changeBranch()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
@@ -124,7 +123,6 @@
                 </select>
             </div>
 
-            <!-- LOGIN / USER PROFILE BADGE -->
             <div class="flex items-center gap-2 bg-slate-800 border border-slate-700/60 rounded-xl px-2.5 py-1 text-xs">
                 <i class="fa-solid fa-user-circle text-blue-400 text-sm"></i>
                 <div class="flex flex-col text-left">
@@ -136,7 +134,6 @@
                 </button>
             </div>
 
-            <!-- WEB BLUETOOTH PRINTER CONNECTOR -->
             <button 
                 onclick="connectBluetoothPrinter()"
                 id="bt-printer-btn"
@@ -247,6 +244,18 @@
                                 Pakai
                             </button>
                         </div>
+
+                        <!-- LIST / WIDGET PROMO AKTIF -->
+                        <div class="bg-white border border-slate-200 rounded-lg p-2 space-y-1">
+                            <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                                <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Daftar Promo Tersedia</span>
+                                <span class="text-[9px] text-indigo-600 font-normal">Klik untuk pakai</span>
+                            </div>
+                            <div id="active-promo-list" class="max-h-24 overflow-y-auto custom-scrollbar space-y-1">
+                                <!-- Rendered dynamically -->
+                            </div>
+                        </div>
+
                         <div id="applied-voucher-badge" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-1 rounded-lg text-[11px] font-semibold flex justify-between items-center">
                             <span class="flex items-center gap-1">
                                 <i class="fa-solid fa-circle-check text-emerald-500"></i>
@@ -268,7 +277,7 @@
                     </div>
                 </div>
 
-                <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-200 bg-white min-h-[160px]">
+                <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-200 bg-white min-h-[140px]">
                 </div>
 
                 <div class="p-4 bg-slate-100 border-t border-slate-200 space-y-2.5 shadow-lg">
@@ -927,7 +936,6 @@
         let currentRole = 'admin';
         let currentBranch = 'Pusat Utama';
 
-        // SEED ACCOUNTS FALLBACK (OFFLINE)
         const defaultAccounts = [
             { username: 'admin', name: 'Owner / Admin', role: 'admin', pin: '1234' },
             { username: 'kasir1', name: 'Kasir Utama', role: 'cashier', pin: '0000' },
@@ -935,7 +943,6 @@
         ];
         let activeUser = null;
 
-        // SEED DATA FALLBACK
         const defaultProducts = [
             { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', sku: 'SKU-BRS-01', barcode: '8991001', name: 'Beras Premium 5kg', category: 'Sembako', purchase_price: 60000, selling_price: 68000, stock: 25 },
             { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', sku: 'SKU-MYK-02', barcode: '8991002', name: 'Minyak Goreng 2L', category: 'Sembako', purchase_price: 28000, selling_price: 33000, stock: 40 },
@@ -954,7 +961,6 @@
             { id: 'v0eebc99-9c0b-4ef8-bb6d-6bb9bd380v12', code: 'MINUMAN10', title: 'Diskon 10% Otomatis Minuman', applicable_category: 'Minuman', type: 'percentage', value: 10, min_purchase: 0, max_discount: 15000, valid_until: '2026-12-31', is_active: true, times_used: 12 }
         ];
 
-        // INIT APPLICATION
         document.addEventListener('DOMContentLoaded', async () => {
             loadSavedStoreSettings();
             initSupabaseClient();
@@ -965,6 +971,7 @@
             renderCategories();
             renderProductGrid();
             renderCartItems();
+            renderActivePromoList();
             renderAdminProductsTable();
             renderCustomersTable();
             renderCartCustomerDropdown();
@@ -973,7 +980,6 @@
             initCharts();
         });
 
-        // LOAD STORE SETTINGS
         function loadSavedStoreSettings() {
             const name = localStorage.getItem('pos_store_name');
             const sub = localStorage.getItem('pos_store_sub');
@@ -1047,13 +1053,8 @@
             }
         }
 
-        function openConfigModal() {
-            window.location.hash = '#settings';
-        }
-
-        function openStoreModal() {
-            window.location.hash = '#settings';
-        }
+        function openConfigModal() { window.location.hash = '#settings'; }
+        function openStoreModal() { window.location.hash = '#settings'; }
 
         function changeBranch() {
             currentBranch = document.getElementById('branch-select').value;
@@ -1061,7 +1062,6 @@
             alert(`Cabang aktif diubah ke: ${currentBranch}`);
         }
 
-        // SUPABASE CLIENT INIT
         function initSupabaseClient() {
             const url = localStorage.getItem('supabase_url') || 'https://pftuivzghfscfczfckvd.supabase.co';
             const key = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODQ0NjgsImV4cCI6MjA1NjU2MDQ2OH0.C83vJysq6_1u7aGj_t5WnOa63N2iK9s9lM0-86P0';
@@ -1081,7 +1081,6 @@
             }
         }
 
-        // SUPABASE AUTH USER FETCHING
         async function fetchUsersFromSupabase() {
             if (supabaseClient) {
                 try {
@@ -1110,7 +1109,6 @@
             `).join('');
         }
 
-        // AUTHENTICATION LOGIC
         function initAuthSystem() {
             const savedUser = localStorage.getItem('pos_active_user');
             if (savedUser) {
@@ -1139,7 +1137,6 @@
             const errorMsg = document.getElementById('login-error-msg');
 
             let foundUser = null;
-
             if (supabaseClient) {
                 try {
                     const { data, error } = await supabaseClient
@@ -1148,10 +1145,7 @@
                         .eq('username', username)
                         .eq('pin', pin)
                         .single();
-
-                    if (!error && data) {
-                        foundUser = data;
-                    }
+                    if (!error && data) foundUser = data;
                 } catch(err) {
                     console.error('Supabase authentication error:', err);
                 }
@@ -1168,7 +1162,7 @@
                 document.getElementById('login-modal').classList.add('hidden');
                 errorMsg.classList.add('hidden');
             } else {
-                errorMsg.innerText = 'PIN atau Akun tidak cocok di Database Cloud!';
+                errorMsg.innerText = 'PIN atau Akun tidak valid!';
                 errorMsg.classList.remove('hidden');
             }
         }
@@ -1180,11 +1174,8 @@
 
             const adminNavs = document.querySelectorAll('.nav-admin-only');
             adminNavs.forEach(el => {
-                if (user.role === 'admin') {
-                    el.classList.remove('hidden');
-                } else {
-                    el.classList.add('hidden');
-                }
+                if (user.role === 'admin') el.classList.remove('hidden');
+                else el.classList.add('hidden');
             });
 
             const currentHash = window.location.hash;
@@ -1195,24 +1186,16 @@
 
         function appendPin(num) {
             const pinInput = document.getElementById('login-pin');
-            if (pinInput.value.length < 6) {
-                pinInput.value += num;
-            }
+            if (pinInput.value.length < 6) pinInput.value += num;
         }
-
-        function clearPin() {
-            document.getElementById('login-pin').value = '';
-        }
-
+        function clearPin() { document.getElementById('login-pin').value = ''; }
         function deletePin() {
             const pinInput = document.getElementById('login-pin');
             pinInput.value = pinInput.value.slice(0, -1);
         }
 
         function generateUUID() {
-            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-                return crypto.randomUUID();
-            }
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
@@ -1233,42 +1216,38 @@
             localStorage.setItem('pos_vouchers', JSON.stringify(vouchers));
         }
 
-        // SUPABASE DATA SYNC
         async function syncWithSupabase() {
             if (!supabaseClient) return;
             const icon = document.getElementById('sync-icon');
             if (icon) icon.classList.add('fa-spin');
 
             try {
-                // Sync Products
-                const { data: cloudProds, error: pErr } = await supabaseClient.from('products').select('*');
-                if (!pErr && cloudProds && cloudProds.length > 0) {
+                const { data: cloudProds } = await supabaseClient.from('products').select('*');
+                if (cloudProds && cloudProds.length > 0) {
                     products = cloudProds;
                     saveLocalStorageData();
                     renderProductGrid();
                     renderAdminProductsTable();
                 }
 
-                // Sync Customers
-                const { data: cloudCusts, error: cErr } = await supabaseClient.from('customers').select('*');
-                if (!cErr && cloudCusts && cloudCusts.length > 0) {
+                const { data: cloudCusts } = await supabaseClient.from('customers').select('*');
+                if (cloudCusts && cloudCusts.length > 0) {
                     customers = cloudCusts;
                     saveLocalStorageData();
                     renderCustomersTable();
                     renderCartCustomerDropdown();
                 }
 
-                // Sync Vouchers
-                const { data: cloudVouch, error: vErr } = await supabaseClient.from('vouchers').select('*');
-                if (!vErr && cloudVouch && cloudVouch.length > 0) {
+                const { data: cloudVouch } = await supabaseClient.from('vouchers').select('*');
+                if (cloudVouch && cloudVouch.length > 0) {
                     vouchers = cloudVouch;
                     saveLocalStorageData();
                     renderVouchersTable();
+                    renderActivePromoList();
                 }
 
-                // Sync Transactions
-                const { data: cloudTx, error: tErr } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
-                if (!tErr && cloudTx) {
+                const { data: cloudTx } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
+                if (cloudTx) {
                     transactions = cloudTx;
                     saveLocalStorageData();
                     renderHistoryTable();
@@ -1281,7 +1260,6 @@
             }
         }
 
-        // NAVIGATION
         function setupHashNavigation() {
             window.addEventListener('hashchange', handleNavigation);
             handleNavigation();
@@ -1300,7 +1278,6 @@
             if (activeNav) activeNav.className = 'px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 bg-blue-600 text-white shadow';
         }
 
-        // PRODUCT & CATALOG RENDERING
         function renderCategories() {
             const cats = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
             const container = document.getElementById('category-pills');
@@ -1338,17 +1315,10 @@
             if (!grid) return;
             let list = products;
 
-            if (selectedCategory !== 'Semua') {
-                list = list.filter(p => p.category === selectedCategory);
-            }
-
+            if (selectedCategory !== 'Semua') list = list.filter(p => p.category === selectedCategory);
             if (filterQuery) {
                 const q = filterQuery.toLowerCase();
-                list = list.filter(p => 
-                    p.name.toLowerCase().includes(q) || 
-                    (p.sku && p.sku.toLowerCase().includes(q)) || 
-                    (p.barcode && p.barcode.includes(q))
-                );
+                list = list.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)));
             }
 
             document.getElementById('product-count').innerText = `${list.length} Produk`;
@@ -1370,7 +1340,6 @@
             `).join('');
         }
 
-        // CART LOGIC
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
@@ -1386,13 +1355,7 @@
                 }
                 cartItem.qty += 1;
             } else {
-                cart.push({
-                    id: product.id,
-                    sku: product.sku || '',
-                    name: product.name,
-                    price: product.selling_price || 0,
-                    qty: 1
-                });
+                cart.push({ id: product.id, sku: product.sku || '', name: product.name, price: product.selling_price || 0, qty: 1 });
             }
             renderCartItems();
             calculateCartTotals();
@@ -1430,9 +1393,8 @@
                 return;
             }
             item.qty += change;
-            if (item.qty <= 0) {
-                removeFromCart(productId);
-            } else {
+            if (item.qty <= 0) removeFromCart(productId);
+            else {
                 renderCartItems();
                 calculateCartTotals();
             }
@@ -1459,12 +1421,8 @@
                 const bday = new Date(cust.birth_date);
                 if (today.getDate() === bday.getDate() && today.getMonth() === bday.getMonth()) {
                     birthdayBanner.classList.remove('hidden');
-                } else {
-                    birthdayBanner.classList.add('hidden');
-                }
-            } else {
-                birthdayBanner.classList.add('hidden');
-            }
+                } else birthdayBanner.classList.add('hidden');
+            } else birthdayBanner.classList.add('hidden');
             calculateCartTotals();
         }
 
@@ -1472,9 +1430,36 @@
             const select = document.getElementById('cart-customer-select');
             if (!select) return;
             select.innerHTML = `<option value="Pelanggan Umum">-- Pelanggan Umum --</option>` +
-                customers.map(c => `
-                    <option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>
-                `).join('');
+                customers.map(c => `<option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>`).join('');
+        }
+
+        // RENDER ACTIVE PROMO LIST WIDGET IN CART
+        function renderActivePromoList() {
+            const container = document.getElementById('active-promo-list');
+            if (!container) return;
+
+            const today = new Date().setHours(0,0,0,0);
+            const activeList = vouchers.filter(v => v.is_active && (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today));
+
+            if (activeList.length === 0) {
+                container.innerHTML = `<div class="text-[10px] text-slate-400 text-center py-1">Tidak ada promo aktif</div>`;
+                return;
+            }
+
+            container.innerHTML = activeList.map(v => `
+                <div onclick="quickApplyPromo('${v.code}')" class="flex justify-between items-center bg-indigo-50/60 hover:bg-indigo-100 p-1.5 rounded cursor-pointer transition border border-indigo-100 text-[11px]">
+                    <div>
+                        <span class="font-mono font-bold text-indigo-700">${v.code}</span>
+                        <span class="text-slate-600 ml-1 truncate max-w-[120px] inline-block align-bottom">${v.title}</span>
+                    </div>
+                    <span class="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold">Pakai</span>
+                </div>
+            `).join('');
+        }
+
+        function quickApplyPromo(code) {
+            document.getElementById('cart-voucher-input').value = code;
+            applyVoucherCode();
         }
 
         function applyVoucherCode() {
@@ -1497,17 +1482,14 @@
                 alert(`Kode voucher "${code}" tidak ditemukan!`);
                 return;
             }
-
             if (!v.is_active) {
                 alert(`Kode voucher "${code}" sedang tidak aktif!`);
                 return;
             }
-
             if (v.valid_until && new Date(v.valid_until) < new Date().setHours(0,0,0,0)) {
                 alert(`Kode voucher "${code}" sudah kadaluarsa!`);
                 return;
             }
-
             if (v.min_purchase && subtotal < v.min_purchase) {
                 alert(`Minimal belanja untuk voucher "${code}" adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`);
                 return;
@@ -1530,22 +1512,20 @@
         function calculateCartTotals() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             
-            // Diskon Manual %
             const manualDiscPercent = parseFloat(document.getElementById('cart-discount-input').value) || 0;
             let manualDiscAmount = (subtotal * manualDiscPercent) / 100;
 
-            // Diskon Member VIP 5%
             let vipDiscAmount = 0;
             const customerName = document.getElementById('cart-customer-select').value;
             const cust = customers.find(c => c.name === customerName);
-            if (cust && cust.type === 'VIP') {
-                vipDiscAmount = (subtotal * 0.05);
-            }
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
 
-            // Diskon Voucher Promo (Manual Kode Input)
             let voucherDiscAmount = 0;
+            let manualVoucherCategory = null;
+
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
+                manualVoucherCategory = targetCat;
                 let catSubtotal = subtotal;
 
                 if (targetCat !== 'Semua') {
@@ -1560,35 +1540,35 @@
                     if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
                         voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                     }
-                } else {
-                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
-                }
+                } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
-            // Diskon Otomatis Kategori Berdasarkan Periode Aktif
             let autoCategoryDiscounts = 0;
             let activeAutoPromos = [];
             const today = new Date().setHours(0,0,0,0);
 
             vouchers.forEach(v => {
-                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                        // Cek apakah ada produk di cart yang sesuai kategori ini
-                        const catSub = cart.reduce((sum, item) => {
-                            const prod = products.find(p => p.id === item.id);
-                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                        }, 0);
+                // Hanya jalankan diskon otomatis jika voucher ini bukan voucher manual yang sedang aktif
+                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                
+                if (!isCurrentManualVoucher && v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    // Pastikan kategori ini tidak sama dengan target kategori voucher manual yang sudah memberikan potongan
+                    if (manualVoucherCategory !== v.applicable_category) {
+                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                            const catSub = cart.reduce((sum, item) => {
+                                const prod = products.find(p => p.id === item.id);
+                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                            }, 0);
 
-                        if (catSub > 0) {
-                            let dVal = 0;
-                            if (v.type === 'percentage') {
-                                dVal = (catSub * v.value) / 100;
-                                if (v.max_discount && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                            } else {
-                                dVal = Math.min(v.value, catSub);
+                            if (catSub > 0) {
+                                let dVal = 0;
+                                if (v.type === 'percentage') {
+                                    dVal = (catSub * v.value) / 100;
+                                    if (v.max_discount && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                                } else dVal = Math.min(v.value, catSub);
+                                autoCategoryDiscounts += dVal;
+                                activeAutoPromos.push(`${v.title} (${v.applicable_category})`);
                             }
-                            autoCategoryDiscounts += dVal;
-                            activeAutoPromos.push(`${v.title} (${v.applicable_category})`);
                         }
                     }
                 }
@@ -1599,9 +1579,7 @@
             if (activeAutoPromos.length > 0) {
                 autoText.innerText = `Promo Otomatis: ${activeAutoPromos.join(', ')}`;
                 autoBadge.classList.remove('hidden');
-            } else {
-                autoBadge.classList.add('hidden');
-            }
+            } else autoBadge.classList.add('hidden');
 
             const totalDiscount = manualDiscAmount + vipDiscAmount + voucherDiscAmount + autoCategoryDiscounts;
             const grandTotal = Math.max(0, subtotal - totalDiscount);
@@ -1613,17 +1591,12 @@
             document.getElementById('btn-checkout').disabled = cart.length === 0;
         }
 
-        // VOUCHER MANAGEMENT
         function renderVouchersTable() {
             const tbody = document.getElementById('vouchers-tbody');
             if (!tbody) return;
 
             const q = (document.getElementById('voucher-search-input')?.value || '').toLowerCase();
-            const list = vouchers.filter(v => 
-                v.code.toLowerCase().includes(q) || 
-                v.title.toLowerCase().includes(q) ||
-                (v.applicable_category && v.applicable_category.toLowerCase().includes(q))
-            );
+            const list = vouchers.filter(v => v.code.toLowerCase().includes(q) || v.title.toLowerCase().includes(q) || (v.applicable_category && v.applicable_category.toLowerCase().includes(q)));
 
             tbody.innerHTML = list.map(v => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
@@ -1652,6 +1625,8 @@
                     </td>
                 </tr>
             `).join('');
+
+            renderActivePromoList();
         }
 
         function openVoucherModal(voucherId = null) {
@@ -1691,16 +1666,12 @@
             toggleVoucherValueLabel();
         }
 
-        function closeVoucherModal() {
-            document.getElementById('voucher-modal').classList.add('hidden');
-        }
+        function closeVoucherModal() { document.getElementById('voucher-modal').classList.add('hidden'); }
 
         function toggleVoucherValueLabel() {
             const type = document.getElementById('vouch-type').value;
             const label = document.getElementById('vouch-value-label');
-            if (label) {
-                label.innerText = type === 'percentage' ? 'Nilai Diskon (%)' : 'Nilai Diskon (Rp)';
-            }
+            if (label) label.innerText = type === 'percentage' ? 'Nilai Diskon (%)' : 'Nilai Diskon (Rp)';
         }
 
         async function handleVoucherSubmit(e) {
@@ -1726,9 +1697,7 @@
                     voucherData.times_used = vouchers[idx].times_used || 0;
                     vouchers[idx] = voucherData;
                 }
-            } else {
-                vouchers.push(voucherData);
-            }
+            } else vouchers.push(voucherData);
 
             saveLocalStorageData();
             renderVouchersTable();
@@ -1738,9 +1707,7 @@
                 try {
                     await supabaseClient.from('vouchers').upsert([voucherData]);
                     syncWithSupabase();
-                } catch(err) {
-                    console.error('Save voucher cloud error:', err);
-                }
+                } catch(err) { console.error('Save voucher cloud error:', err); }
             }
         }
 
@@ -1754,9 +1721,7 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('vouchers').update({ is_active: v.is_active }).eq('id', voucherId);
-                } catch(e) {
-                    console.error('Toggle voucher active error:', e);
-                }
+                } catch(e) { console.error('Toggle voucher active error:', e); }
             }
         }
 
@@ -1769,13 +1734,10 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('vouchers').delete().eq('id', voucherId);
-                } catch(e) {
-                    console.error('Delete voucher error:', e);
-                }
+                } catch(e) { console.error('Delete voucher error:', e); }
             }
         }
 
-        // ADMIN PRODUCTS TABLE
         function renderAdminProductsTable() {
             const tbody = document.getElementById('admin-products-tbody');
             if (!tbody) return;
@@ -1787,15 +1749,8 @@
             catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
             catSelect.value = catFilter;
 
-            let list = products.filter(p => 
-                p.name.toLowerCase().includes(q) || 
-                (p.sku && p.sku.toLowerCase().includes(q)) || 
-                (p.barcode && p.barcode.includes(q))
-            );
-
-            if (catFilter !== 'Semua') {
-                list = list.filter(p => p.category === catFilter);
-            }
+            let list = products.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)));
+            if (catFilter !== 'Semua') list = list.filter(p => p.category === catFilter);
 
             tbody.innerHTML = list.map(p => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
@@ -1840,9 +1795,7 @@
             }
         }
 
-        function closeProductModal() {
-            document.getElementById('product-modal').classList.add('hidden');
-        }
+        function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
 
         async function handleProductSubmit(e) {
             e.preventDefault();
@@ -1861,9 +1814,7 @@
             if (id) {
                 const idx = products.findIndex(p => p.id === id);
                 if (idx !== -1) products[idx] = productData;
-            } else {
-                products.push(productData);
-            }
+            } else products.push(productData);
 
             saveLocalStorageData();
             renderProductGrid();
@@ -1875,9 +1826,7 @@
                 try {
                     await supabaseClient.from('products').upsert([productData]);
                     syncWithSupabase();
-                } catch(err) {
-                    console.error('Save product cloud error:', err);
-                }
+                } catch(err) { console.error('Save product cloud error:', err); }
             }
         }
 
@@ -1891,33 +1840,23 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('products').delete().eq('id', productId);
-                } catch(e) {
-                    console.error('Delete product error:', e);
-                }
+                } catch(e) { console.error('Delete product error:', e); }
             }
         }
 
-        // CUSTOMERS / MEMBERS TABLE & MODAL
         function renderCustomersTable() {
             const tbody = document.getElementById('customers-tbody');
             if (!tbody) return;
 
             const q = (document.getElementById('customer-search-input')?.value || '').toLowerCase();
-            const list = customers.filter(c => 
-                c.name.toLowerCase().includes(q) || 
-                (c.phone && c.phone.includes(q)) || 
-                (c.member_number && c.member_number.toLowerCase().includes(q))
-            );
-
+            const list = customers.filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)) || (c.member_number && c.member_number.toLowerCase().includes(q)));
             const today = new Date();
 
             tbody.innerHTML = list.map(c => {
                 let isBirthdayToday = false;
                 if (c.birth_date) {
                     const bdate = new Date(c.birth_date);
-                    if (bdate.getDate() === today.getDate() && bdate.getMonth() === today.getMonth()) {
-                        isBirthdayToday = true;
-                    }
+                    if (bdate.getDate() === today.getDate() && bdate.getMonth() === today.getMonth()) isBirthdayToday = true;
                 }
 
                 return `
@@ -1968,9 +1907,7 @@
             }
         }
 
-        function closeCustomerModal() {
-            document.getElementById('customer-modal').classList.add('hidden');
-        }
+        function closeCustomerModal() { document.getElementById('customer-modal').classList.add('hidden'); }
 
         async function handleCustomerSubmit(e) {
             e.preventDefault();
@@ -1994,9 +1931,7 @@
                     customerData.total_tx = customers[idx].total_tx || 0;
                     customers[idx] = customerData;
                 }
-            } else {
-                customers.push(customerData);
-            }
+            } else customers.push(customerData);
 
             saveLocalStorageData();
             renderCustomersTable();
@@ -2007,9 +1942,7 @@
                 try {
                     await supabaseClient.from('customers').upsert([customerData]);
                     syncWithSupabase();
-                } catch(err) {
-                    console.error('Save customer cloud error:', err);
-                }
+                } catch(err) { console.error('Save customer cloud error:', err); }
             }
         }
 
@@ -2023,13 +1956,10 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('customers').delete().eq('id', customerId);
-                } catch(e) {
-                    console.error('Delete customer error:', e);
-                }
+                } catch(e) { console.error('Delete customer error:', e); }
             }
         }
 
-        // CHECKOUT & TRANSACTIONS
         function openPaymentModal() {
             if (cart.length === 0) return;
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -2039,13 +1969,14 @@
             let vipDiscAmount = 0;
             const customerName = document.getElementById('cart-customer-select').value;
             const cust = customers.find(c => c.name === customerName);
-            if (cust && cust.type === 'VIP') {
-                vipDiscAmount = (subtotal * 0.05);
-            }
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
 
             let voucherDiscAmount = 0;
+            let manualVoucherCategory = null;
+
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
+                manualVoucherCategory = targetCat;
                 let catSubtotal = subtotal;
 
                 if (targetCat !== 'Semua') {
@@ -2060,24 +1991,25 @@
                     if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
                         voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                     }
-                } else {
-                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
-                }
+                } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
             let autoCategoryDiscounts = 0;
             const today = new Date().setHours(0,0,0,0);
             vouchers.forEach(v => {
-                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                        const catSub = cart.reduce((sum, item) => {
-                            const prod = products.find(p => p.id === item.id);
-                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                        }, 0);
-                        if (catSub > 0) {
-                            let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
-                            if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                            autoCategoryDiscounts += dVal;
+                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                if (!isCurrentManualVoucher && v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    if (manualVoucherCategory !== v.applicable_category) {
+                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                            const catSub = cart.reduce((sum, item) => {
+                                const prod = products.find(p => p.id === item.id);
+                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                            }, 0);
+                            if (catSub > 0) {
+                                let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
+                                if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                                autoCategoryDiscounts += dVal;
+                            }
                         }
                     }
                 }
@@ -2092,9 +2024,7 @@
             document.getElementById('payment-modal').classList.remove('hidden');
         }
 
-        function closePaymentModal() {
-            document.getElementById('payment-modal').classList.add('hidden');
-        }
+        function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
 
         function calculateChange() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -2107,8 +2037,11 @@
             if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
 
             let voucherDiscAmount = 0;
+            let manualVoucherCategory = null;
+
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
+                manualVoucherCategory = targetCat;
                 let catSubtotal = subtotal;
 
                 if (targetCat !== 'Semua') {
@@ -2121,24 +2054,25 @@
                 if (appliedVoucher.type === 'percentage') {
                     voucherDiscAmount = (catSubtotal * appliedVoucher.value) / 100;
                     if (appliedVoucher.max_discount > 0) voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
-                } else {
-                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
-                }
+                } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
             let autoCategoryDiscounts = 0;
             const today = new Date().setHours(0,0,0,0);
             vouchers.forEach(v => {
-                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                        const catSub = cart.reduce((sum, item) => {
-                            const prod = products.find(p => p.id === item.id);
-                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                        }, 0);
-                        if (catSub > 0) {
-                            let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
-                            if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                            autoCategoryDiscounts += dVal;
+                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                if (!isCurrentManualVoucher && v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    if (manualVoucherCategory !== v.applicable_category) {
+                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                            const catSub = cart.reduce((sum, item) => {
+                                const prod = products.find(p => p.id === item.id);
+                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                            }, 0);
+                            if (catSub > 0) {
+                                let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
+                                if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                                autoCategoryDiscounts += dVal;
+                            }
                         }
                     }
                 }
@@ -2156,11 +2090,8 @@
             const manualDiscAmount = (subtotal * manualDiscPercent) / 100;
             const grandTotal = Math.max(0, subtotal - manualDiscAmount);
 
-            if (val === 'pas') {
-                document.getElementById('pay-cash-amount').value = grandTotal;
-            } else {
-                document.getElementById('pay-cash-amount').value = val;
-            }
+            if (val === 'pas') document.getElementById('pay-cash-amount').value = grandTotal;
+            else document.getElementById('pay-cash-amount').value = val;
             calculateChange();
         }
 
@@ -2174,13 +2105,14 @@
             let vipDiscAmount = 0;
             const customerName = document.getElementById('cart-customer-select').value;
             const cust = customers.find(c => c.name === customerName);
-            if (cust && cust.type === 'VIP') {
-                vipDiscAmount = (subtotal * 0.05);
-            }
+            if (cust && cust.type === 'VIP') vipDiscAmount = (subtotal * 0.05);
 
             let voucherDiscAmount = 0;
+            let manualVoucherCategory = null;
+
             if (appliedVoucher) {
                 const targetCat = appliedVoucher.applicable_category || 'Semua';
+                manualVoucherCategory = targetCat;
                 let catSubtotal = subtotal;
 
                 if (targetCat !== 'Semua') {
@@ -2195,24 +2127,25 @@
                     if (appliedVoucher.max_discount && appliedVoucher.max_discount > 0) {
                         voucherDiscAmount = Math.min(voucherDiscAmount, appliedVoucher.max_discount);
                     }
-                } else {
-                    voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
-                }
+                } else voucherDiscAmount = Math.min(appliedVoucher.value, catSubtotal);
             }
 
             let autoCategoryDiscounts = 0;
             const today = new Date().setHours(0,0,0,0);
             vouchers.forEach(v => {
-                if (v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
-                    if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                        const catSub = cart.reduce((sum, item) => {
-                            const prod = products.find(p => p.id === item.id);
-                            return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
-                        }, 0);
-                        if (catSub > 0) {
-                            let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
-                            if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
-                            autoCategoryDiscounts += dVal;
+                const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                if (!isCurrentManualVoucher && v.is_active && v.applicable_category && v.applicable_category !== 'Semua') {
+                    if (manualVoucherCategory !== v.applicable_category) {
+                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                            const catSub = cart.reduce((sum, item) => {
+                                const prod = products.find(p => p.id === item.id);
+                                return (prod && prod.category === v.applicable_category) ? sum + (item.price * item.qty) : sum;
+                            }, 0);
+                            if (catSub > 0) {
+                                let dVal = v.type === 'percentage' ? (catSub * v.value) / 100 : Math.min(v.value, catSub);
+                                if (v.type === 'percentage' && v.max_discount > 0) dVal = Math.min(dVal, v.max_discount);
+                                autoCategoryDiscounts += dVal;
+                            }
                         }
                     }
                 }
@@ -2236,15 +2169,12 @@
                     if (supabaseClient) {
                         try {
                             await supabaseClient.from('vouchers').update({ times_used: v.times_used }).eq('id', v.id);
-                        } catch(e) {
-                            console.error('Update voucher usage error:', e);
-                        }
+                        } catch(e) { console.error('Update voucher usage error:', e); }
                     }
                 }
             }
 
             const invoiceNum = 'TRX-' + Math.floor(100000 + Math.random() * 900000);
-
             const newTx = {
                 id: invoiceNum,
                 cashier: activeUser ? activeUser.name : (currentRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'),
@@ -2272,9 +2202,7 @@
                     if (supabaseClient) {
                         try {
                             await supabaseClient.from('customers').update({ points: c.points, total_tx: c.total_tx }).eq('id', c.id);
-                        } catch(e) {
-                            console.error('Update customer cloud points error:', e);
-                        }
+                        } catch(e) { console.error('Update customer cloud points error:', e); }
                     }
                 }
             }
@@ -2295,13 +2223,10 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('transactions').insert([newTx]);
-                } catch(e) {
-                    console.error('Save transaction cloud error:', e);
-                }
+                } catch(e) { console.error('Save transaction cloud error:', e); }
             }
         }
 
-        // RECEIPT & WHATSAPP
         function showReceipt(tx) {
             document.getElementById('rec-id').innerText = tx.id;
             document.getElementById('rec-date').innerText = new Date(tx.created_at).toLocaleString('id-ID');
@@ -2328,14 +2253,8 @@
             document.getElementById('receipt-modal').classList.remove('hidden');
         }
 
-        function closeReceiptModal() {
-            document.getElementById('receipt-modal').classList.add('hidden');
-        }
-
-        function printReceipt() {
-            window.print();
-        }
-
+        function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
+        function printReceipt() { window.print(); }
         function sendWhatsAppReceipt() {
             const id = document.getElementById('rec-id').innerText;
             const total = document.getElementById('rec-total').innerText;
@@ -2343,7 +2262,6 @@
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
-        // HISTORY TABLE & CHARTS
         function renderHistoryTable() {
             const tbody = document.getElementById('history-tbody');
             if (!tbody) return;
@@ -2369,32 +2287,20 @@
             const elPay = document.getElementById('paymentChart');
             if (!elSales || !elPay) return;
 
-            const ctxSales = elSales.getContext('2d');
-            salesChartInstance = new Chart(ctxSales, {
+            salesChartInstance = new Chart(elSales.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Ming'],
-                    datasets: [{
-                        label: 'Omset Penjualan (Rp)',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
+                    datasets: [{ label: 'Omset Penjualan (Rp)', data: [0, 0, 0, 0, 0, 0, 0], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', fill: true, tension: 0.3 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            const ctxPay = elPay.getContext('2d');
-            paymentChartInstance = new Chart(ctxPay, {
+            paymentChartInstance = new Chart(elPay.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Tunai', 'QRIS', 'Transfer'],
-                    datasets: [{
-                        data: [0, 0, 0],
-                        backgroundColor: ['#2563eb', '#10b981', '#f59e0b']
-                    }]
+                    datasets: [{ data: [0, 0, 0], backgroundColor: ['#2563eb', '#10b981', '#f59e0b'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
@@ -2404,14 +2310,12 @@
 
         function updateCharts() {
             if (!salesChartInstance || !paymentChartInstance) return;
-
             let cashTotal = 0, qrisTotal = 0, tfTotal = 0;
             transactions.forEach(tx => {
                 if (tx.payment_method === 'Tunai') cashTotal += tx.total;
                 else if (tx.payment_method === 'QRIS') qrisTotal += tx.total;
                 else if (tx.payment_method === 'Transfer') tfTotal += tx.total;
             });
-
             paymentChartInstance.data.datasets[0].data = [cashTotal, qrisTotal, tfTotal];
             paymentChartInstance.update();
         }
@@ -2421,7 +2325,6 @@
             transactions.forEach(tx => {
                 csv += `"${tx.id}","${tx.created_at}","${tx.cashier}","${tx.customer_name}","${tx.payment_method}",${tx.total}\n`;
             });
-
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2430,30 +2333,22 @@
             a.click();
         }
 
-        // CAMERA SCANNER
         function openCameraScanner() {
             document.getElementById('camera-modal').classList.remove('hidden');
-            if (!html5QrcodeScanner) {
-                html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
-            }
+            if (!html5QrcodeScanner) html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
             html5QrcodeScanner.render(onScanSuccess);
         }
 
         function closeCameraScanner() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear();
-            }
+            if (html5QrcodeScanner) html5QrcodeScanner.clear();
             document.getElementById('camera-modal').classList.add('hidden');
         }
 
         function onScanSuccess(decodedText) {
             closeCameraScanner();
             const product = products.find(p => p.barcode === decodedText || p.sku === decodedText);
-            if (product) {
-                addToCart(product.id);
-            } else {
-                alert(`Barcode/SKU ${decodedText} tidak ditemukan!`);
-            }
+            if (product) addToCart(product.id);
+            else alert(`Barcode/SKU ${decodedText} tidak ditemukan!`);
         }
     </script>
 </body>
