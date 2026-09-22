@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KASIR POS - itsuryatokoku (Fase 9 Ultimate)</title>
+    <title>KASIR POS - itsuryatokoku (Fase 10 Pro)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,7 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <!-- JsBarcode CDN for Barcode Generator & Printing -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <!-- Chart.js CDN for Analytics (Phase 9) -->
+    <!-- Chart.js CDN for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -80,7 +80,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">itsuryatokoku</h1>
-                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v9.0 Ultimate</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-md border border-blue-400/30">v10.0 Pro</span>
                 </div>
                 <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir & Analytics Cloud Integration</p>
             </div>
@@ -91,25 +91,34 @@
                 <i class="fa-solid fa-calculator"></i>
                 <span>Kasir</span>
             </a>
-            <a href="#products" id="nav-link-products" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+            <a href="#products" id="nav-link-products" class="nav-admin-only px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <span>Produk & Stok</span>
             </a>
-            <a href="#customers" id="nav-link-customers" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+            <a href="#customers" id="nav-link-customers" class="nav-admin-only px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-users"></i>
                 <span>Pelanggan & Member</span>
             </a>
-            <a href="#history" id="nav-link-history" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+            <a href="#history" id="nav-link-history" class="nav-admin-only px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Laporan & Analitik</span>
             </a>
-            <a href="#settings" id="nav-link-settings" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+            <a href="#settings" id="nav-link-settings" class="nav-admin-only px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-gear"></i>
                 <span>Pengaturan</span>
             </a>
         </nav>
 
         <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- ROLE SELECTOR (FASE 10) -->
+            <div class="flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
+                <i class="fa-solid fa-user-shield text-blue-400 ml-1.5 mr-1 text-xs"></i>
+                <select id="user-role-select" onchange="changeUserRole()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
+                    <option value="admin" class="bg-slate-800 text-white">Owner/Admin</option>
+                    <option value="cashier" class="bg-slate-800 text-white">Kasir (Staff)</option>
+                </select>
+            </div>
+
             <button 
                 onclick="openShiftModal()"
                 id="shift-btn"
@@ -117,6 +126,13 @@
                 class="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
                 <i class="fa-solid fa-cash-register"></i>
                 <span class="hidden sm:inline">Shift Kasir</span>
+            </button>
+
+            <button 
+                onclick="openAuditLogModal()"
+                title="Log Aktivitas Sistem"
+                class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300">
+                <i class="fa-solid fa-list-check text-indigo-400"></i>
             </button>
 
             <button 
@@ -142,10 +158,10 @@
     <!-- MOBILE NAVIGATION -->
     <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-2 py-1.5 flex gap-1 text-[11px] overflow-x-auto custom-scrollbar">
         <a href="#pos" id="mobile-nav-pos" class="px-3 py-1.5 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
-        <a href="#products" id="mobile-nav-products" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
-        <a href="#customers" id="mobile-nav-customers" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pelanggan</a>
-        <a href="#history" id="mobile-nav-history" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Laporan</a>
-        <a href="#settings" id="mobile-nav-settings" class="px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
+        <a href="#products" id="mobile-nav-products" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
+        <a href="#customers" id="mobile-nav-customers" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pelanggan</a>
+        <a href="#history" id="mobile-nav-history" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Laporan</a>
+        <a href="#settings" id="mobile-nav-settings" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
     </div>
 
     <!-- MAIN CONTENT CONTAINER -->
@@ -200,12 +216,23 @@
                 </div>
 
                 <!-- CUSTOMER SELECTION FOR CART -->
-                <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-1.5">
+                <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-2">
                     <div class="flex items-center gap-2 text-xs">
                         <i class="fa-solid fa-user-tag text-slate-400"></i>
                         <select id="cart-customer-select" onchange="onSelectCustomerForCart()" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
                             <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
                         </select>
+                    </div>
+
+                    <!-- VOUCHER / PROMO CODE INPUT (FASE 10) -->
+                    <div class="flex gap-1.5">
+                        <input 
+                            type="text" 
+                            id="cart-voucher-input" 
+                            placeholder="Kode Promo (cth: PROMO10K)" 
+                            class="w-full px-2 py-1 text-[11px] uppercase bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                        <button onclick="applyVoucherCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold shadow-sm transition">Klaim</button>
                     </div>
                 </div>
 
@@ -220,7 +247,7 @@
                     
                     <div class="flex justify-between text-xs text-slate-600 items-center">
                         <span class="flex items-center gap-1">
-                            Diskon (%)
+                            Diskon Manual (%)
                             <input 
                                 type="number" 
                                 id="cart-discount-input" 
@@ -233,6 +260,11 @@
                             >
                         </span>
                         <span id="cart-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
+                    </div>
+
+                    <div id="voucher-discount-row" class="hidden flex justify-between text-xs text-indigo-600 items-center font-bold">
+                        <span>Voucher (<span id="voucher-label-code">PROMO</span>)</span>
+                        <span id="voucher-discount-amount">- Rp 0</span>
                     </div>
 
                     <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
@@ -310,7 +342,7 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CUSTOMERS & MEMBERS (FASE 6) -->
+        <!-- VIEW 3: CUSTOMERS & MEMBERS -->
         <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -354,7 +386,7 @@
             </div>
         </div>
 
-        <!-- VIEW 4: REPORTS & ANALYTICS (FASE 9) -->
+        <!-- VIEW 4: REPORTS & ANALYTICS -->
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -485,7 +517,26 @@
 
     </main>
 
-    <!-- MODAL PAYMENT (FASE 1 & 5) -->
+    <!-- MODAL AUDIT LOG SISTEM (FASE 10) -->
+    <div id="modal-audit-log" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center">
+                <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-indigo-400"></i> Log Aktivitas Sistem POS
+                </h3>
+                <button onclick="closeAuditLogModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 overflow-y-auto flex-1 custom-scrollbar">
+                <div id="audit-log-list" class="space-y-2 text-xs">
+                </div>
+            </div>
+            <div class="p-3 bg-slate-100 border-t border-slate-200 flex justify-end">
+                <button onclick="closeAuditLogModal()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-700">Tutup Log</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PAYMENT -->
     <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -556,12 +607,12 @@
         </div>
     </div>
 
-    <!-- MODAL SCANNER KAMERA (ENHANCED PHASE 4 & iOS OPTIMIZED) -->
+    <!-- MODAL SCANNER KAMERA -->
     <div id="modal-scanner" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center hidden p-3 sm:p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
             <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-barcode text-blue-400"></i> Barcode Scanner iOS Pro
+                    <i class="fa-solid fa-barcode text-blue-400"></i> Barcode Scanner Pro
                 </h3>
                 <button onclick="closeCameraScanner()" class="text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -589,7 +640,7 @@
                 <div>
                     <button onclick="document.getElementById('qr-input-file').click()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm">
                         <i class="fa-solid fa-image text-blue-600"></i>
-                        <span>Ambil Foto / Upload Barcode (Aman di iPhone)</span>
+                        <span>Ambil Foto / Upload Barcode</span>
                     </button>
                     <input type="file" id="qr-input-file" accept="image/*" capture="environment" class="hidden" onchange="scanBarcodeFromFile(event)">
                 </div>
@@ -620,7 +671,7 @@
         </div>
     </div>
 
-    <!-- MODAL CETAK LABEL BARCODE (FASE 4 EXTRA) -->
+    <!-- MODAL CETAK LABEL BARCODE -->
     <div id="modal-barcode-print" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-xs rounded-2xl shadow-2xl overflow-hidden text-center">
             <div class="p-3 bg-slate-800 text-white flex justify-between items-center">
@@ -700,7 +751,7 @@
         </div>
     </div>
 
-    <!-- MODAL RESTOCK STOK BARANG (FASE 9) -->
+    <!-- MODAL RESTOCK STOK BARANG -->
     <div id="modal-restock" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -729,7 +780,7 @@
         </div>
     </div>
 
-    <!-- MODAL MEMBER PELANGGAN (FASE 6) -->
+    <!-- MODAL MEMBER PELANGGAN -->
     <div id="modal-customer" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -765,7 +816,7 @@
         </div>
     </div>
 
-    <!-- MODAL SHIFT KASIR (FASE 9) -->
+    <!-- MODAL SHIFT KASIR -->
     <div id="modal-shift" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-4 bg-slate-800 text-white flex justify-between items-center">
@@ -796,7 +847,7 @@
         </div>
     </div>
 
-    <!-- MODAL STRUK NOTA (FASE 3) -->
+    <!-- MODAL STRUK NOTA -->
     <div id="modal-receipt" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-3 bg-slate-800 text-white flex justify-between items-center no-print">
@@ -932,6 +983,7 @@
         let transactions = [];
         let customers = [];
         let cart = [];
+        let auditLogs = [];
         let selectedCategory = 'All';
         let paymentMethod = 'cash';
         let supabaseClient = null;
@@ -940,6 +992,14 @@
         let scannedSessionCount = 0;
         let salesChartInstance = null;
         let paymentChartInstance = null;
+        let currentUserRole = 'admin'; // 'admin' | 'cashier'
+
+        let activeVoucher = null; // { code: 'PROMO10K', type: 'fixed'|'percent', value: 10000 }
+        const VOUCHERS = {
+            'PROMO10K': { type: 'fixed', value: 10000 },
+            'DISKON10': { type: 'percent', value: 10 },
+            'ITSURYA': { type: 'fixed', value: 20000 }
+        };
 
         let initialCashModal = 200000;
 
@@ -950,9 +1010,48 @@
             footer: 'Terima kasih telah berbelanja di itsuryatokoku!'
         };
 
+        window.logAudit = function(action, details) {
+            const entry = {
+                timestamp: new Date().toLocaleString('id-ID'),
+                role: currentUserRole.toUpperCase(),
+                action,
+                details
+            };
+            auditLogs.unshift(entry);
+        };
+
+        window.changeUserRole = function() {
+            const roleSelect = document.getElementById('user-role-select');
+            if (roleSelect) {
+                currentUserRole = roleSelect.value;
+                window.applyRoleAccessUI();
+                window.logAudit('Role Changed', `Pengguna beralih ke peran: ${currentUserRole}`);
+                window.showToast(`Beralih ke peran: ${currentUserRole === 'admin' ? 'Owner / Admin' : 'Kasir Staff'}`, 'info');
+            }
+        };
+
+        window.applyRoleAccessUI = function() {
+            const adminNavs = document.querySelectorAll('.nav-admin-only');
+            if (currentUserRole === 'cashier') {
+                adminNavs.forEach(el => el.classList.add('hidden'));
+                if (window.location.hash !== '#pos') {
+                    window.location.hash = '#pos';
+                }
+            } else {
+                adminNavs.forEach(el => el.classList.remove('hidden'));
+            }
+        };
+
         window.handleRoute = function() {
             const hash = window.location.hash.replace('#', '') || 'pos';
             const routes = ['pos', 'products', 'customers', 'history', 'settings'];
+            
+            if (currentUserRole === 'cashier' && hash !== 'pos') {
+                window.location.hash = '#pos';
+                window.showToast('Peran Kasir hanya dapat mengakses antarmuka kasir!', 'error');
+                return;
+            }
+
             const activeRoute = routes.includes(hash) ? hash : 'pos';
 
             document.querySelectorAll('.view-page').forEach(el => el.classList.add('hidden'));
@@ -1009,6 +1108,7 @@
                 footer: document.getElementById('page-store-footer').value
             };
             window.applyStoreSettingsUI();
+            window.logAudit('Store Settings', 'Memperbarui profil toko');
             window.showToast('Pengaturan toko berhasil disimpan!', 'success');
         };
 
@@ -1059,6 +1159,7 @@
                 { id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c12', name: 'Siti Rahma', phone: '08987654321', type: 'Regular', points: 30, total_tx: 120000 }
             ];
             transactions = [];
+            window.logAudit('System Init', 'Memuat data sampel default offline');
             window.refreshAllUIs();
         };
 
@@ -1087,6 +1188,7 @@
                     }));
                 }
 
+                window.logAudit('Cloud Sync', 'Berhasil melakukan sync dari Supabase');
                 window.refreshAllUIs();
                 window.showToast('Data Produk, Member, & Transaksi berhasil disinkronkan dari Cloud!', 'success');
             } catch (err) {
@@ -1122,6 +1224,7 @@
             window.renderAdminProductsTable();
             window.renderCustomersTable();
             window.renderHistoryAndCharts();
+            window.applyRoleAccessUI();
         };
 
         window.renderCustomerDropdownInCart = function() {
@@ -1142,6 +1245,27 @@
                 window.showToast(`Diskon Member VIP 5% diterapkan untuk ${cust.name}!`, 'info');
             } else {
                 document.getElementById('cart-discount-input').value = '0';
+            }
+            window.calculateCartTotals();
+        };
+
+        window.applyVoucherCode = function() {
+            const input = document.getElementById('cart-voucher-input');
+            const code = (input?.value || '').trim().toUpperCase();
+
+            if (!code) {
+                activeVoucher = null;
+                window.calculateCartTotals();
+                return;
+            }
+
+            if (VOUCHERS[code]) {
+                activeVoucher = { code, ...VOUCHERS[code] };
+                window.logAudit('Voucher Applied', `Kode voucher ${code} digunakan`);
+                window.showToast(`Voucher ${code} berhasil diklaim!`, 'success');
+            } else {
+                activeVoucher = null;
+                window.showToast(`Kode voucher '${code}' tidak valid`, 'error');
             }
             window.calculateCartTotals();
         };
@@ -1245,6 +1369,9 @@
 
         window.clearCart = function() {
             cart = [];
+            activeVoucher = null;
+            const vInput = document.getElementById('cart-voucher-input');
+            if (vInput) vInput.value = '';
             window.renderCart();
         };
 
@@ -1287,7 +1414,25 @@
             const discountInput = parseFloat(document.getElementById('cart-discount-input')?.value || 0);
             const discountPercent = isNaN(discountInput) ? 0 : Math.min(Math.max(discountInput, 0), 100);
             const discountAmount = (subtotal * discountPercent) / 100;
-            const grandTotal = subtotal - discountAmount;
+
+            let voucherDiscount = 0;
+            const voucherRow = document.getElementById('voucher-discount-row');
+            if (activeVoucher) {
+                if (activeVoucher.type === 'fixed') {
+                    voucherDiscount = activeVoucher.value;
+                } else if (activeVoucher.type === 'percent') {
+                    voucherDiscount = (subtotal * activeVoucher.value) / 100;
+                }
+                if (voucherRow) {
+                    voucherRow.classList.remove('hidden');
+                    document.getElementById('voucher-label-code').innerText = activeVoucher.code;
+                    document.getElementById('voucher-discount-amount').innerText = `- ${window.formatRupiah(voucherDiscount)}`;
+                }
+            } else if (voucherRow) {
+                voucherRow.classList.add('hidden');
+            }
+
+            const grandTotal = Math.max(0, subtotal - discountAmount - voucherDiscount);
 
             document.getElementById('cart-subtotal').innerText = window.formatRupiah(subtotal);
             document.getElementById('cart-discount-amount').innerText = `- ${window.formatRupiah(discountAmount)}`;
@@ -1315,7 +1460,11 @@
             if (cart.length === 0) return;
             const subtotal = cart.reduce((sum, item) => sum + (item.product.selling_price * item.qty), 0);
             const discountPercent = parseFloat(document.getElementById('cart-discount-input')?.value || 0);
-            const grandTotal = subtotal - ((subtotal * discountPercent) / 100);
+            let voucherDiscount = 0;
+            if (activeVoucher) {
+                voucherDiscount = activeVoucher.type === 'fixed' ? activeVoucher.value : (subtotal * activeVoucher.value) / 100;
+            }
+            const grandTotal = Math.max(0, subtotal - ((subtotal * discountPercent) / 100) - voucherDiscount);
 
             document.getElementById('pay-modal-grandtotal').innerText = window.formatRupiah(grandTotal);
             document.getElementById('pay-cash-input').value = '';
@@ -1356,7 +1505,11 @@
         window.setQuickCash = function(val) {
             const subtotal = cart.reduce((sum, item) => sum + (item.product.selling_price * item.qty), 0);
             const discountPercent = parseFloat(document.getElementById('cart-discount-input')?.value || 0);
-            const grandTotal = subtotal - ((subtotal * discountPercent) / 100);
+            let voucherDiscount = 0;
+            if (activeVoucher) {
+                voucherDiscount = activeVoucher.type === 'fixed' ? activeVoucher.value : (subtotal * activeVoucher.value) / 100;
+            }
+            const grandTotal = Math.max(0, subtotal - ((subtotal * discountPercent) / 100) - voucherDiscount);
             const input = document.getElementById('pay-cash-input');
             if (!input) return;
             if (val === 'exact') {
@@ -1370,7 +1523,11 @@
         window.calculateChange = function() {
             const subtotal = cart.reduce((sum, item) => sum + (item.product.selling_price * item.qty), 0);
             const discountPercent = parseFloat(document.getElementById('cart-discount-input')?.value || 0);
-            const grandTotal = subtotal - ((subtotal * discountPercent) / 100);
+            let voucherDiscount = 0;
+            if (activeVoucher) {
+                voucherDiscount = activeVoucher.type === 'fixed' ? activeVoucher.value : (subtotal * activeVoucher.value) / 100;
+            }
+            const grandTotal = Math.max(0, subtotal - ((subtotal * discountPercent) / 100) - voucherDiscount);
 
             let cashPaid = parseFloat(document.getElementById('pay-cash-input')?.value || 0);
             if (paymentMethod !== 'cash') cashPaid = grandTotal;
@@ -1393,7 +1550,11 @@
             const subtotal = cart.reduce((sum, item) => sum + (item.product.selling_price * item.qty), 0);
             const discountPercent = parseFloat(document.getElementById('cart-discount-input')?.value || 0);
             const discountAmount = (subtotal * discountPercent) / 100;
-            const grandTotal = subtotal - discountAmount;
+            let voucherDiscount = 0;
+            if (activeVoucher) {
+                voucherDiscount = activeVoucher.type === 'fixed' ? activeVoucher.value : (subtotal * activeVoucher.value) / 100;
+            }
+            const grandTotal = Math.max(0, subtotal - discountAmount - voucherDiscount);
             const customerName = document.getElementById('cart-customer-select')?.value || 'Pelanggan Umum';
 
             let cashPaid = parseFloat(document.getElementById('pay-cash-input')?.value || 0);
@@ -1415,7 +1576,7 @@
                 total: grandTotal,
                 cash_paid: cashPaid,
                 change: change,
-                cashier: 'Kasir Utama'
+                cashier: currentUserRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'
             };
 
             // Deduct local stock
@@ -1426,7 +1587,7 @@
                 }
             });
 
-            // Update member total spent & points (Fase 6 & 9)
+            // Update member total spent & points
             const memberObj = customers.find(c => c.name === customerName);
             if (memberObj) {
                 memberObj.total_tx = (memberObj.total_tx || 0) + grandTotal;
@@ -1434,12 +1595,13 @@
             }
 
             transactions.unshift(newTx);
+            window.logAudit('Checkout', `Transaksi ${invoiceNo} berhasil diselesaikan. Total: ${window.formatRupiah(grandTotal)}`);
 
             if (supabaseClient) {
                 try {
                     const { error: txErr } = await supabaseClient.from('transactions').insert([{
                         id: invoiceNo,
-                        cashier: 'Kasir Utama',
+                        cashier: newTx.cashier,
                         customer_name: customerName,
                         subtotal: subtotal,
                         discount: discountPercent,
@@ -1479,9 +1641,37 @@
             window.showReceiptModal(newTx);
 
             cart = [];
+            activeVoucher = null;
             const discInput = document.getElementById('cart-discount-input');
+            const vInput = document.getElementById('cart-voucher-input');
             if (discInput) discInput.value = '0';
+            if (vInput) vInput.value = '';
             window.refreshAllUIs();
+        };
+
+        window.openAuditLogModal = function() {
+            const listContainer = document.getElementById('audit-log-list');
+            if (listContainer) {
+                if (auditLogs.length === 0) {
+                    listContainer.innerHTML = `<div class="text-center py-6 text-slate-400">Belum ada riwayat aktivitas sistem</div>`;
+                } else {
+                    listContainer.innerHTML = auditLogs.map(log => `
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-0.5">
+                            <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold">
+                                <span><i class="fa-solid fa-clock mr-1"></i>${log.timestamp}</span>
+                                <span class="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded border border-indigo-100">${log.role}</span>
+                            </div>
+                            <div class="font-bold text-slate-800 text-xs">${window.escapeHTML(log.action)}</div>
+                            <div class="text-slate-600 text-[11px]">${window.escapeHTML(log.details)}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+            document.getElementById('modal-audit-log').classList.remove('hidden');
+        };
+
+        window.closeAuditLogModal = function() {
+            document.getElementById('modal-audit-log').classList.add('hidden');
         };
 
         window.renderAdminProductsTable = function() {
@@ -1571,6 +1761,8 @@
                     products[index] = { ...products[index], barcode, category, name, purchase_price, selling_price, stock };
                 }
 
+                window.logAudit('Update Product', `Memperbarui data produk: ${name}`);
+
                 if (supabaseClient) {
                     try {
                         const { error } = await supabaseClient.from('products').update({ barcode, category, name, purchase_price, selling_price, stock }).eq('id', editId);
@@ -1583,6 +1775,7 @@
             } else {
                 const newUuid = window.generateUUID();
                 const newProd = { id: newUuid, barcode, category, name, purchase_price, selling_price, stock };
+                window.logAudit('Add Product', `Menambahkan produk baru: ${name}`);
 
                 if (supabaseClient) {
                     try {
@@ -1604,7 +1797,10 @@
         };
 
         window.deleteProduct = async function(id) {
-            products = products.filter(p => p.id !== id);
+            const p = products.find(item => item.id === id);
+            products = products.filter(item => item.id !== id);
+            if (p) window.logAudit('Delete Product', `Menghapus produk: ${p.name}`);
+
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('products').delete().eq('id', id);
@@ -1634,6 +1830,8 @@
 
             if (prod && addQty > 0) {
                 prod.stock += addQty;
+                window.logAudit('Restock Product', `Penambahan stok ${prod.name} sejumlah +${addQty} Pcs`);
+
                 if (supabaseClient) {
                     try {
                         await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prodId);
@@ -1697,6 +1895,8 @@
             };
 
             customers.unshift(newCust);
+            window.logAudit('Add Member', `Menambahkan member baru: ${name} (${type})`);
+
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('customers').insert([newCust]);
@@ -1712,7 +1912,10 @@
         };
 
         window.deleteCustomer = async function(id) {
-            customers = customers.filter(c => c.id !== id);
+            const c = customers.find(item => item.id === id);
+            customers = customers.filter(item => item.id !== id);
+            if (c) window.logAudit('Delete Member', `Menghapus member: ${c.name}`);
+
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('customers').delete().eq('id', id);
@@ -1735,6 +1938,7 @@
 
         window.saveShiftModal = function() {
             initialCashModal = parseFloat(document.getElementById('shift-initial-cash').value || 0);
+            window.logAudit('Shift Kasir', `Memperbarui modal awal laci: ${window.formatRupiah(initialCashModal)}`);
             window.showToast('Modal shift kasir diperbarui!', 'success');
             window.closeShiftModal();
         };
@@ -1758,7 +1962,7 @@
                     <p class="text-[10px] text-slate-500">Telp: ${window.escapeHTML(storeSettings.phone)}</p>
                     <div class="text-[10px] text-slate-500 pt-1">
                         <p>Nota: ${window.escapeHTML(notaCode)} | ${window.escapeHTML(tx.created_at_display || '')}</p>
-                        <p>Pelanggan: ${window.escapeHTML(tx.customer_name || 'Umum')} | Metode: ${window.escapeHTML(tx.payment_method || 'CASH')}</p>
+                        <p>Pelanggan: ${window.escapeHTML(tx.customer_name || 'Umum')} | Petugas: ${window.escapeHTML(tx.cashier || 'Staff')}</p>
                     </div>
                 </div>
 
@@ -1883,7 +2087,6 @@
         window.renderAnalyticsCharts = function(filteredTx) {
             if (typeof Chart === 'undefined') return;
 
-            // Chart 1: Sales Trend Line Chart
             const salesCanvas = document.getElementById('salesChart');
             if (salesCanvas) {
                 const datesMap = {};
@@ -1914,7 +2117,6 @@
                 });
             }
 
-            // Chart 2: Payment Method Doughnut Chart
             const paymentCanvas = document.getElementById('paymentChart');
             if (paymentCanvas) {
                 const methodMap = { CASH: 0, QRIS: 0, TRANSFER: 0 };
@@ -1968,10 +2170,6 @@
             if (sessionCountEl) sessionCountEl.innerText = `0 Item`;
 
             document.getElementById('modal-scanner').classList.remove('hidden');
-
-            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                window.showToast('Info iPhone: iOS membutuhkan koneksi HTTPS (SSL) agar live camera langsung aktif!', 'info', 4000);
-            }
 
             try {
                 if (typeof Html5Qrcode === 'undefined') {
@@ -2034,11 +2232,7 @@
                 () => {}
             ).catch(err => {
                 console.warn("Camera start error:", err);
-                if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                    window.showToast("iOS/iPhone mewajibkan koneksi HTTPS (SSL) untuk akses kamera live!", "error", 5000);
-                } else {
-                    window.showToast("Gagal membuka kamera. Gunakan tombol 'Ambil Foto Barcode'.", "error", 4000);
-                }
+                window.showToast("Gagal membuka kamera. Gunakan tombol 'Ambil Foto Barcode'.", "error", 4000);
             });
         };
 
