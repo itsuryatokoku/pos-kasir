@@ -74,7 +74,7 @@
     <!-- HEADER / NAVIGATION BAR -->
     <header class="bg-slate-900 text-white px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
         <div class="flex items-center space-x-3">
-            <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-10 h-10 shadow-lg shadow-blue-500/30 tracking-widest cursor-pointer" onclick="openStoreModal()" title="Pengaturan Toko">
+            <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-10 h-10 shadow-lg shadow-blue-500/35 tracking-widest cursor-pointer" onclick="openStoreModal()" title="Pengaturan Toko">
                 POS
             </div>
             <div>
@@ -1058,7 +1058,7 @@
             document.getElementById('rec-store-sub').innerText = sub || 'POS Kasir & Cloud Sync';
             document.getElementById('rec-footer-text').innerText = footer || 'Terima kasih telah berbelanja!';
 
-            alert('Pengaturan identitas toko berhasil disimpan!');
+            console.log('Identitas toko disimpan!');
         }
 
         function saveSupabaseSettings() {
@@ -1069,12 +1069,12 @@
             localStorage.setItem('supabase_key', key);
 
             initSupabaseClient();
-            alert('Koneksi Supabase Cloud diperbarui!');
+            console.log('Koneksi Supabase diperbarui!');
         }
 
         async function connectBluetoothPrinter() {
             if (!navigator.bluetooth) {
-                alert('Browser ini belum mendukung Web Bluetooth API. Gunakan Google Chrome (Desktop/Android) dengan koneksi HTTPS.');
+                console.warn('Web Bluetooth API tidak didukung pada browser ini.');
                 return;
             }
             try {
@@ -1097,10 +1097,8 @@
                 }
 
                 document.getElementById('bt-printer-status').innerText = device.name || 'BT Terhubung';
-                alert(`Terhubung dengan Printer Bluetooth Thermal: ${device.name || 'Printer Thermal'}`);
             } catch (e) {
-                console.warn('Bluetooth connection error or cancelled:', e);
-                alert('Koneksi Bluetooth dibatalkan atau gagal.');
+                console.warn('Bluetooth connection cancelled or failed:', e);
             }
         }
 
@@ -1155,10 +1153,8 @@
                 for (const cmd of commands) {
                     await bluetoothCharacteristic.writeValue(cmd);
                 }
-                alert('Struk berhasil dicetak langsung melalui printer thermal Bluetooth!');
             } catch (err) {
                 console.error('Direct Bluetooth print error:', err);
-                alert('Gagal mencetak via Bluetooth, beralih ke print browser.');
                 printReceipt();
             }
         }
@@ -1169,7 +1165,6 @@
         function changeBranch() {
             currentBranch = document.getElementById('branch-select').value;
             localStorage.setItem('pos_current_branch', currentBranch);
-            alert(`Cabang aktif diubah ke: ${currentBranch}`);
         }
 
         function initSupabaseClient() {
@@ -1445,10 +1440,10 @@
                             hasDiscount = true;
                             if (v.type === 'percentage') {
                                 finalPrice = p.selling_price * (1 - v.value / 100);
-                                activeAutoPromoText = `Diskon ${v.value}%`;
+                                activeAutoPromoText = `DISC ${v.value}%`;
                             } else {
                                 finalPrice = Math.max(0, p.selling_price - v.value);
-                                activeAutoPromoText = `Potongan Rp ${v.value.toLocaleString('id-ID')}`;
+                                activeAutoPromoText = `POTONGAN Rp ${v.value.toLocaleString('id-ID')}`;
                             }
                         }
                     }
@@ -1456,6 +1451,11 @@
 
                 return `
                     <div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">
+                        ${hasDiscount ? `
+                            <div class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl shadow uppercase tracking-wider">
+                                <i class="fa-solid fa-tag mr-0.5"></i>${activeAutoPromoText}
+                            </div>
+                        ` : ''}
                         <div>
                             <div class="flex justify-between items-start gap-1">
                                 <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md truncate max-w-[100px]">${p.category || 'Umum'}</span>
@@ -1470,8 +1470,8 @@
                                         <div class="flex flex-col">
                                             <span class="text-[10px] text-slate-400 line-through">Rp ${(p.selling_price || 0).toLocaleString('id-ID')}</span>
                                             <span class="font-extrabold text-xs text-emerald-600">Rp ${finalPrice.toLocaleString('id-ID')}</span>
-                                            <span class="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 py-0.5 rounded border border-amber-200 mt-0.5 inline-block w-fit">
-                                                <i class="fa-solid fa-tag text-amber-500 mr-0.5"></i>${activeAutoPromoText}
+                                            <span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200 mt-0.5 inline-block w-fit">
+                                                <i class="fa-solid fa-arrow-trend-down text-red-500 mr-0.5"></i>${activeAutoPromoText}
                                             </span>
                                         </div>
                                     ` : `
@@ -1490,13 +1490,13 @@
             const product = products.find(p => p.id === productId);
             if (!product) return;
             if (product.stock <= 0) {
-                alert(`Stok untuk ${product.name} telah habis!`);
+                console.warn(`Stok untuk ${product.name} telah habis!`);
                 return;
             }
             const cartItem = cart.find(item => item.id === productId);
             if (cartItem) {
                 if (cartItem.qty + 1 > product.stock) {
-                    alert(`Sisa stok hanya ${product.stock}`);
+                    console.warn(`Sisa stok hanya ${product.stock}`);
                     return;
                 }
                 cartItem.qty += 1;
@@ -1515,6 +1515,7 @@
                 return;
             }
             const today = new Date().setHours(0,0,0,0);
+            let manualVoucherCategory = appliedVoucher ? (appliedVoucher.applicable_category || 'Semua') : null;
 
             container.innerHTML = cart.map(item => {
                 const product = products.find(p => p.id === item.id);
@@ -1522,9 +1523,12 @@
 
                 let activeDiscount = null;
                 vouchers.forEach(v => {
-                    if (v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
-                        if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
-                            activeDiscount = v;
+                    const isCurrentManualVoucher = appliedVoucher && appliedVoucher.id === v.id;
+                    if (!isCurrentManualVoucher && v.is_active && v.promo_type === 'auto_category' && v.applicable_category === product?.category) {
+                        if (manualVoucherCategory !== v.applicable_category) {
+                            if (!v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today) {
+                                activeDiscount = v;
+                            }
                         }
                     }
                 });
@@ -1553,8 +1557,8 @@
                                         <span class="text-[10px] text-slate-400 line-through">Rp ${origPrice.toLocaleString('id-ID')}</span>
                                         <span class="font-bold text-emerald-600">Rp ${effectivePrice.toLocaleString('id-ID')}</span>
                                     </div>
-                                    <div class="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 py-0.5 rounded w-fit mt-0.5 border border-amber-200">
-                                        <i class="fa-solid fa-tag text-amber-500 mr-0.5"></i>${discText}
+                                    <div class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-red-200">
+                                        <i class="fa-solid fa-tag text-red-500 mr-0.5"></i>${discText}
                                     </div>
                                 ` : `
                                     <div class="font-semibold text-slate-700">Rp ${origPrice.toLocaleString('id-ID')}</div>
@@ -1580,7 +1584,7 @@
             if (!item) return;
             const product = products.find(p => p.id === productId);
             if (change > 0 && product && item.qty + change > product.stock) {
-                alert(`Stok maksimal tersedia: ${product.stock}`);
+                console.warn(`Stok maksimal tersedia: ${product.stock}`);
                 return;
             }
             item.qty += change;
@@ -1657,31 +1661,31 @@
             const code = (input.value || '').trim().toUpperCase();
 
             if (!code) {
-                alert('Masukkan kode voucher terlebih dahulu!');
+                console.warn('Masukkan kode voucher terlebih dahulu!');
                 return;
             }
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             if (subtotal <= 0) {
-                alert('Keranjang belanja masih kosong!');
+                console.warn('Keranjang belanja masih kosong!');
                 return;
             }
 
             const v = vouchers.find(item => item.promo_type === 'voucher' && item.code && item.code.toUpperCase() === code);
             if (!v) {
-                alert(`Kode voucher "${code}" tidak ditemukan!`);
+                console.warn(`Kode voucher "${code}" tidak ditemukan!`);
                 return;
             }
             if (!v.is_active) {
-                alert(`Kode voucher "${code}" sedang tidak aktif!`);
+                console.warn(`Kode voucher "${code}" sedang tidak aktif!`);
                 return;
             }
             if (v.valid_until && new Date(v.valid_until) < new Date().setHours(0,0,0,0)) {
-                alert(`Kode voucher "${code}" sudah kadaluarsa!`);
+                console.warn(`Kode voucher "${code}" sudah kadaluarsa!`);
                 return;
             }
             if (v.min_purchase && subtotal < v.min_purchase) {
-                alert(`Minimal belanja untuk voucher "${code}" adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`);
+                console.warn(`Minimal belanja untuk voucher "${code}" adalah Rp ${v.min_purchase.toLocaleString('id-ID')}`);
                 return;
             }
 
@@ -1944,7 +1948,7 @@
             if (promoType === 'voucher') {
                 voucherCode = document.getElementById('vouch-code').value.toUpperCase().trim();
                 if (!voucherCode) {
-                    alert('Kode voucher wajib diisi!');
+                    console.warn('Kode voucher wajib diisi!');
                     return;
                 }
             } else {
@@ -1990,7 +1994,6 @@
                     syncWithSupabase();
                 } catch(err) { 
                     console.error('Save voucher cloud error:', err);
-                    alert('Gagal menyimpan promo ke Supabase Cloud: ' + (err.message || err));
                 }
             }
         }
@@ -2280,7 +2283,7 @@
             const cashPaid = parseFloat(document.getElementById('pay-cash-amount').value) || state.grandTotal;
 
             if (payMethod === 'Tunai' && cashPaid < state.grandTotal) {
-                alert('Jumlah uang pembayaran tunai kurang!');
+                console.warn('Jumlah uang pembayaran tunai kurang!');
                 return;
             }
 
@@ -2332,6 +2335,11 @@
 
             transactions.unshift(newTx);
             removeAppliedVoucher();
+            
+            // Reset manual discount to default after transaction is completed
+            document.getElementById('cart-discount-input').value = '0';
+            document.getElementById('cart-discount-type').value = 'percentage';
+
             saveLocalStorageData();
 
             closePaymentModal();
@@ -2471,7 +2479,7 @@
             closeCameraScanner();
             const product = products.find(p => p.barcode === decodedText || p.sku === decodedText);
             if (product) addToCart(product.id);
-            else alert(`Barcode/SKU ${decodedText} tidak ditemukan!`);
+            else console.warn(`Barcode/SKU ${decodedText} tidak ditemukan!`);
         }
     </script>
 </body>
