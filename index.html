@@ -83,6 +83,7 @@
 </head>
 <body class="h-screen overflow-hidden text-slate-800 flex flex-col antialiased bg-slate-100">
 
+    <!-- Toast Container for Notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <header class="bg-slate-900 text-white px-3 sm:px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
@@ -190,7 +191,7 @@
                 </button>
             </div>
 
-            <!-- POS CONTENT CONTAINER (FLEX ROW ON DESKTOP, TAB TOGGLE ON MOBILE) -->
+            <!-- POS CONTENT CONTAINER -->
             <div class="flex-1 flex flex-col md:flex-row overflow-hidden w-full h-full min-h-0">
                 <!-- CATALOG SECTION -->
                 <section id="pos-catalog-section" class="flex flex-1 p-3 sm:p-4 flex-col gap-2.5 overflow-hidden bg-white border-r border-slate-200 w-full h-full min-h-0">
@@ -227,7 +228,6 @@
                     </div>
                 </section>
 
-                <!-- CART SECTION -->
                 <section id="pos-cart-section" class="hidden md:flex w-full md:w-80 lg:w-96 bg-slate-50 flex-col h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0 min-h-0">
                     <div class="p-3 bg-slate-800 text-white flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-2">
@@ -271,7 +271,7 @@
                                 </select>
                             </div>
 
-                            <!-- APPLIED VOUCHERS BADGES CONTAINER (MULTI) -->
+                            <!-- APPLIED VOUCHERS BADGES CONTAINER -->
                             <div id="applied-vouchers-container" class="space-y-1 pt-1 hidden">
                             </div>
                         </div>
@@ -350,7 +350,6 @@
             </div>
         </div>
 
-        <!-- PRODUCTS VIEW WITH FULL BARCODE COLUMN -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -410,7 +409,6 @@
             </div>
         </div>
 
-        <!-- CUSTOMERS VIEW -->
         <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -456,7 +454,6 @@
             </div>
         </div>
 
-        <!-- VOUCHERS VIEW -->
         <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -502,7 +499,6 @@
             </div>
         </div>
 
-        <!-- HISTORY VIEW -->
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -559,7 +555,6 @@
             </div>
         </div>
 
-        <!-- SETTINGS VIEW -->
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir</h2>
@@ -819,7 +814,7 @@
                     </div>
                 </div>
 
-                <!-- BENEFIT TYPE: DISCOUNT VS BOGO (BUY X GET Y) -->
+                <!-- BENEFIT TYPE: DISCOUNT VS BOGO -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Benefit Promo</label>
@@ -967,7 +962,7 @@
                 </div>
                 <div class="text-[11px] space-y-0.5">
                     <div class="flex justify-between"><span>No. Nota:</span><span id="rec-id" class="font-bold">TRX-001</span></div>
-                    <div class="flex justify-between"><span>Tanggal:</span><span id="rec-date">2026-09-22</span></div>
+                    <div class="flex justify-between"><span>Tanggal:</span><span id="rec-date">2026-09-23</span></div>
                     <div class="flex justify-between"><span>Kasir:</span><span id="rec-cashier">Admin</span></div>
                     <div class="flex justify-between"><span>Pelanggan:</span><span id="rec-customer">Pelanggan Umum</span></div>
                 </div>
@@ -1184,10 +1179,10 @@
             const toast = document.createElement('div');
             const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-red-600 text-white' : 'bg-slate-800 text-white';
             toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold pointer-events-auto transition transform translate-y-2 opacity-0 duration-300 flex items-center gap-2`;
-            toast.innerHTML = `
-                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i>
-                <span>${message}</span>
-            `;
+            
+            const iconClass = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info';
+            toast.innerHTML = '<i class="fa-solid ' + iconClass + '"></i><span>' + message + '</span>';
+            
             container.appendChild(toast);
             setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
             setTimeout(() => {
@@ -1335,31 +1330,31 @@
                 const storeName = document.getElementById('header-store-name').innerText || 'MY KSR';
                 const storeSub = document.getElementById('header-store-sub').innerText || 'POS Kasir';
 
-                commands.push(encoder.encode(`${storeName}\n${storeSub}\n--------------------------------\n`));
+                commands.push(encoder.encode(storeName + '\n' + storeSub + '\n--------------------------------\n'));
                 commands.push(new Uint8Array([0x1B, 0x61, 0x00])); // Left
-                commands.push(encoder.encode(`No. Nota : ${tx.id}\n`));
-                commands.push(encoder.encode(`Tanggal  : ${new Date(tx.created_at).toLocaleString('id-ID')}\n`));
-                commands.push(encoder.encode(`Kasir    : ${tx.cashier}\n`));
-                commands.push(encoder.encode(`Pelanggan: ${tx.customer_name}\n`));
-                commands.push(encoder.encode(`--------------------------------\n`));
+                commands.push(encoder.encode('No. Nota : ' + tx.id + '\n'));
+                commands.push(encoder.encode('Tanggal  : ' + new Date(tx.created_at).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('Kasir    : ' + tx.cashier + '\n'));
+                commands.push(encoder.encode('Pelanggan: ' + tx.customer_name + '\n'));
+                commands.push(encoder.encode('--------------------------------\n'));
 
                 tx.items.forEach(item => {
-                    commands.push(encoder.encode(`${item.name}\n`));
-                    commands.push(encoder.encode(`  ${item.qty} x Rp ${roundPrice(item.price).toLocaleString('id-ID')} = Rp ${roundPrice(item.qty * item.price).toLocaleString('id-ID')}\n`));
+                    commands.push(encoder.encode(item.name + '\n'));
+                    commands.push(encoder.encode('  ' + item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID') + ' = Rp ' + roundPrice(item.qty * item.price).toLocaleString('id-ID') + '\n'));
                 });
 
-                commands.push(encoder.encode(`--------------------------------\n`));
-                commands.push(encoder.encode(`Subtotal : Rp ${roundPrice(tx.subtotal).toLocaleString('id-ID')}\n`));
+                commands.push(encoder.encode('--------------------------------\n'));
+                commands.push(encoder.encode('Subtotal : Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID') + '\n'));
                 if (tx.discount > 0) {
-                    commands.push(encoder.encode(`Diskon   : - Rp ${roundPrice(tx.discount).toLocaleString('id-ID')}\n`));
+                    commands.push(encoder.encode('Diskon   : - Rp ' + roundPrice(tx.discount).toLocaleString('id-ID') + '\n'));
                 }
-                commands.push(encoder.encode(`TOTAL    : Rp ${roundPrice(tx.total).toLocaleString('id-ID')}\n`));
-                commands.push(encoder.encode(`Bayar    : Rp ${roundPrice(tx.cash_paid).toLocaleString('id-ID')}\n`));
-                commands.push(encoder.encode(`Kembali  : Rp ${roundPrice(tx.change).toLocaleString('id-ID')}\n`));
-                commands.push(encoder.encode(`--------------------------------\n`));
+                commands.push(encoder.encode('TOTAL    : Rp ' + roundPrice(tx.total).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('Bayar    : Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('Kembali  : Rp ' + roundPrice(tx.change).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('--------------------------------\n'));
                 commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
                 const footerText = document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja di MY KSR!';
-                commands.push(encoder.encode(`${footerText}\n\n\n`));
+                commands.push(encoder.encode(footerText + '\n\n\n'));
                 commands.push(new Uint8Array([0x1D, 0x56, 0x41, 0x00])); // Cut
 
                 for (let i = 0; i < commands.length; i++) {
@@ -1389,7 +1384,7 @@
             const branchSel = document.getElementById('branch-select');
             if (branchSel) currentBranch = branchSel.value;
             localStorage.setItem('pos_current_branch', currentBranch);
-            showNotification(`Cabang diubah ke: ${currentBranch}`, "info");
+            showNotification("Cabang diubah ke: " + currentBranch, "info");
         }
 
         function initSupabaseClient() {
@@ -1404,10 +1399,6 @@
             if (url && key && window.supabase) {
                 try {
                     supabaseClient = window.supabase.createClient(url, key);
-                    const dot = document.getElementById('db-status-dot');
-                    const txt = document.getElementById('db-status-text');
-                    if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
-                    if (txt) txt.innerText = 'Cloud Connected';
                     syncWithSupabase();
                 } catch(e) {
                     console.error('Supabase connect error:', e);
@@ -1436,11 +1427,10 @@
         function populateLoginDropdown(accounts) {
             const select = document.getElementById('login-username');
             if (!select) return;
-            select.innerHTML = accounts.map(acc => `
-                <option value="${acc.username}">
-                    ${acc.role === 'admin' ? '👑' : '🛒'} ${acc.name} (${acc.username})
-                </option>
-            `).join('');
+            select.innerHTML = accounts.map(acc => {
+                const icon = acc.role === 'admin' ? '👑' : '🛒';
+                return '<option value="' + acc.username + '">' + icon + ' ' + acc.name + ' (' + acc.username + ')</option>';
+            }).join('');
         }
 
         function initAuthSystem() {
@@ -1499,7 +1489,7 @@
                 const modalEl = document.getElementById('login-modal');
                 if (modalEl) modalEl.classList.add('hidden');
                 if (errorMsg) errorMsg.classList.add('hidden');
-                showNotification(`Selamat datang, ${foundUser.name}!`, "success");
+                showNotification("Selamat datang, " + foundUser.name + "!", "success");
             } else {
                 if (errorMsg) {
                     errorMsg.innerText = 'PIN atau Akun tidak valid!';
@@ -1628,13 +1618,11 @@
             const cats = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
             const container = document.getElementById('category-pills');
             if (!container) return;
-            container.innerHTML = cats.map(cat => `
-                <button 
-                    onclick="filterCategory('${cat}')" 
-                    class="px-3 py-1 rounded-full text-xs font-bold transition whitespace-nowrap ${selectedCategory === cat ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
-                    ${cat}
-                </button>
-            `).join('');
+            container.innerHTML = cats.map(cat => {
+                const isSelected = selectedCategory === cat;
+                const activeClass = isSelected ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
+                return '<button onclick="filterCategory(\'' + cat.replace(/'/g, "\\'") + '\')" class="px-3 py-1 rounded-full text-xs font-bold transition whitespace-nowrap ' + activeClass + '">' + cat + '</button>';
+            }).join('');
         }
 
         function filterCategory(cat) {
@@ -1705,7 +1693,7 @@
             }
 
             const countEl = document.getElementById('product-count');
-            if (countEl) countEl.innerText = `${list.length} Produk`;
+            if (countEl) countEl.innerText = list.length + ' Produk';
 
             grid.innerHTML = list.map(p => {
                 const activeDiscount = getActiveDiscountForProduct(p);
@@ -1715,63 +1703,76 @@
 
                 if (activeDiscount) {
                     if (activeDiscount.benefit_type === 'buy_x_get_y') {
-                        activeAutoPromoText = `Beli ${activeDiscount.buy_qty} Gratis ${activeDiscount.get_qty}`;
+                        activeAutoPromoText = 'Beli ' + activeDiscount.buy_qty + ' Gratis ' + activeDiscount.get_qty;
                     } else if (activeDiscount.type === 'percentage') {
                         finalPrice = roundPrice(normalPrice * (1 - activeDiscount.value / 100));
-                        activeAutoPromoText = `DISC ${activeDiscount.value}%`;
+                        activeAutoPromoText = 'DISC ' + activeDiscount.value + '%';
                     } else {
                         finalPrice = roundPrice(Math.max(0, normalPrice - activeDiscount.value));
-                        activeAutoPromoText = `POTONGAN Rp ${roundPrice(activeDiscount.value).toLocaleString('id-ID')}`;
+                        activeAutoPromoText = 'POTONGAN Rp ' + roundPrice(activeDiscount.value).toLocaleString('id-ID');
                     }
                 }
 
                 const isBogo = activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y';
                 const badgeColorClass = isBogo ? 'bg-amber-600' : 'bg-red-600';
 
-                return `
-                    <div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">
-                        ${activeDiscount ? `
-                            <div class="absolute top-0 right-0 ${badgeColorClass} text-white text-[9px] font-black px-2.5 py-1 rounded-bl-xl shadow uppercase tracking-wider">
-                                <i class="fa-solid ${isBogo ? 'fa-gift' : 'fa-tag'} mr-0.5"></i>${activeAutoPromoText}
-                            </div>
-                        ` : ''}
-                        <div>
-                            <div class="flex justify-between items-start gap-1">
-                                <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md truncate max-w-[100px]">${p.category || 'Umum'}</span>
-                                ${p.brand ? `<span class="text-[9px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded border border-amber-200">${p.brand}</span>` : ''}
-                            </div>
-                            <h4 class="font-bold text-xs text-slate-800 mt-1.5 line-clamp-2">${p.name}</h4>
-                            <div class="mt-1 flex flex-col gap-0.5">
-                                <span class="font-mono text-[10px] text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 inline-block font-bold tracking-wider">${p.barcode || 'Tanpa Barcode'}</span>
-                            </div>
-                        </div>
-                        <div class="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    ${activeDiscount && activeDiscount.benefit_type !== 'buy_x_get_y' ? `
-                                        <div class="flex flex-col">
-                                            <span class="text-[10px] text-slate-400 line-through">Rp ${normalPrice.toLocaleString('id-ID')}</span>
-                                            <span class="font-extrabold text-xs text-emerald-600">Rp ${finalPrice.toLocaleString('id-ID')}</span>
-                                            <span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200 mt-0.5 inline-block w-fit">
-                                                <i class="fa-solid fa-arrow-trend-down text-red-500 mr-0.5"></i>${activeAutoPromoText}
-                                            </span>
-                                        </div>
-                                    ` : activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y' ? `
-                                        <div class="flex flex-col">
-                                            <span class="font-extrabold text-xs text-blue-600">Rp ${normalPrice.toLocaleString('id-ID')}</span>
-                                            <span class="text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-0.5 inline-block w-fit">
-                                                <i class="fa-solid fa-gift mr-0.5"></i>${activeAutoPromoText}
-                                            </span>
-                                        </div>
-                                    ` : `
-                                        <span class="font-extrabold text-xs text-blue-600">Rp ${normalPrice.toLocaleString('id-ID')}</span>
-                                    `}
-                                </div>
-                                <span class="text-[10px] font-semibold ${p.stock <= 5 ? 'text-red-500 font-bold' : 'text-slate-400'}">Stok: ${p.stock}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                let badgeHtml = '';
+                if (activeDiscount) {
+                    const iconClass = isBogo ? 'fa-gift' : 'fa-tag';
+                    badgeHtml = '<div class="absolute top-0 right-0 ' + badgeColorClass + ' text-white text-[9px] font-black px-2 py-0.5 rounded-bl-lg shadow uppercase tracking-wider z-10 max-w-[70%] truncate">' +
+                        '<i class="fa-solid ' + iconClass + ' mr-0.5"></i>' + activeAutoPromoText +
+                    '</div>';
+                }
+
+                let brandBadgeHtml = '';
+                if (p.brand) {
+                    brandBadgeHtml = '<span class="text-[9px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded border border-amber-200 max-w-[75px] truncate">' + p.brand + '</span>';
+                }
+
+                let priceDisplayHtml = '';
+                if (activeDiscount && activeDiscount.benefit_type !== 'buy_x_get_y') {
+                    priceDisplayHtml = '<div class="flex flex-col">' +
+                        '<span class="text-[10px] text-slate-400 line-through leading-none">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>' +
+                        '<span class="font-extrabold text-xs text-emerald-600 leading-tight mt-0.5">Rp ' + finalPrice.toLocaleString('id-ID') + '</span>' +
+                        '<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200 mt-1 inline-block w-fit max-w-full truncate">' +
+                            '<i class="fa-solid fa-arrow-trend-down text-red-500 mr-0.5"></i>' + activeAutoPromoText +
+                        '</span>' +
+                    '</div>';
+                } else if (activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y') {
+                    priceDisplayHtml = '<div class="flex flex-col">' +
+                        '<span class="font-extrabold text-xs text-blue-600 leading-tight">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>' +
+                        '<span class="text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-1 inline-block w-fit max-w-full truncate">' +
+                            '<i class="fa-solid fa-gift mr-0.5"></i>' + activeAutoPromoText +
+                        '</span>' +
+                    '</div>';
+                } else {
+                    priceDisplayHtml = '<span class="font-extrabold text-xs text-blue-600 leading-tight">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>';
+                }
+
+                const stockClass = p.stock <= 5 ? 'text-red-500 font-bold' : 'text-slate-400';
+                const topPaddingClass = activeDiscount ? 'pt-2.5' : '';
+
+                return '<div onclick="addToCart(\'' + p.id + '\')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">' +
+                    badgeHtml +
+                    '<div class="' + topPaddingClass + '">' +
+                        '<div class="flex flex-wrap items-center gap-1 pr-14">' +
+                            '<span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md truncate max-w-[85px]">' + (p.category || 'Umum') + '</span>' +
+                            brandBadgeHtml +
+                        '</div>' +
+                        '<h4 class="font-bold text-xs text-slate-800 mt-1.5 line-clamp-2 leading-snug">' + p.name + '</h4>' +
+                        '<div class="mt-1 flex flex-wrap items-center gap-1">' +
+                            '<span class="font-mono text-[10px] text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 font-bold tracking-wider truncate max-w-full">' + (p.barcode || 'Tanpa Barcode') + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1">' +
+                        '<div class="flex justify-between items-end gap-1">' +
+                            '<div class="min-w-0 flex-1">' +
+                                priceDisplayHtml +
+                            '</div>' +
+                            '<span class="text-[10px] font-semibold shrink-0 text-right ' + stockClass + '">Stok: ' + p.stock + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
             }).join('');
         }
 
@@ -1799,7 +1800,7 @@
             if (mobCountEl) mobCountEl.innerText = totalItemsCount;
 
             if (cart.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-cart-flatbed text-2xl mb-2 block"></i>Keranjang belanja kosong</div>`;
+                container.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-cart-flatbed text-2xl mb-2 block"></i>Keranjang belanja kosong</div>';
                 return;
             }
 
@@ -1820,52 +1821,53 @@
                 let discText = '';
                 if (activeDiscount) {
                     if (activeDiscount.benefit_type === 'buy_x_get_y') {
-                        discText = `Beli ${activeDiscount.buy_qty} Gratis ${activeDiscount.get_qty}`;
+                        discText = 'Beli ' + activeDiscount.buy_qty + ' Gratis ' + activeDiscount.get_qty;
                     } else if (activeDiscount.type === 'percentage') {
                         effectivePrice = roundPrice(origPrice * (1 - activeDiscount.value / 100));
-                        discText = `Diskon ${activeDiscount.value}%`;
+                        discText = 'Diskon ' + activeDiscount.value + '%';
                     } else {
                         effectivePrice = roundPrice(Math.max(0, origPrice - activeDiscount.value));
-                        discText = `Potongan Rp ${roundPrice(activeDiscount.value).toLocaleString('id-ID')}`;
+                        discText = 'Potongan Rp ' + roundPrice(activeDiscount.value).toLocaleString('id-ID');
                     }
                 }
 
                 const lineTotal = roundPrice(effectivePrice * item.qty);
 
-                return `
-                    <div class="py-2.5 flex justify-between items-start text-xs border-b border-slate-100 last:border-0">
-                        <div class="flex-1 pr-2">
-                            <div class="font-bold text-slate-800 line-clamp-1">${item.name}</div>
-                            <div class="mt-0.5">
-                                ${activeDiscount && activeDiscount.benefit_type !== 'buy_x_get_y' ? `
-                                    <div class="flex flex-col">
-                                        <span class="text-[10px] text-slate-400 line-through">Rp ${origPrice.toLocaleString('id-ID')}</span>
-                                        <span class="font-bold text-emerald-600">Rp ${effectivePrice.toLocaleString('id-ID')}</span>
-                                    </div>
-                                    <div class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-red-200">
-                                        <i class="fa-solid fa-tag text-red-500 mr-0.5"></i>${discText}
-                                    </div>
-                                ` : activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y' ? `
-                                    <div class="font-semibold text-slate-700">Rp ${origPrice.toLocaleString('id-ID')}</div>
-                                    <div class="text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-amber-200">
-                                        <i class="fa-solid fa-gift text-amber-600 mr-0.5"></i>${discText}
-                                    </div>
-                                ` : `
-                                    <div class="font-semibold text-slate-700">Rp ${origPrice.toLocaleString('id-ID')}</div>
-                                `}
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-1.5">
-                            <div class="font-extrabold text-slate-900">Rp ${lineTotal.toLocaleString('id-ID')}</div>
-                            <div class="flex items-center gap-1">
-                                <button onclick="updateCartQty('${item.id}', -1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">-</button>
-                                <span class="font-bold text-xs w-5 text-center">${item.qty}</span>
-                                <button onclick="updateCartQty('${item.id}', 1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">+</button>
-                                <button onclick="removeFromCart('${item.id}')" class="text-red-400 hover:text-red-600 ml-1"><i class="fa-solid fa-xmark text-xs"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                let priceHtml = '';
+                if (activeDiscount && activeDiscount.benefit_type !== 'buy_x_get_y') {
+                    priceHtml = '<div class="flex flex-col">' +
+                        '<span class="text-[10px] text-slate-400 line-through">Rp ' + origPrice.toLocaleString('id-ID') + '</span>' +
+                        '<span class="font-bold text-emerald-600">Rp ' + effectivePrice.toLocaleString('id-ID') + '</span>' +
+                    '</div>' +
+                    '<div class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-red-200">' +
+                        '<i class="fa-solid fa-tag text-red-500 mr-0.5"></i>' + discText +
+                    '</div>';
+                } else if (activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y') {
+                    priceHtml = '<div class="font-semibold text-slate-700">Rp ' + origPrice.toLocaleString('id-ID') + '</div>' +
+                    '<div class="text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-amber-200">' +
+                        '<i class="fa-solid fa-gift text-amber-600 mr-0.5"></i>' + discText +
+                    '</div>';
+                } else {
+                    priceHtml = '<div class="font-semibold text-slate-700">Rp ' + origPrice.toLocaleString('id-ID') + '</div>';
+                }
+
+                return '<div class="py-2.5 flex justify-between items-start text-xs border-b border-slate-100 last:border-0">' +
+                    '<div class="flex-1 pr-2">' +
+                        '<div class="font-bold text-slate-800 line-clamp-1">' + item.name + '</div>' +
+                        '<div class="mt-0.5">' +
+                            priceHtml +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flex flex-col items-end gap-1.5">' +
+                        '<div class="font-extrabold text-slate-900">Rp ' + lineTotal.toLocaleString('id-ID') + '</div>' +
+                        '<div class="flex items-center gap-1">' +
+                            '<button onclick="updateCartQty(\'' + item.id + '\', -1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">-</button>' +
+                            '<span class="font-bold text-xs w-5 text-center">' + item.qty + '</span>' +
+                            '<button onclick="updateCartQty(\'' + item.id + '\', 1)" class="w-5 h-5 bg-slate-200 hover:bg-slate-300 rounded font-bold text-slate-700 flex items-center justify-center">+</button>' +
+                            '<button onclick="removeFromCart(\'' + item.id + '\')" class="text-red-400 hover:text-red-600 ml-1"><i class="fa-solid fa-xmark text-xs"></i></button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
             }).join('');
         }
 
@@ -1925,8 +1927,8 @@
                 );
             }
 
-            select.innerHTML = `<option value="Pelanggan Umum">-- Pelanggan Umum --</option>` +
-                filtered.map(c => `<option value="${c.name}">${c.member_number || 'REG'} | ${c.name} | ${c.phone || '-'}</option>`).join('');
+            select.innerHTML = '<option value="Pelanggan Umum">-- Pelanggan Umum --</option>' +
+                filtered.map(c => '<option value="' + c.name + '">' + (c.member_number || 'REG') + ' | ' + c.name + ' | ' + (c.phone || '-') + '</option>').join('');
         }
 
         function filterCartCustomerDropdown(val) {
@@ -1970,12 +1972,13 @@
                 return true;
             });
 
-            dropdown.innerHTML = `<option value="">-- Pilih Voucher / Promo (${availableVouchers.length} Tersedia) --</option>` +
-                availableVouchers.map(v => `
-                    <option value="${v.code}">
-                        ${v.code} - ${v.title} (${v.benefit_type === 'buy_x_get_y' ? `Beli ${v.buy_qty} Gratis ${v.get_qty}` : v.type === 'percentage' ? v.value + '%' : 'Rp ' + roundPrice(v.value).toLocaleString('id-ID')})
-                    </option>
-                `).join('');
+            dropdown.innerHTML = '<option value="">-- Pilih Voucher / Promo (' + availableVouchers.length + ' Tersedia) --</option>' +
+                availableVouchers.map(v => {
+                    const benefitStr = v.benefit_type === 'buy_x_get_y' ? 
+                        ('Beli ' + v.buy_qty + ' Gratis ' + v.get_qty) : 
+                        (v.type === 'percentage' ? (v.value + '%') : ('Rp ' + roundPrice(v.value).toLocaleString('id-ID')));
+                    return '<option value="' + v.code + '">' + v.code + ' - ' + v.title + ' (' + benefitStr + ')</option>';
+                }).join('');
         }
 
         function applyDropdownVoucher(selectEl) {
@@ -2012,12 +2015,14 @@
             const evaluatedQty = scope === 'overall' ? totalCartQty : matchingQty;
 
             if (v.min_purchase && evaluatedPurchase < v.min_purchase) {
-                showNotification(`Minimum pembelian ${scope === 'overall' ? 'total nota' : 'target'} untuk voucher ${v.code} adalah Rp ${roundPrice(v.min_purchase).toLocaleString('id-ID')}`, "error");
+                const targetText = scope === 'overall' ? 'total nota' : 'target';
+                showNotification("Minimum pembelian " + targetText + " untuk voucher " + v.code + " adalah Rp " + roundPrice(v.min_purchase).toLocaleString('id-ID'), "error");
                 selectEl.value = '';
                 return;
             }
             if (v.min_qty && evaluatedQty < v.min_qty) {
-                showNotification(`Minimum kuantitas ${scope === 'overall' ? 'total item' : 'target'} untuk voucher ${v.code} adalah ${v.min_qty} pcs`, "error");
+                const targetQtyText = scope === 'overall' ? 'total item' : 'target';
+                showNotification("Minimum kuantitas " + targetQtyText + " untuk voucher " + v.code + " adalah " + v.min_qty + " pcs", "error");
                 selectEl.value = '';
                 return;
             }
@@ -2026,7 +2031,7 @@
             selectEl.value = '';
             renderAppliedVouchersBadges();
             calculateCartTotals();
-            showNotification(`Voucher ${v.code} berhasil ditambahkan!`, "success");
+            showNotification("Voucher " + v.code + " berhasil ditambahkan!", "success");
         }
 
         function renderAppliedVouchersBadges() {
@@ -2038,17 +2043,20 @@
                 return;
             }
             container.classList.remove('hidden');
-            container.innerHTML = appliedVouchers.map(v => `
-                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-1 rounded-lg text-[11px] font-semibold flex justify-between items-center">
-                    <span class="flex items-center gap-1 truncate">
-                        <i class="fa-solid fa-circle-check text-emerald-500 shrink-0"></i>
-                        <span class="truncate">${v.code} (${v.benefit_type === 'buy_x_get_y' ? `Beli ${v.buy_qty} Gratis ${v.get_qty}` : v.type === 'percentage' ? v.value + '%' : 'Rp ' + roundPrice(v.value).toLocaleString('id-ID')})</span>
-                    </span>
-                    <button onclick="removeAppliedVoucher('${v.id}')" class="text-red-500 hover:text-red-700 font-bold ml-2 shrink-0">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            `).join('');
+            container.innerHTML = appliedVouchers.map(v => {
+                const benefitStr = v.benefit_type === 'buy_x_get_y' ? 
+                    ('Beli ' + v.buy_qty + ' Gratis ' + v.get_qty) : 
+                    (v.type === 'percentage' ? (v.value + '%') : ('Rp ' + roundPrice(v.value).toLocaleString('id-ID')));
+                return '<div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-1 rounded-lg text-[11px] font-semibold flex justify-between items-center">' +
+                    '<span class="flex items-center gap-1 truncate">' +
+                        '<i class="fa-solid fa-circle-check text-emerald-500 shrink-0"></i>' +
+                        '<span class="truncate">' + v.code + ' (' + benefitStr + ')</span>' +
+                    '</span>' +
+                    '<button onclick="removeAppliedVoucher(\'' + v.id + '\')" class="text-red-500 hover:text-red-700 font-bold ml-2 shrink-0">' +
+                        '<i class="fa-solid fa-xmark"></i>' +
+                    '</button>' +
+                '</div>';
+            }).join('');
         }
 
         function removeAppliedVoucher(id) {
@@ -2165,12 +2173,12 @@
         function calculateCartTotals() {
             const state = calculateCartState();
 
-            document.getElementById('cart-subtotal').innerText = `Rp ${roundPrice(state.grossSubtotal).toLocaleString('id-ID')}`;
+            document.getElementById('cart-subtotal').innerText = 'Rp ' + roundPrice(state.grossSubtotal).toLocaleString('id-ID');
 
             const rowCat = document.getElementById('row-category-discount');
             if (state.categoryDiscountTotal > 0) {
                 rowCat.classList.remove('hidden');
-                document.getElementById('cart-category-discount-amount').innerText = `- Rp ${roundPrice(state.categoryDiscountTotal).toLocaleString('id-ID')}`;
+                document.getElementById('cart-category-discount-amount').innerText = '- Rp ' + roundPrice(state.categoryDiscountTotal).toLocaleString('id-ID');
             } else {
                 rowCat.classList.add('hidden');
             }
@@ -2178,7 +2186,7 @@
             const rowMan = document.getElementById('row-manual-discount');
             if (state.manualDiscAmount > 0) {
                 rowMan.classList.remove('hidden');
-                document.getElementById('cart-manual-discount-amount').innerText = `- Rp ${roundPrice(state.manualDiscAmount).toLocaleString('id-ID')}`;
+                document.getElementById('cart-manual-discount-amount').innerText = '- Rp ' + roundPrice(state.manualDiscAmount).toLocaleString('id-ID');
             } else {
                 rowMan.classList.add('hidden');
             }
@@ -2186,7 +2194,7 @@
             const rowVip = document.getElementById('row-vip-discount');
             if (state.vipDiscAmount > 0) {
                 rowVip.classList.remove('hidden');
-                document.getElementById('cart-vip-discount-amount').innerText = `- Rp ${roundPrice(state.vipDiscAmount).toLocaleString('id-ID')}`;
+                document.getElementById('cart-vip-discount-amount').innerText = '- Rp ' + roundPrice(state.vipDiscAmount).toLocaleString('id-ID');
             } else {
                 rowVip.classList.add('hidden');
             }
@@ -2195,12 +2203,12 @@
             if (appliedVouchers.length > 0 && state.voucherDiscAmount > 0) {
                 rowVouch.classList.remove('hidden');
                 document.getElementById('cart-voucher-code-label').innerText = state.voucherCodesList.join(', ');
-                document.getElementById('cart-voucher-discount-amount').innerText = `- Rp ${roundPrice(state.voucherDiscAmount).toLocaleString('id-ID')}`;
+                document.getElementById('cart-voucher-discount-amount').innerText = '- Rp ' + roundPrice(state.voucherDiscAmount).toLocaleString('id-ID');
             } else {
                 rowVouch.classList.add('hidden');
             }
 
-            document.getElementById('cart-grand-total').innerText = `Rp ${roundPrice(state.grandTotal).toLocaleString('id-ID')}`;
+            document.getElementById('cart-grand-total').innerText = 'Rp ' + roundPrice(state.grandTotal).toLocaleString('id-ID');
             document.getElementById('btn-checkout').disabled = cart.length === 0;
 
             renderCartVoucherDropdown();
@@ -2216,44 +2224,59 @@
             tbody.innerHTML = list.map(v => {
                 const isAuto = v.promo_type === 'auto_category';
                 const criteriaParts = [];
-                if (v.target_category && v.target_category !== 'Semua') criteriaParts.push(`Kat: ${v.target_category}`);
-                if (v.target_brand && v.target_brand !== 'Semua') criteriaParts.push(`Brand: ${v.target_brand}`);
-                if (v.target_family && v.target_family !== 'Semua') criteriaParts.push(`Fam: ${v.target_family}`);
-                if (v.target_promo && v.target_promo !== 'Semua') criteriaParts.push(`Tag: ${v.target_promo}`);
+                if (v.target_category && v.target_category !== 'Semua') criteriaParts.push('Kat: ' + v.target_category);
+                if (v.target_brand && v.target_brand !== 'Semua') criteriaParts.push('Brand: ' + v.target_brand);
+                if (v.target_family && v.target_family !== 'Semua') criteriaParts.push('Fam: ' + v.target_family);
+                if (v.target_promo && v.target_promo !== 'Semua') criteriaParts.push('Tag: ' + v.target_promo);
                 const criteriaText = criteriaParts.length > 0 ? criteriaParts.join(' | ') : 'Semua Produk';
 
-                const periodText = `${v.valid_from || 'Mulai Awal'} s/d ${v.valid_until || 'Selamanya'}`;
+                const periodText = (v.valid_from || 'Mulai Awal') + ' s/d ' + (v.valid_until || 'Selamanya');
                 const benefitText = v.benefit_type === 'buy_x_get_y' ? 
-                    `🎁 Beli ${v.buy_qty} Gratis ${v.get_qty}` : 
-                    (v.type === 'percentage' ? `${v.value}%` : `Rp ${roundPrice(v.value).toLocaleString('id-ID')}`);
+                    ('🎁 Beli ' + v.buy_qty + ' Gratis ' + v.get_qty) : 
+                    (v.type === 'percentage' ? (v.value + '%') : ('Rp ' + roundPrice(v.value).toLocaleString('id-ID')));
 
-                return `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50">
-                        <td class="p-3">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAuto ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200'}">
-                                ${isAuto ? '⚡ Otomatis' : '🎫 Voucher'}
-                            </span>
-                        </td>
-                        <td class="p-3 font-mono font-bold text-indigo-600">${isAuto ? '-' : (v.code || '-')}</td>
-                        <td class="p-3 font-bold text-slate-800">${v.title}</td>
-                        <td class="p-3 font-medium text-slate-700 text-[11px]">${criteriaText}</td>
-                        <td class="p-3 font-semibold text-emerald-600">
-                            ${benefitText}
-                            ${v.min_purchase > 0 ? `<div class="text-[9px] text-slate-400">Min Blj (${v.min_purchase_scope === 'overall' ? 'Nota' : 'Kriteria'}): Rp ${roundPrice(v.min_purchase).toLocaleString('id-ID')}</div>` : ''}
-                            ${v.min_qty > 0 ? `<div class="text-[9px] text-slate-400">Min Qty: ${v.min_qty} pcs</div>` : ''}
-                        </td>
-                        <td class="p-3 text-center text-slate-500 text-[11px]">${periodText}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="toggleVoucherActive('${v.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v.is_active ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
-                                ${v.is_active ? 'Aktif' : 'Nonaktif'}
-                            </button>
-                        </td>
-                        <td class="p-3 text-center">
-                            <button onclick="openVoucherModal('${v.id}')" class="text-indigo-600 hover:text-indigo-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteVoucher('${v.id}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                const badgeClass = isAuto ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200';
+                const badgeLabel = isAuto ? '⚡ Otomatis' : '🎫 Voucher';
+
+                let minPurchaseHtml = '';
+                if (v.min_purchase > 0) {
+                    const scopeLabel = v.min_purchase_scope === 'overall' ? 'Nota' : 'Kriteria';
+                    minPurchaseHtml = '<div class="text-[9px] text-slate-400">Min Blj (' + scopeLabel + '): Rp ' + roundPrice(v.min_purchase).toLocaleString('id-ID') + '</div>';
+                }
+
+                let minQtyHtml = '';
+                if (v.min_qty > 0) {
+                    minQtyHtml = '<div class="text-[9px] text-slate-400">Min Qty: ' + v.min_qty + ' pcs</div>';
+                }
+
+                const statusClass = v.is_active ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500';
+                const statusText = v.is_active ? 'Aktif' : 'Nonaktif';
+
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3">' +
+                        '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + badgeClass + '">' +
+                            badgeLabel +
+                        '</span>' +
+                    '</td>' +
+                    '<td class="p-3 font-mono font-bold text-indigo-600">' + (isAuto ? '-' : (v.code || '-')) + '</td>' +
+                    '<td class="p-3 font-bold text-slate-800">' + v.title + '</td>' +
+                    '<td class="p-3 font-medium text-slate-700 text-[11px]">' + criteriaText + '</td>' +
+                    '<td class="p-3 font-semibold text-emerald-600">' +
+                        benefitText +
+                        minPurchaseHtml +
+                        minQtyHtml +
+                    '</td>' +
+                    '<td class="p-3 text-center text-slate-500 text-[11px]">' + periodText + '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="toggleVoucherActive(\'' + v.id + '\')" class="px-2 py-0.5 rounded-full text-[10px] font-bold ' + statusClass + '">' +
+                            statusText +
+                        '</button>' +
+                    '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="openVoucherModal(\'' + v.id + '\')" class="text-indigo-600 hover:text-indigo-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                        '<button onclick="deleteVoucher(\'' + v.id + '\')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
             }).join('');
 
             renderCartVoucherDropdown();
@@ -2272,10 +2295,10 @@
             const families = ['Semua', ...new Set(products.map(p => p.family || 'Tanpa Family'))];
             const promos = ['Semua', ...new Set(products.map(p => p.promo || 'Tanpa Promo'))];
 
-            catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-            brandSelect.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
-            familySelect.innerHTML = families.map(f => `<option value="${f}">${f}</option>`).join('');
-            promoSelect.innerHTML = promos.map(pr => `<option value="${pr}">${pr}</option>`).join('');
+            catSelect.innerHTML = categories.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+            brandSelect.innerHTML = brands.map(b => '<option value="' + b + '">' + b + '</option>').join('');
+            familySelect.innerHTML = families.map(f => '<option value="' + f + '">' + f + '</option>').join('');
+            promoSelect.innerHTML = promos.map(pr => '<option value="' + pr + '">' + pr + '</option>').join('');
         }
 
         function openVoucherModal(voucherId = null) {
@@ -2451,7 +2474,7 @@
             saveLocalStorageData();
             renderVouchersTable();
             renderProductGrid();
-            showNotification(`Status promo ${v.title} diubah.`, "info");
+            showNotification("Status promo " + v.title + " diubah.", "info");
 
             if (supabaseClient) {
                 try {
@@ -2482,34 +2505,35 @@
 
             const catSelect = document.getElementById('admin-category-filter');
             const categories = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
-            catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            catSelect.innerHTML = categories.map(c => '<option value="' + c + '">' + c + '</option>').join('');
             catSelect.value = catFilter;
 
             let list = products.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)) || (p.brand && p.brand.toLowerCase().includes(q)));
             if (catFilter !== 'Semua') list = list.filter(p => p.category === catFilter);
 
-            tbody.innerHTML = list.map(p => `
-                <tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="p-3 font-mono font-bold text-indigo-600">${p.sku || '-'}</td>
-                    <td class="p-3 font-mono text-xs text-slate-700 whitespace-nowrap font-bold">${p.barcode || '-'}</td>
-                    <td class="p-3 font-bold text-slate-800">${p.name}</td>
-                    <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">${p.category || 'Umum'}</span></td>
-                    <td class="p-3"><span class="text-xs text-slate-700"><b>${p.brand || '-'}</b> / <span class="text-slate-500">${p.family || '-'}</span></span></td>
-                    <td class="p-3"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-semibold">${p.promo || '-'}</span></td>
-                    <td class="p-3 text-right font-bold text-blue-600">Rp ${roundPrice(p.selling_price || 0).toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-center font-bold ${p.stock <= 5 ? 'text-red-500' : 'text-slate-700'}">${p.stock}</td>
-                    <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="openBarcodeSheetModalForProduct('${p.id}')" title="Cetak Barcode" class="text-indigo-600 hover:text-indigo-800 font-bold px-1.5 py-1"><i class="fa-solid fa-barcode"></i></button>
-                        <button onclick="openProductModal('${p.id}')" title="Edit" class="text-blue-600 hover:text-blue-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="deleteProduct('${p.id}')" title="Hapus" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = list.map(p => {
+                const stockClass = p.stock <= 5 ? 'text-red-500' : 'text-slate-700';
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3 font-mono font-bold text-indigo-600">' + (p.sku || '-') + '</td>' +
+                    '<td class="p-3 font-mono text-xs text-slate-700 whitespace-nowrap font-bold">' + (p.barcode || '-') + '</td>' +
+                    '<td class="p-3 font-bold text-slate-800">' + p.name + '</td>' +
+                    '<td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">' + (p.category || 'Umum') + '</span></td>' +
+                    '<td class="p-3"><span class="text-xs text-slate-700"><b>' + (p.brand || '-') + '</b> / <span class="text-slate-500">' + (p.family || '-') + '</span></span></td>' +
+                    '<td class="p-3"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-semibold">' + (p.promo || '-') + '</span></td>' +
+                    '<td class="p-3 text-right font-bold text-blue-600">Rp ' + roundPrice(p.selling_price || 0).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3 text-center font-bold ' + stockClass + '">' + p.stock + '</td>' +
+                    '<td class="p-3 text-center whitespace-nowrap">' +
+                        '<button onclick="openBarcodeSheetModalForProduct(\'' + p.id + '\')" title="Cetak Barcode" class="text-indigo-600 hover:text-indigo-800 font-bold px-1.5 py-1"><i class="fa-solid fa-barcode"></i></button>' +
+                        '<button onclick="openProductModal(\'' + p.id + '\')" title="Edit" class="text-blue-600 hover:text-blue-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                        '<button onclick="deleteProduct(\'' + p.id + '\')" title="Hapus" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
         }
 
         function openBarcodeSheetModal() {
             const select = document.getElementById('barcode-prod-select');
-            select.innerHTML = products.map(p => `<option value="${p.id}">${p.name} (${p.barcode || 'Tanpa Barcode'})</option>`).join('');
+            select.innerHTML = products.map(p => '<option value="' + p.id + '">' + p.name + ' (' + (p.barcode || 'Tanpa Barcode') + ')</option>').join('');
             document.getElementById('barcode-sheet-modal').classList.remove('hidden');
             generateBarcodeSheetPreview();
         }
@@ -2531,26 +2555,24 @@
             const container = document.getElementById('printable-barcode-sheet');
 
             if (!p) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-12 text-xs col-span-3">Produk tidak ditemukan.</div>`;
+                container.innerHTML = '<div class="text-center text-slate-400 py-12 text-xs col-span-3">Produk tidak ditemukan.</div>';
                 return;
             }
 
             let html = '';
             for (let i = 0; i < count; i++) {
-                const uniqueSvgId = `bc-${i}-${Math.random().toString(36).substring(2, 7)}`;
-                html += `
-                    <div class="border border-dashed border-slate-300 p-2 rounded-lg bg-white flex flex-col items-center justify-center text-center">
-                        <div class="text-[10px] font-bold text-slate-800 line-clamp-1 mb-0.5">${p.name}</div>
-                        <div class="text-[9px] font-extrabold text-blue-600 mb-1">Rp ${roundPrice(p.selling_price || 0).toLocaleString('id-ID')}</div>
-                        <svg id="${uniqueSvgId}" class="max-w-full h-10"></svg>
-                    </div>
-                `;
+                const uniqueSvgId = 'bc-' + i + '-' + Math.random().toString(36).substring(2, 7);
+                html += '<div class="border border-dashed border-slate-300 p-2 rounded-lg bg-white flex flex-col items-center justify-center text-center">' +
+                    '<div class="text-[10px] font-bold text-slate-800 line-clamp-1 mb-0.5">' + p.name + '</div>' +
+                    '<div class="text-[9px] font-extrabold text-blue-600 mb-1">Rp ' + roundPrice(p.selling_price || 0).toLocaleString('id-ID') + '</div>' +
+                    '<svg id="' + uniqueSvgId + '" class="max-w-full h-10"></svg>' +
+                '</div>';
             }
             container.innerHTML = html;
 
             setTimeout(() => {
                 for (let i = 0; i < count; i++) {
-                    const svgEl = document.getElementById(`bc-${i}-${Array.from(container.querySelectorAll('svg'))[i]?.id?.split('-')[2] || i}`);
+                    const svgEl = container.querySelectorAll('svg')[i];
                     if (svgEl) {
                         try {
                             JsBarcode(svgEl, p.barcode || '899000000000', {
@@ -2669,27 +2691,29 @@
                     if (bdate.getDate() === today.getDate() && bdate.getMonth() === today.getMonth()) isBirthdayToday = true;
                 }
 
-                return `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50">
-                        <td class="p-3 font-mono font-bold text-blue-600">${c.member_number || '-'}</td>
-                        <td class="p-3 font-bold text-slate-800">${c.name}</td>
-                        <td class="p-3 text-slate-600">${c.phone || '-'}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.type === 'VIP' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-700'}">
-                                ${c.type}
-                            </span>
-                        </td>
-                        <td class="p-3 text-center">
-                            ${isBirthdayToday ? `<span class="bg-pink-100 text-pink-700 font-bold px-2 py-0.5 rounded-full text-[10px] animate-pulse">🎂 Ultah Hari Ini!</span>` : `<span class="text-slate-400 text-[11px]">${c.birth_date || '-'}</span>`}
-                        </td>
-                        <td class="p-3 text-right font-bold text-emerald-600">${c.points || 0} pts</td>
-                        <td class="p-3 text-right font-bold text-slate-800">Rp ${roundPrice(c.total_tx || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="openCustomerModal('${c.id}')" class="text-blue-600 hover:text-blue-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteCustomer('${c.id}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                const birthdayHtml = isBirthdayToday ? 
+                    '<span class="bg-pink-100 text-pink-700 font-bold px-2 py-0.5 rounded-full text-[10px] animate-pulse">🎂 Ultah Hari Ini!</span>' : 
+                    ('<span class="text-slate-400 text-[11px]">' + (c.birth_date || '-') + '</span>');
+
+                const typeBadgeClass = c.type === 'VIP' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-700';
+
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3 font-mono font-bold text-blue-600">' + (c.member_number || '-') + '</td>' +
+                    '<td class="p-3 font-bold text-slate-800">' + c.name + '</td>' +
+                    '<td class="p-3 text-slate-600">' + (c.phone || '-') + '</td>' +
+                    '<td class="p-3">' +
+                        '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + typeBadgeClass + '">' +
+                            c.type +
+                        '</span>' +
+                    '</td>' +
+                    '<td class="p-3 text-center">' + birthdayHtml + '</td>' +
+                    '<td class="p-3 text-right font-bold text-emerald-600">' + (c.points || 0) + ' pts</td>' +
+                    '<td class="p-3 text-right font-bold text-slate-800">Rp ' + roundPrice(c.total_tx || 0).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="openCustomerModal(\'' + c.id + '\')" class="text-blue-600 hover:text-blue-800 font-bold px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                        '<button onclick="deleteCustomer(\'' + c.id + '\')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
             }).join('');
         }
 
@@ -2775,7 +2799,7 @@
             if (cart.length === 0) return;
             const state = calculateCartState();
 
-            document.getElementById('pay-modal-total').innerText = `Rp ${roundPrice(state.grandTotal).toLocaleString('id-ID')}`;
+            document.getElementById('pay-modal-total').innerText = 'Rp ' + roundPrice(state.grandTotal).toLocaleString('id-ID');
             document.getElementById('pay-cash-amount').value = '';
             document.getElementById('pay-change-amount').innerText = 'Rp 0';
             document.getElementById('payment-modal').classList.remove('hidden');
@@ -2787,7 +2811,7 @@
             const state = calculateCartState();
             const cash = parseFloat(document.getElementById('pay-cash-amount').value) || 0;
             const change = cash - state.grandTotal;
-            document.getElementById('pay-change-amount').innerText = `Rp ${roundPrice(Math.max(0, change)).toLocaleString('id-ID')}`;
+            document.getElementById('pay-change-amount').innerText = 'Rp ' + roundPrice(Math.max(0, change)).toLocaleString('id-ID');
         }
 
         function setQuickCash(val) {
@@ -2890,51 +2914,58 @@
             document.getElementById('rec-customer').innerText = tx.customer_name;
 
             const itemsContainer = document.getElementById('rec-items-list');
-            itemsContainer.innerHTML = tx.items.map(item => `
-                <div>
-                    <div class="font-bold">${item.name}</div>
-                    <div class="flex justify-between text-slate-500">
-                        <span>${item.qty} x Rp ${roundPrice(item.price).toLocaleString('id-ID')}</span>
-                        <span class="font-bold text-slate-800">Rp ${roundPrice(item.qty * item.price).toLocaleString('id-ID')}</span>
-                    </div>
-                </div>
-            `).join('');
+            itemsContainer.innerHTML = tx.items.map(item => {
+                return '<div>' +
+                    '<div class="font-bold">' + item.name + '</div>' +
+                    '<div class="flex justify-between text-slate-500">' +
+                        '<span>' + item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID') + '</span>' +
+                        '<span class="font-bold text-slate-800">Rp ' + roundPrice(item.qty * item.price).toLocaleString('id-ID') + '</span>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
 
-            document.getElementById('rec-subtotal').innerText = `Rp ${roundPrice(tx.subtotal).toLocaleString('id-ID')}`;
-            document.getElementById('rec-discount').innerText = `- Rp ${roundPrice(tx.discount).toLocaleString('id-ID')}`;
-            document.getElementById('rec-total').innerText = `Rp ${roundPrice(tx.total).toLocaleString('id-ID')}`;
-            document.getElementById('rec-paid').innerText = `Rp ${roundPrice(tx.cash_paid).toLocaleString('id-ID')}`;
-            document.getElementById('rec-change').innerText = `Rp ${roundPrice(tx.change).toLocaleString('id-ID')}`;
+            document.getElementById('rec-subtotal').innerText = 'Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID');
+            document.getElementById('rec-discount').innerText = '- Rp ' + roundPrice(tx.discount).toLocaleString('id-ID');
+            document.getElementById('rec-total').innerText = 'Rp ' + roundPrice(tx.total).toLocaleString('id-ID');
+            document.getElementById('rec-paid').innerText = 'Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID');
+            document.getElementById('rec-change').innerText = 'Rp ' + roundPrice(tx.change).toLocaleString('id-ID');
 
             document.getElementById('receipt-modal').classList.remove('hidden');
         }
 
         function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
         function printReceipt() { window.print(); }
+        
         function sendWhatsAppReceipt() {
             if (!currentTransactionRecord) return;
-            const text = encodeURIComponent(`Halo ${currentTransactionRecord.customer_name}, terima kasih telah berbelanja di *${document.getElementById('header-store-name').innerText}*!\n\nNo. Nota: ${currentTransactionRecord.id}\nTotal: Rp ${roundPrice(currentTransactionRecord.total).toLocaleString('id-ID')}\nMetode: ${currentTransactionRecord.payment_method}\n\nSemoga hari Anda menyenangkan!`);
-            window.open(`https://wa.me/?text=${text}`, '_blank');
+            const storeName = document.getElementById('header-store-name').innerText || 'MY KSR';
+            const msg = 'Halo ' + currentTransactionRecord.customer_name + ', terima kasih telah berbelanja di *' + storeName + '*!\n\nNo. Nota: ' + currentTransactionRecord.id + '\nTotal: Rp ' + roundPrice(currentTransactionRecord.total).toLocaleString('id-ID') + '\nMetode: ' + currentTransactionRecord.payment_method + '\n\nSemoga hari Anda menyenangkan!';
+            window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
         }
 
         function renderHistoryTable() {
             const tbody = document.getElementById('history-tbody');
             if (!tbody) return;
-            document.getElementById('history-count').innerText = `${transactions.length} Transaksi`;
+            document.getElementById('history-count').innerText = transactions.length + ' Transaksi';
 
-            tbody.innerHTML = transactions.map(tx => `
-                <tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="p-3 font-mono font-bold text-blue-600">${tx.id}</td>
-                    <td class="p-3 text-slate-500">${new Date(tx.created_at).toLocaleString('id-ID')}</td>
-                    <td class="p-3">${tx.cashier || 'Admin'}</td>
-                    <td class="p-3 font-semibold">${tx.customer_name}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${tx.payment_method}</span></td>
-                    <td class="p-3 text-right font-bold text-slate-900">Rp ${roundPrice(tx.total).toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-center">
-                        <button onclick='showReceipt(${JSON.stringify(tx)})' class="text-blue-600 hover:text-blue-800 font-bold"><i class="fa-solid fa-receipt"></i> Nota</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = transactions.map(tx => {
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3 font-mono font-bold text-blue-600">' + tx.id + '</td>' +
+                    '<td class="p-3 text-slate-500">' + new Date(tx.created_at).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3">' + (tx.cashier || 'Admin') + '</td>' +
+                    '<td class="p-3 font-semibold">' + tx.customer_name + '</td>' +
+                    '<td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">' + tx.payment_method + '</span></td>' +
+                    '<td class="p-3 text-right font-bold text-slate-900">Rp ' + roundPrice(tx.total).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="viewTransactionReceipt(\'' + tx.id + '\')" class="text-blue-600 hover:text-blue-800 font-bold"><i class="fa-solid fa-receipt"></i> Nota</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        function viewTransactionReceipt(txId) {
+            const tx = transactions.find(t => t.id === txId);
+            if (tx) showReceipt(tx);
         }
 
         function initCharts() {
@@ -2978,13 +3009,13 @@
         function exportTransactionsCSV() {
             let csv = 'No Nota,Waktu,Kasir,Pelanggan,Metode,Total\n';
             transactions.forEach(tx => {
-                csv += `"${tx.id}","${tx.created_at}","${tx.cashier}","${tx.customer_name}","${tx.payment_method}",${roundPrice(tx.total)}\n`;
+                csv += '"' + tx.id + '","' + tx.created_at + '","' + tx.cashier + '","' + tx.customer_name + '","' + tx.payment_method + '",' + roundPrice(tx.total) + '\n';
             });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('href', url);
-            a.setAttribute('download', `laporan_penjualan_${new Date().toISOString().slice(0,10)}.csv`);
+            a.setAttribute('download', 'laporan_penjualan_' + new Date().toISOString().slice(0,10) + '.csv');
             a.click();
             showNotification("Laporan CSV berhasil diunduh!", "success");
         }
@@ -3005,9 +3036,9 @@
             const product = products.find(p => p.barcode === decodedText || p.sku === decodedText);
             if (product) {
                 addToCart(product.id);
-                showNotification(`Produk ditemukan: ${product.name}`, "success");
+                showNotification("Produk ditemukan: " + product.name, "success");
             } else {
-                showNotification(`Barcode ${decodedText} tidak ditemukan!`, "error");
+                showNotification("Barcode " + decodedText + " tidak ditemukan!", "error");
             }
         }
     </script>
