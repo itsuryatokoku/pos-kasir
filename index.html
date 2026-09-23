@@ -1209,7 +1209,7 @@
 
         async function connectBluetoothPrinter() {
             if (!navigator.bluetooth) {
-                showNotification("Web Bluetooth dibatasi di sandbox preview. Gunakan tombol 'Print Thermal' di nota untuk cetak via sistem.", "info");
+                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Manual.", "info");
                 return;
             }
             try {
@@ -1678,7 +1678,7 @@
                             </div>
                             <h4 class="font-bold text-xs text-slate-800 mt-1.5 line-clamp-2">${p.name}</h4>
                             <div class="mt-1 flex flex-col gap-0.5">
-                                <span class="font-mono text-[10px] text-slate-600 bg-slate-50 px-1 py-0.5 rounded border border-slate-200 inline-block font-bold">${p.barcode || 'Tanpa Barcode'}</span>
+                                <span class="font-mono text-[10px] text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 inline-block font-bold">${p.barcode || 'Tanpa Barcode'}</span>
                             </div>
                         </div>
                         <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
@@ -1845,7 +1845,7 @@
             const select = document.getElementById('cart-customer-select');
             if (!select) return;
             select.innerHTML = `<option value="Pelanggan Umum">-- Pelanggan Umum --</option>` +
-                customers.map(c => `<option value="${c.name}">${c.name} (${c.type}${c.member_number ? ' - ' + c.member_number : ''})</option>`).join('');
+                customers.map(c => `<option value="${c.name}">${c.member_number || 'REG'} | ${c.name} | ${c.phone || '-'}</option>`).join('');
         }
 
         function renderCartVoucherDropdown() {
