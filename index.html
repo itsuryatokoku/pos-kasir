@@ -188,160 +188,175 @@
     <main class="flex-1 flex overflow-hidden relative">
         
         <!-- POS VIEW -->
-        <div id="view-pos" class="view-page flex-1 flex flex-col md:flex-row w-full h-full overflow-hidden">
-            <section class="flex-1 p-3 sm:p-4 flex flex-col gap-3 overflow-hidden bg-white border-r border-slate-200">
-                <div class="flex gap-2">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input 
-                            type="text" 
-                            id="search-input"
-                            onkeyup="handleSearch(event)"
-                            placeholder="Cari nama produk, SKU, brand, barcode (Tekan Enter)..." 
-                            class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
-                        >
-                    </div>
-                    <button 
-                        onclick="openCameraScanner()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0">
-                        <i class="fa-solid fa-camera"></i>
-                        <span>SCAN KAMERA</span>
-                    </button>
-                </div>
+        <div id="view-pos" class="view-page flex-1 flex flex-col w-full h-full overflow-hidden">
+            <!-- MOBILE TAB SWITCHER BAR -->
+            <div class="md:hidden bg-slate-800 text-white px-3 py-2 flex gap-2 text-xs shrink-0 border-b border-slate-700">
+                <button onclick="switchMobilePosTab('catalog')" id="mob-tab-catalog" class="flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-boxes-stacked"></i> Katalog Produk
+                </button>
+                <button onclick="switchMobilePosTab('cart')" id="mob-tab-cart" class="flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-cart-shopping"></i> Keranjang (<span id="mob-cart-count">0</span>)
+                </button>
+            </div>
 
-                <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs shrink-0" id="category-pills">
-                </div>
-
-                <div class="flex justify-between items-center px-1">
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider">Katalog Produk</h2>
-                        <span id="product-count" class="text-[11px] font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full border border-blue-100">0 Produk</span>
-                    </div>
-                </div>
-
-                <div id="product-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 p-1">
-                </div>
-            </section>
-
-            <section class="w-full md:w-80 lg:w-96 bg-slate-50 flex flex-col h-auto md:h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0">
-                <div class="p-3 bg-slate-800 text-white flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-cart-shopping text-blue-400"></i>
-                        <h2 class="font-bold text-sm">Keranjang Belanja</h2>
-                    </div>
-                    <button onclick="clearCart()" class="text-xs text-red-300 hover:text-red-100 flex items-center gap-1 bg-red-900/40 px-2 py-1 rounded-lg border border-red-700/50">
-                        <i class="fa-solid fa-trash text-[10px]"></i> Kosongkan
-                    </button>
-                </div>
-
-                <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-2">
-                    <!-- SEARCH MEMBER & SELECT MEMBER -->
-                    <div class="space-y-1.5">
-                        <div class="flex items-center gap-2 text-xs">
-                            <i class="fa-solid fa-magnifying-glass text-blue-500"></i>
+            <!-- POS CONTENT CONTAINER (FLEX ROW ON DESKTOP, TAB TOGGLE ON MOBILE) -->
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden w-full h-full">
+                <!-- CATALOG SECTION -->
+                <section id="pos-catalog-section" class="flex flex-1 p-3 sm:p-4 flex-col gap-3 overflow-hidden bg-white border-r border-slate-200 w-full h-full">
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                             <input 
                                 type="text" 
-                                id="cart-customer-search" 
-                                oninput="filterCartCustomerDropdown(this.value)" 
-                                placeholder="Cari No. Member / Nama / No. HP..." 
-                                class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                id="search-input"
+                                onkeyup="handleSearch(event)"
+                                placeholder="Cari nama produk, SKU, brand, barcode (Tekan Enter)..." 
+                                class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                             >
                         </div>
-                        <div class="flex items-center gap-2 text-xs">
-                            <i class="fa-solid fa-id-card text-blue-500"></i>
-                            <select id="cart-customer-select" onchange="onSelectCustomerForCart()" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
-                                <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
-                            </select>
+                        <button 
+                            onclick="openCameraScanner()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>SCAN</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs shrink-0" id="category-pills">
+                    </div>
+
+                    <div class="flex justify-between items-center px-1">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider">Katalog Produk</h2>
+                            <span id="product-count" class="text-[11px] font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full border border-blue-100">0 Produk</span>
                         </div>
                     </div>
 
-                    <!-- MULTI-VOUCHER DROPDOWN SELECTOR -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
-                            <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Pilih Voucher / Promo</span>
+                    <div id="product-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 p-1">
+                    </div>
+                </section>
+
+                <!-- CART SECTION -->
+                <section id="pos-cart-section" class="hidden md:flex w-full md:w-80 lg:w-96 bg-slate-50 flex-col h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0">
+                    <div class="p-3 bg-slate-800 text-white flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-cart-shopping text-blue-400"></i>
+                            <h2 class="font-bold text-sm">Keranjang Belanja</h2>
                         </div>
-                        <div class="flex gap-1.5">
-                            <select id="cart-voucher-dropdown" onchange="applyDropdownVoucher(this)" class="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="">-- Pilih Voucher / Promo --</option>
-                            </select>
+                        <button onclick="clearCart()" class="text-xs text-red-300 hover:text-red-100 flex items-center gap-1 bg-red-900/40 px-2 py-1 rounded-lg border border-red-700/50">
+                            <i class="fa-solid fa-trash text-[10px]"></i> Kosongkan
+                        </button>
+                    </div>
+
+                    <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-2">
+                        <!-- SEARCH MEMBER & SELECT MEMBER -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2 text-xs">
+                                <i class="fa-solid fa-magnifying-glass text-blue-500"></i>
+                                <input 
+                                    type="text" 
+                                    id="cart-customer-search" 
+                                    oninput="filterCartCustomerDropdown(this.value)" 
+                                    placeholder="Cari No. Member / Nama / No. HP..." 
+                                    class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                >
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <i class="fa-solid fa-id-card text-blue-500"></i>
+                                <select id="cart-customer-select" onchange="onSelectCustomerForCart()" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                    <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <!-- APPLIED VOUCHERS BADGES CONTAINER (MULTI) -->
-                        <div id="applied-vouchers-container" class="space-y-1 pt-1 hidden">
+                        <!-- MULTI-VOUCHER DROPDOWN SELECTOR -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                                <span><i class="fa-solid fa-tags text-indigo-500 mr-1"></i> Pilih Voucher / Promo</span>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <select id="cart-voucher-dropdown" onchange="applyDropdownVoucher(this)" class="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    <option value="">-- Pilih Voucher / Promo --</option>
+                                </select>
+                            </div>
+
+                            <!-- APPLIED VOUCHERS BADGES CONTAINER (MULTI) -->
+                            <div id="applied-vouchers-container" class="space-y-1 pt-1 hidden">
+                            </div>
+                        </div>
+
+                        <div id="birthday-alert-banner" class="hidden bg-pink-100 border border-pink-300 text-pink-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 animate-bounce">
+                            <i class="fa-solid fa-cake-candles text-pink-500"></i>
+                            <span>Hari ini Ulang Tahun Pelanggan! 🎂</span>
                         </div>
                     </div>
 
-                    <div id="birthday-alert-banner" class="hidden bg-pink-100 border border-pink-300 text-pink-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 animate-bounce">
-                        <i class="fa-solid fa-cake-candles text-pink-500"></i>
-                        <span>Hari ini Ulang Tahun Pelanggan! 🎂</span>
-                    </div>
-                </div>
-
-                <!-- CART ITEMS LIST -->
-                <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-100 bg-white min-h-[140px]">
-                </div>
-
-                <!-- CART FOOTER WITH SEPARATED DISCOUNTS -->
-                <div class="p-4 bg-slate-100 border-t border-slate-200 space-y-2 shadow-lg">
-                    <div class="flex justify-between text-xs text-slate-600">
-                        <span>Subtotal Sebelum Diskon</span>
-                        <span id="cart-subtotal" class="font-bold text-slate-800">Rp 0</span>
-                    </div>
-                    
-                    <div id="row-category-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span class="text-slate-500">└ Diskon Otomatis Kategori / Produk</span>
-                        <span id="cart-category-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
+                    <!-- CART ITEMS LIST -->
+                    <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-100 bg-white min-h-[140px]">
                     </div>
 
-                    <div class="flex justify-between text-xs text-slate-600 items-center">
-                        <div class="flex items-center gap-1.5">
-                            <span>Diskon Manual</span>
-                            <select id="cart-discount-type" onchange="calculateCartTotals()" class="bg-white border border-slate-300 rounded text-[10px] px-1 py-0.5 font-bold focus:outline-none">
-                                <option value="percentage">%</option>
-                                <option value="fixed">Rp</option>
-                            </select>
+                    <!-- CART FOOTER WITH SEPARATED DISCOUNTS -->
+                    <div class="p-4 bg-slate-100 border-t border-slate-200 space-y-2 shadow-lg">
+                        <div class="flex justify-between text-xs text-slate-600">
+                            <span>Subtotal Sebelum Diskon</span>
+                            <span id="cart-subtotal" class="font-bold text-slate-800">Rp 0</span>
                         </div>
-                        <input 
-                            type="number" 
-                            id="cart-discount-input" 
-                            value="0" 
-                            min="0" 
-                            onchange="calculateCartTotals()" 
-                            onkeyup="calculateCartTotals()"
-                            class="w-24 text-right text-xs py-0.5 px-1 bg-white border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        >
-                    </div>
-                    
-                    <div id="row-manual-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span class="pl-2 text-[11px] text-slate-500">└ Potongan Manual</span>
-                        <span id="cart-manual-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
-                    </div>
+                        
+                        <div id="row-category-discount" class="hidden flex justify-between text-xs text-slate-600">
+                            <span class="text-slate-500">└ Diskon Otomatis Kategori / Produk</span>
+                            <span id="cart-category-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
+                        </div>
 
-                    <div id="row-vip-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span>└ Diskon Member VIP (5%)</span>
-                        <span id="cart-vip-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
-                    </div>
+                        <div class="flex justify-between text-xs text-slate-600 items-center">
+                            <div class="flex items-center gap-1.5">
+                                <span>Diskon Manual</span>
+                                <select id="cart-discount-type" onchange="calculateCartTotals()" class="bg-white border border-slate-300 rounded text-[10px] px-1 py-0.5 font-bold focus:outline-none">
+                                    <option value="percentage">%</option>
+                                    <option value="fixed">Rp</option>
+                                </select>
+                            </div>
+                            <input 
+                                type="number" 
+                                id="cart-discount-input" 
+                                value="0" 
+                                min="0" 
+                                onchange="calculateCartTotals()" 
+                                onkeyup="calculateCartTotals()"
+                                class="w-24 text-right text-xs py-0.5 px-1 bg-white border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            >
+                        </div>
+                        
+                        <div id="row-manual-discount" class="hidden flex justify-between text-xs text-slate-600">
+                            <span class="pl-2 text-[11px] text-slate-500">└ Potongan Manual</span>
+                            <span id="cart-manual-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
+                        </div>
 
-                    <div id="row-voucher-discount" class="hidden flex justify-between text-xs text-slate-600">
-                        <span>└ Diskon Voucher (<span id="cart-voucher-code-label">KODE</span>)</span>
-                        <span id="cart-voucher-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
-                    </div>
+                        <div id="row-vip-discount" class="hidden flex justify-between text-xs text-slate-600">
+                            <span>└ Diskon Member VIP (5%)</span>
+                            <span id="cart-vip-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
+                        </div>
 
-                    <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
-                        <span class="text-sm font-extrabold text-slate-900">Total Akhir</span>
-                        <span id="cart-grand-total" class="text-xl font-black text-blue-600">Rp 0</span>
-                    </div>
+                        <div id="row-voucher-discount" class="hidden flex justify-between text-xs text-slate-600">
+                            <span>└ Diskon Voucher (<span id="cart-voucher-code-label">KODE</span>)</span>
+                            <span id="cart-voucher-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
+                        </div>
 
-                    <button 
-                        id="btn-checkout" 
-                        onclick="openPaymentModal()" 
-                        disabled 
-                        class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
-                        <i class="fa-solid fa-money-bill-wave"></i>
-                        <span>PROSES PEMBAYARAN</span>
-                    </button>
-                </div>
-            </section>
+                        <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
+                            <span class="text-sm font-extrabold text-slate-900">Total Akhir</span>
+                            <span id="cart-grand-total" class="text-xl font-black text-blue-600">Rp 0</span>
+                        </div>
+
+                        <button 
+                            id="btn-checkout" 
+                            onclick="openPaymentModal()" 
+                            disabled 
+                            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <span>PROSES PEMBAYARAN</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
         </div>
 
         <!-- PRODUCTS VIEW WITH FULL BARCODE COLUMN -->
@@ -1097,6 +1112,7 @@
         let bluetoothDevice = null;
         let bluetoothCharacteristic = null;
         let currentTransactionRecord = null;
+        let currentMobilePosTab = 'catalog';
 
         const defaultAccounts = [
             { username: 'admin', name: 'Owner / Admin', role: 'admin', pin: '1234' },
@@ -1146,6 +1162,30 @@
             renderHistoryTable();
             initCharts();
         });
+
+        function switchMobilePosTab(tab) {
+            currentMobilePosTab = tab;
+            const catalogSec = document.getElementById('pos-catalog-section');
+            const cartSec = document.getElementById('pos-cart-section');
+            const btnCat = document.getElementById('mob-tab-catalog');
+            const btnCart = document.getElementById('mob-tab-cart');
+
+            if (tab === 'catalog') {
+                catalogSec.classList.remove('hidden');
+                catalogSec.classList.add('flex');
+                cartSec.classList.add('hidden');
+                cartSec.classList.remove('flex');
+                btnCat.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5';
+                btnCart.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5';
+            } else {
+                catalogSec.classList.add('hidden');
+                catalogSec.classList.remove('flex');
+                cartSec.classList.remove('hidden');
+                cartSec.classList.add('flex');
+                btnCart.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5';
+                btnCat.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5';
+            }
+        }
 
         function showNotification(message, type = 'info') {
             const container = document.getElementById('toast-container');
@@ -1742,6 +1782,11 @@
         function renderCartItems() {
             const container = document.getElementById('cart-items');
             if (!container) return;
+
+            const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
+            const mobCountEl = document.getElementById('mob-cart-count');
+            if (mobCountEl) mobCountEl.innerText = totalItemsCount;
+
             if (cart.length === 0) {
                 container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-cart-flatbed text-2xl mb-2 block"></i>Keranjang belanja kosong</div>`;
                 return;
