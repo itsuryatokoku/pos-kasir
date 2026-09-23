@@ -228,6 +228,7 @@
                     </div>
                 </section>
 
+                <!-- CART SECTION -->
                 <section id="pos-cart-section" class="hidden md:flex w-full md:w-80 lg:w-96 bg-slate-50 flex-col h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0 min-h-0">
                     <div class="p-3 bg-slate-800 text-white flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-2">
@@ -350,6 +351,7 @@
             </div>
         </div>
 
+        <!-- PRODUCTS VIEW -->
         <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -409,6 +411,7 @@
             </div>
         </div>
 
+        <!-- CUSTOMERS VIEW -->
         <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -454,6 +457,7 @@
             </div>
         </div>
 
+        <!-- VOUCHERS VIEW -->
         <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -499,6 +503,7 @@
             </div>
         </div>
 
+        <!-- HISTORY VIEW -->
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -555,6 +560,7 @@
             </div>
         </div>
 
+        <!-- SETTINGS VIEW -->
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir</h2>
@@ -1132,6 +1138,497 @@
             return Math.ceil(num);
         }
 
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgColors = {
+                success: 'bg-emerald-600 text-white',
+                error: 'bg-red-600 text-white',
+                info: 'bg-blue-600 text-white',
+                warning: 'bg-amber-500 text-white'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-triangle-exclamation',
+                info: 'fa-circle-info',
+                warning: 'fa-bell'
+            };
+            toast.className = 'px-4 py-2.5 rounded-xl shadow-lg text-xs font-bold flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 ' + (bgColors[type] || bgColors.info) + ' pointer-events-auto';
+            toast.innerHTML = '<i class="fa-solid ' + (icons[type] || icons.info) + '"></i><span>' + message + '</span>';
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function loadSavedStoreSettings() {
+            const storeName = localStorage.getItem('pos_store_name') || 'MY KSR';
+            const storeSub = localStorage.getItem('pos_store_sub') || 'Sistem Kasir Cloud & Multi-Criteria BOGO';
+            const receiptFooter = localStorage.getItem('pos_receipt_footer') || 'Terima kasih telah berbelanja di MY KSR!';
+            const supaUrl = localStorage.getItem('pos_supabase_url') || '';
+            const supaKey = localStorage.getItem('pos_supabase_key') || '';
+
+            const elName = document.getElementById('header-store-name');
+            const elSub = document.getElementById('header-store-sub');
+            const recName = document.getElementById('rec-store-name');
+            const recSub = document.getElementById('rec-store-sub');
+            const recFoot = document.getElementById('rec-footer-text');
+
+            if (elName) elName.innerText = storeName;
+            if (elSub) elSub.innerText = storeSub;
+            if (recName) recName.innerText = storeName;
+            if (recSub) recSub.innerText = storeSub;
+            if (recFoot) recFoot.innerText = receiptFooter;
+
+            const inputName = document.getElementById('setting-store-name');
+            const inputSub = document.getElementById('setting-store-sub');
+            const inputFoot = document.getElementById('setting-receipt-footer');
+            const inputUrl = document.getElementById('setting-supabase-url');
+            const inputKey = document.getElementById('setting-supabase-key');
+
+            if (inputName) inputName.value = storeName;
+            if (inputSub) inputSub.value = storeSub;
+            if (inputFoot) inputFoot.value = receiptFooter;
+            if (inputUrl) inputUrl.value = supaUrl;
+            if (inputKey) inputKey.value = supaKey;
+        }
+
+        function saveStoreSettings() {
+            const name = document.getElementById('setting-store-name').value;
+            const sub = document.getElementById('setting-store-sub').value;
+            const foot = document.getElementById('setting-receipt-footer').value;
+
+            localStorage.setItem('pos_store_name', name);
+            localStorage.setItem('pos_store_sub', sub);
+            localStorage.setItem('pos_receipt_footer', foot);
+
+            loadSavedStoreSettings();
+            showNotification("Identitas Toko Berhasil Disimpan!", "success");
+        }
+
+        function saveSupabaseSettings() {
+            const url = document.getElementById('setting-supabase-url').value.trim();
+            const key = document.getElementById('setting-supabase-key').value.trim();
+
+            localStorage.setItem('pos_supabase_url', url);
+            localStorage.setItem('pos_supabase_key', key);
+
+            initSupabaseClient();
+            showNotification("Pengaturan Supabase Disimpan & Menghubungkan Cloud...", "success");
+        }
+
+        function initSupabaseClient() {
+            const url = localStorage.getItem('pos_supabase_url') || '';
+            const key = localStorage.getItem('pos_supabase_key') || '';
+
+            if (url && key && window.supabase) {
+                try {
+                    supabaseClient = window.supabase.createClient(url, key);
+                    showNotification("Terhubung ke Supabase Cloud Database!", "success");
+                } catch(e) {
+                    console.error("Inisialisasi Supabase Gagal:", e);
+                }
+            }
+        }
+
+        function saveLocalStorageData() {
+            try {
+                localStorage.setItem('pos_products', JSON.stringify(products));
+                localStorage.setItem('pos_customers', JSON.stringify(customers));
+                localStorage.setItem('pos_transactions', JSON.stringify(transactions));
+                localStorage.setItem('pos_vouchers', JSON.stringify(vouchers));
+            } catch(e) {
+                console.error("Gagal menyimpan local storage:", e);
+            }
+        }
+
+        function generateUUID() {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function fetchUsersFromSupabase() {
+            userAccounts = [...defaultAccounts];
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('users').select('*');
+                    if (!error && Array.isArray(data) && data.length > 0) {
+                        userAccounts = data;
+                    }
+                } catch(e) {
+                    console.error("Fetch users error:", e);
+                }
+            }
+            populateLoginUserDropdown();
+        }
+
+        function populateLoginUserDropdown() {
+            const select = document.getElementById('login-username');
+            if (!select) return;
+            select.innerHTML = userAccounts.map(u => 
+                '<option value="' + u.username + '">' + u.name + ' (' + u.role.toUpperCase() + ')</option>'
+            ).join('');
+        }
+
+        function initAuthSystem() {
+            const savedUser = localStorage.getItem('pos_active_user');
+            if (savedUser) {
+                try {
+                    activeUser = JSON.parse(savedUser);
+                    updateUserDisplay();
+                } catch(e) {
+                    activeUser = defaultAccounts[0];
+                    updateUserDisplay();
+                }
+            } else {
+                activeUser = defaultAccounts[0];
+                updateUserDisplay();
+            }
+        }
+
+        function updateUserDisplay() {
+            if (!activeUser) activeUser = defaultAccounts[0];
+            const nameEl = document.getElementById('user-display-name');
+            const roleEl = document.getElementById('user-display-role');
+            if (nameEl) nameEl.innerText = activeUser.name;
+            if (roleEl) roleEl.innerText = activeUser.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
+
+            currentRole = activeUser.role;
+
+            document.querySelectorAll('.nav-admin-only').forEach(el => {
+                if (currentRole === 'admin') {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function openLoginModal() {
+            populateLoginUserDropdown();
+            document.getElementById('login-pin').value = '';
+            document.getElementById('login-error-msg').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const pin = document.getElementById('login-pin').value;
+
+            const found = userAccounts.find(u => u.username === username && u.pin === pin);
+            if (found) {
+                activeUser = found;
+                localStorage.setItem('pos_active_user', JSON.stringify(activeUser));
+                updateUserDisplay();
+                closeLoginModal();
+                showNotification("Selamat datang kembali, " + found.name + "!", "success");
+                window.location.hash = '#pos';
+                handleNavigation();
+            } else {
+                document.getElementById('login-error-msg').classList.remove('hidden');
+            }
+        }
+
+        function appendPin(digit) {
+            const input = document.getElementById('login-pin');
+            if (input.value.length < 6) input.value += digit;
+        }
+
+        function clearPin() {
+            document.getElementById('login-pin').value = '';
+        }
+
+        function deletePin() {
+            const input = document.getElementById('login-pin');
+            input.value = input.value.slice(0, -1);
+        }
+
+        function openStoreModal() {
+            window.location.hash = '#settings';
+            handleNavigation();
+        }
+
+        function changeBranch() {
+            currentBranch = document.getElementById('branch-select').value;
+            showNotification("Pindah ke " + currentBranch, "info");
+        }
+
+        function setupHashNavigation() {
+            window.addEventListener('hashchange', handleNavigation);
+            handleNavigation();
+        }
+
+        function isVoucherDateValid(v) {
+            const today = new Date().toISOString().slice(0, 10);
+            if (v.valid_from && today < v.valid_from) return false;
+            if (v.valid_until && today > v.valid_until) return false;
+            return true;
+        }
+
+        function productMatchesVoucherTarget(product, v) {
+            if (!product) return false;
+            if (v.target_category && v.target_category !== 'Semua' && product.category !== v.target_category) return false;
+            if (v.target_brand && v.target_brand !== 'Semua' && product.brand !== v.target_brand) return false;
+            if (v.target_family && v.target_family !== 'Semua' && product.family !== v.target_family) return false;
+            if (v.target_promo && v.target_promo !== 'Semua' && product.promo !== v.target_promo) return false;
+            return true;
+        }
+
+        function getActiveDiscountForProduct(product) {
+            if (!product) return null;
+            return vouchers.find(v => {
+                if (!v.is_active) return false;
+                if (!isVoucherDateValid(v)) return false;
+                return productMatchesVoucherTarget(product, v);
+            }) || null;
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('category-pills');
+            if (!container) return;
+            const categories = ['Semua', ...new Set(products.map(p => p.category || 'Umum'))];
+
+            container.innerHTML = categories.map(cat => {
+                const activeClass = cat === selectedCategory ? 'bg-blue-600 text-white font-bold shadow' : 'bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200';
+                return '<button onclick="selectCategory(\'' + cat + '\')" class="px-3 py-1.5 rounded-xl whitespace-nowrap transition ' + activeClass + '">' + cat + '</button>';
+            }).join('');
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            renderCategories();
+            renderProductGrid(document.getElementById('search-input')?.value || '');
+        }
+
+        function handleSearch(e) {
+            renderProductGrid(e.target.value);
+        }
+
+        function switchMobilePosTab(tab) {
+            currentMobilePosTab = tab;
+            const catSec = document.getElementById('pos-catalog-section');
+            const cartSec = document.getElementById('pos-cart-section');
+            const tabCatBtn = document.getElementById('mob-tab-catalog');
+            const tabCartBtn = document.getElementById('mob-tab-cart');
+
+            if (tab === 'catalog') {
+                if (catSec) { catSec.classList.remove('hidden'); catSec.classList.add('flex'); }
+                if (cartSec) { cartSec.classList.add('hidden'); cartSec.classList.remove('flex'); }
+                if (tabCatBtn) { tabCatBtn.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5'; }
+                if (tabCartBtn) { tabCartBtn.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5'; }
+            } else {
+                if (catSec) { catSec.classList.add('hidden'); catSec.classList.remove('flex'); }
+                if (cartSec) { cartSec.classList.remove('hidden'); cartSec.classList.add('flex'); }
+                if (tabCatBtn) { tabCatBtn.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5'; }
+                if (tabCartBtn) { tabCartBtn.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5'; }
+            }
+        }
+
+        async function syncWithSupabase() {
+            const icon = document.getElementById('sync-icon');
+            if (icon) icon.classList.add('fa-spin');
+
+            if (!supabaseClient) {
+                initSupabaseClient();
+            }
+
+            if (!supabaseClient) {
+                if (icon) icon.classList.remove('fa-spin');
+                showNotification("Supabase belum dikonfigurasi. Menggunakan penyimpanan lokal.", "warning");
+                return;
+            }
+
+            try {
+                const { data: prodData } = await supabaseClient.from('products').select('*');
+                if (Array.isArray(prodData) && prodData.length > 0) products = prodData;
+
+                const { data: custData } = await supabaseClient.from('customers').select('*');
+                if (Array.isArray(custData) && custData.length > 0) customers = custData;
+
+                const { data: vouchData } = await supabaseClient.from('vouchers').select('*');
+                if (Array.isArray(vouchData) && vouchData.length > 0) vouchers = vouchData;
+
+                const { data: txData } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
+                if (Array.isArray(txData)) transactions = txData;
+
+                saveLocalStorageData();
+                renderCategories();
+                renderProductGrid();
+                renderAdminProductsTable();
+                renderCustomersTable();
+                renderVouchersTable();
+                renderHistoryTable();
+                updateCharts();
+
+                showNotification("Sinkronisasi Cloud Berhasil!", "success");
+            } catch(e) {
+                console.error("Sync error:", e);
+                showNotification("Gagal sinkronisasi data cloud.", "error");
+            } finally {
+                if (icon) icon.classList.remove('fa-spin');
+            }
+        }
+
+        async function connectBluetoothPrinter() {
+            if (!navigator.bluetooth) {
+                showNotification("Browser tidak mendukung Web Bluetooth. Gunakan Print Manual.", "error");
+                return;
+            }
+
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [
+                        '000018f0-0000-1000-8000-00805f9b34fb',
+                        '0000ffe0-0000-1000-8000-00805f9b34fb',
+                        '49535343-fe7d-4113-a791-4e1e5b801a2d'
+                    ]
+                });
+
+                const server = await device.gatt.connect();
+                bluetoothDevice = device;
+
+                let service = null;
+                const knownServices = [
+                    '000018f0-0000-1000-8000-00805f9b34fb',
+                    '0000ffe0-0000-1000-8000-00805f9b34fb',
+                    '49535343-fe7d-4113-a791-4e1e5b801a2d'
+                ];
+
+                for (const sUuid of knownServices) {
+                    try {
+                        service = await server.getPrimaryService(sUuid);
+                        if (service) break;
+                    } catch(e) {}
+                }
+
+                if (!service) {
+                    const services = await server.getPrimaryServices();
+                    if (services.length > 0) service = services[0];
+                }
+
+                if (service) {
+                    const characteristics = await service.getCharacteristics();
+                    bluetoothCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse) || characteristics[0];
+                    
+                    const statusEl = document.getElementById('bt-printer-status');
+                    if (statusEl) statusEl.innerText = device.name || 'BT Terhubung';
+                    showNotification("Printer Bluetooth " + (device.name || 'BT') + " Terhubung!", "success");
+                }
+            } catch(err) {
+                console.error("Bluetooth connection error:", err);
+                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Thermal/Manual.", "error");
+            }
+        }
+
+        async function handleThermalPrintAction() {
+            if (bluetoothCharacteristic && currentTransactionRecord) {
+                try {
+                    await printThermalViaBluetooth(currentTransactionRecord);
+                    showNotification("Berhasil mencetak via Bluetooth Thermal!", "success");
+                    return;
+                } catch(e) {
+                    console.error("Direct BT Print Error:", e);
+                    showNotification("Cetak Bluetooth gagal, dialihkan ke driver printer sistem.", "warning");
+                }
+            }
+            window.print();
+        }
+
+        async function printThermalViaBluetooth(tx) {
+            if (!bluetoothCharacteristic) throw new Error("Printer tidak terhubung");
+
+            const encoder = new TextEncoder();
+            const ESC = '\x1B';
+
+            let commands = '';
+            commands += ESC + '@';
+            commands += ESC + 'a' + '\x01';
+            commands += ESC + '!' + '\x38';
+            commands += (document.getElementById('header-store-name')?.innerText || 'MY KSR') + '\n';
+            commands += ESC + '!' + '\x00';
+            commands += (document.getElementById('header-store-sub')?.innerText || 'POS Kasir Cloud') + '\n';
+            commands += '--------------------------------\n';
+            commands += ESC + 'a' + '\x00';
+
+            commands += 'No. Nota: ' + tx.id + '\n';
+            commands += 'Tanggal : ' + new Date(tx.created_at).toLocaleString('id-ID') + '\n';
+            commands += 'Kasir   : ' + tx.cashier + '\n';
+            commands += 'Pelangg : ' + tx.customer_name + '\n';
+            commands += '--------------------------------\n';
+
+            tx.items.forEach(item => {
+                commands += item.name + '\n';
+                const itemLine = item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID');
+                const totalLine = 'Rp ' + roundPrice(item.qty * item.price).toLocaleString('id-ID');
+                commands += padRow(itemLine, totalLine, 32) + '\n';
+                if (item.item_discount && item.item_discount > 0) {
+                    const discLine = '  Diskon Item:';
+                    const discVal = '- Rp ' + roundPrice(item.item_discount).toLocaleString('id-ID');
+                    commands += padRow(discLine, discVal, 32) + '\n';
+                }
+            });
+
+            commands += '--------------------------------\n';
+            commands += padRow('Subtotal:', 'Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID'), 32) + '\n';
+
+            if (tx.category_discount > 0) {
+                commands += padRow('Diskon Produk:', '- Rp ' + roundPrice(tx.category_discount).toLocaleString('id-ID'), 32) + '\n';
+            }
+            if (tx.manual_discount > 0) {
+                commands += padRow('Diskon Manual:', '- Rp ' + roundPrice(tx.manual_discount).toLocaleString('id-ID'), 32) + '\n';
+            }
+            if (tx.vip_discount > 0) {
+                commands += padRow('Diskon Member:', '- Rp ' + roundPrice(tx.vip_discount).toLocaleString('id-ID'), 32) + '\n';
+            }
+            if (tx.voucher_discount > 0) {
+                const vCodes = Array.isArray(tx.voucher_codes) ? tx.voucher_codes.join(',') : (tx.voucher_codes || '');
+                commands += padRow('Diskon Voucher (' + vCodes + '):', '- Rp ' + roundPrice(tx.voucher_discount).toLocaleString('id-ID'), 32) + '\n';
+            }
+
+            commands += ESC + '!' + '\x08';
+            commands += padRow('TOTAL:', 'Rp ' + roundPrice(tx.total).toLocaleString('id-ID'), 32) + '\n';
+            commands += ESC + '!' + '\x00';
+            commands += padRow('Bayar:', 'Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID'), 32) + '\n';
+            commands += padRow('Kembali:', 'Rp ' + roundPrice(tx.change).toLocaleString('id-ID'), 32) + '\n';
+            commands += '--------------------------------\n';
+            commands += ESC + 'a' + '\x01';
+            commands += (document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja!') + '\n\n\n\n';
+
+            const bytes = encoder.encode(commands);
+            const chunkSize = 20;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                const chunk = bytes.subarray(i, i + chunkSize);
+                if (bluetoothCharacteristic.writeValueWithoutResponse) {
+                    await bluetoothCharacteristic.writeValueWithoutResponse(chunk);
+                } else {
+                    await bluetoothCharacteristic.writeValue(chunk);
+                }
+                await new Promise(r => setTimeout(r, 20));
+            }
+        }
+
+        function padRow(left, right, width = 32) {
+            const space = width - left.length - right.length;
+            if (space <= 0) return left + ' ' + right;
+            return left + ' '.repeat(space) + right;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             loadSavedStoreSettings();
             initSupabaseClient();
@@ -1139,6 +1636,7 @@
             await fetchUsersFromSupabase();
             initAuthSystem();
             setupHashNavigation();
+            switchMobilePosTab('catalog');
             renderCategories();
             renderProductGrid();
             renderCartItems();
@@ -1151,476 +1649,41 @@
             initCharts();
         });
 
-        function switchMobilePosTab(tab) {
-            currentMobilePosTab = tab;
-            const catalogSec = document.getElementById('pos-catalog-section');
-            const cartSec = document.getElementById('pos-cart-section');
-            const btnCat = document.getElementById('mob-tab-catalog');
-            const btnCart = document.getElementById('mob-tab-cart');
-
-            if (tab === 'catalog') {
-                catalogSec.classList.remove('hidden');
-                catalogSec.classList.add('flex');
-                cartSec.classList.add('hidden');
-                cartSec.classList.remove('flex');
-                btnCat.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5';
-                btnCart.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5';
-            } else {
-                catalogSec.classList.add('hidden');
-                catalogSec.classList.remove('flex');
-                cartSec.classList.remove('hidden');
-                cartSec.classList.add('flex');
-                btnCart.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5';
-                btnCat.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5';
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-red-600 text-white' : 'bg-slate-800 text-white';
-            toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold pointer-events-auto transition transform translate-y-2 opacity-0 duration-300 flex items-center gap-2`;
-            
-            const iconClass = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info';
-            toast.innerHTML = '<i class="fa-solid ' + iconClass + '"></i><span>' + message + '</span>';
-            
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-            setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        function loadSavedStoreSettings() {
-            const name = localStorage.getItem('pos_store_name');
-            const sub = localStorage.getItem('pos_store_sub');
-            const footer = localStorage.getItem('pos_receipt_footer');
-            const branch = localStorage.getItem('pos_current_branch');
-
-            if (name) {
-                document.getElementById('header-store-name').innerText = name;
-                document.getElementById('setting-store-name').value = name;
-                document.getElementById('rec-store-name').innerText = name;
-            }
-            if (sub) {
-                document.getElementById('header-store-sub').innerText = sub;
-                document.getElementById('setting-store-sub').value = sub;
-                document.getElementById('rec-store-sub').innerText = sub;
-            }
-            if (footer) {
-                document.getElementById('setting-receipt-footer').value = footer;
-                document.getElementById('rec-footer-text').innerText = footer;
-            }
-            if (branch) {
-                currentBranch = branch;
-                const branchSelect = document.getElementById('branch-select');
-                if (branchSelect) branchSelect.value = branch;
-            }
-        }
-
-        function saveStoreSettings() {
-            const name = document.getElementById('setting-store-name').value;
-            const sub = document.getElementById('setting-store-sub').value;
-            const footer = document.getElementById('setting-receipt-footer').value;
-
-            localStorage.setItem('pos_store_name', name);
-            localStorage.setItem('pos_store_sub', sub);
-            localStorage.setItem('pos_receipt_footer', footer);
-
-            document.getElementById('header-store-name').innerText = name || 'MY KSR';
-            document.getElementById('header-store-sub').innerText = sub || 'Sistem Kasir Cloud';
-            document.getElementById('rec-store-name').innerText = name || 'MY KSR';
-            document.getElementById('rec-store-sub').innerText = sub || 'POS Kasir & Cloud Sync';
-            document.getElementById('rec-footer-text').innerText = footer || 'Terima kasih telah berbelanja di MY KSR!';
-            showNotification("Identitas toko berhasil disimpan!", "success");
-        }
-
-        function saveSupabaseSettings() {
-            const url = document.getElementById('setting-supabase-url').value.trim();
-            const key = document.getElementById('setting-supabase-key').value.trim();
-
-            localStorage.setItem('supabase_url', url);
-            localStorage.setItem('supabase_key', key);
-
-            initSupabaseClient();
-            showNotification("Konfigurasi Supabase disimpan!", "success");
-        }
-
-        async function connectBluetoothPrinter() {
-            if (!navigator.bluetooth) {
-                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Manual.", "info");
-                return;
-            }
-            try {
-                const statusEl = document.getElementById('bt-printer-status');
-                if (statusEl) statusEl.innerText = 'Mencari...';
-                
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: [
-                        '000018f0-0000-1000-8000-00805f9b34fb', 
-                        '0000ffe0-0000-1000-8000-00805f9b34fb', 
-                        '0000ff00-0000-1000-8000-00805f9b34fb',
-                        '49535343-fe7d-4ae5-8fa9-9fafd205e465'
-                    ]
-                });
-                bluetoothDevice = device;
-                device.addEventListener('gattserverdisconnected', onBluetoothDisconnected);
-
-                const server = await device.gatt.connect();
-                let foundChar = null;
-                const services = await server.getPrimaryServices();
-                for (const service of services) {
-                    try {
-                        const characteristics = await service.getCharacteristics();
-                        for (const char of characteristics) {
-                            if (char.properties.write || char.properties.writeWithoutResponse) {
-                                foundChar = char;
-                                break;
-                            }
-                        }
-                    } catch(err) {
-                        console.warn("Could not get characteristics for service", service.uuid);
-                    }
-                    if (foundChar) break;
-                }
-
-                if (!foundChar) {
-                    throw new Error("Karakteristik printer tulis (writable) tidak ditemukan pada perangkat.");
-                }
-
-                bluetoothCharacteristic = foundChar;
-                if (statusEl) statusEl.innerText = device.name || 'BT Terhubung';
-                showNotification("Printer Bluetooth berhasil terhubung!", "success");
-            } catch (e) {
-                console.warn('Bluetooth connection error:', e);
-                const statusEl = document.getElementById('bt-printer-status');
-                if (statusEl) statusEl.innerText = 'Print Manual';
-                showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Manual.", "info");
-            }
-        }
-
-        function onBluetoothDisconnected() {
-            bluetoothCharacteristic = null;
-            bluetoothDevice = null;
-            const btnStatus = document.getElementById('bt-printer-status');
-            if (btnStatus) btnStatus.innerText = 'BT Terputus';
-            showNotification("Printer Bluetooth terputus.", "info");
-        }
-
-        async function handleThermalPrintAction() {
-            if (bluetoothCharacteristic && bluetoothDevice && bluetoothDevice.gatt.connected) {
-                await printBluetoothReceipt(currentTransactionRecord);
-            } else {
-                printReceipt();
-            }
-        }
-
-        async function printBluetoothReceipt(tx) {
-            if (!bluetoothCharacteristic || !bluetoothDevice || !bluetoothDevice.gatt.connected) {
-                printReceipt();
-                return;
-            }
-            try {
-                const encoder = new TextEncoder();
-                const commands = [];
-                commands.push(new Uint8Array([0x1B, 0x40])); // Init
-                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
-
-                const storeName = document.getElementById('header-store-name').innerText || 'MY KSR';
-                const storeSub = document.getElementById('header-store-sub').innerText || 'POS Kasir & Cloud Sync';
-
-                commands.push(encoder.encode(storeName + '\n' + storeSub + '\n--------------------------------\n'));
-                commands.push(new Uint8Array([0x1B, 0x61, 0x00])); // Left
-                commands.push(encoder.encode('No. Nota  : ' + tx.id + '\n'));
-                commands.push(encoder.encode('Tanggal   : ' + new Date(tx.created_at).toLocaleString('id-ID') + '\n'));
-                commands.push(encoder.encode('Kasir     : ' + tx.cashier + '\n'));
-                commands.push(encoder.encode('Pelanggan : ' + tx.customer_name + '\n'));
-                commands.push(encoder.encode('--------------------------------\n'));
-
-                tx.items.forEach(item => {
-                    const itemTotal = item.qty * item.price;
-                    commands.push(encoder.encode(item.name + '\n'));
-                    commands.push(encoder.encode('  ' + item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID') + ' = Rp ' + roundPrice(itemTotal).toLocaleString('id-ID') + '\n'));
-                    if (item.item_discount && item.item_discount > 0) {
-                        const tagText = item.disc_title ? (' (' + item.disc_title + ')') : '';
-                        commands.push(encoder.encode('  Diskon Item' + tagText + ': - Rp ' + roundPrice(item.item_discount).toLocaleString('id-ID') + '\n'));
-                    }
-                });
-
-                commands.push(encoder.encode('--------------------------------\n'));
-                commands.push(encoder.encode('Subtotal      : Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID') + '\n'));
-                
-                if (tx.category_discount > 0) {
-                    commands.push(encoder.encode('Diskon Produk : - Rp ' + roundPrice(tx.category_discount).toLocaleString('id-ID') + '\n'));
-                }
-                if (tx.manual_discount > 0) {
-                    commands.push(encoder.encode('Diskon Manual : - Rp ' + roundPrice(tx.manual_discount).toLocaleString('id-ID') + '\n'));
-                }
-                if (tx.vip_discount > 0) {
-                    commands.push(encoder.encode('Diskon Member : - Rp ' + roundPrice(tx.vip_discount).toLocaleString('id-ID') + '\n'));
-                }
-                if (tx.voucher_discount > 0) {
-                    const codes = Array.isArray(tx.voucher_codes) ? tx.voucher_codes.join(', ') : (tx.voucher_codes || '');
-                    const codeText = codes ? (' (' + codes + ')') : '';
-                    commands.push(encoder.encode('Diskon Voucher' + codeText + ': - Rp ' + roundPrice(tx.voucher_discount).toLocaleString('id-ID') + '\n'));
-                } else if (tx.discount > 0 && !tx.category_discount && !tx.manual_discount && !tx.vip_discount) {
-                    commands.push(encoder.encode('Diskon        : - Rp ' + roundPrice(tx.discount).toLocaleString('id-ID') + '\n'));
-                }
-
-                commands.push(encoder.encode('TOTAL         : Rp ' + roundPrice(tx.total).toLocaleString('id-ID') + '\n'));
-                commands.push(encoder.encode('Bayar         : Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID') + '\n'));
-                commands.push(encoder.encode('Kembali       : Rp ' + roundPrice(tx.change).toLocaleString('id-ID') + '\n'));
-                commands.push(encoder.encode('--------------------------------\n'));
-                commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
-                const footerText = document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja di MY KSR!';
-                commands.push(encoder.encode(footerText + '\n\n\n'));
-                commands.push(new Uint8Array([0x1D, 0x56, 0x41, 0x00])); // Cut
-
-                for (let i = 0; i < commands.length; i++) {
-                    const cmd = commands[i];
-                    const chunkSize = 20; 
-                    for (let j = 0; j < cmd.length; j += chunkSize) {
-                        const chunk = cmd.slice(j, j + chunkSize);
-                        if (bluetoothCharacteristic.properties.writeWithoutResponse) {
-                            await bluetoothCharacteristic.writeValueWithoutResponse(chunk);
-                        } else {
-                            await bluetoothCharacteristic.writeValue(chunk);
-                        }
-                        await new Promise(r => setTimeout(r, 15));
-                    }
-                }
-                showNotification("Nota berhasil dicetak via Bluetooth!", "success");
-            } catch (err) {
-                console.error("Bluetooth print error:", err);
-                printReceipt();
-            }
-        }
-
-        function openConfigModal() { window.location.hash = '#settings'; }
-        function openStoreModal() { window.location.hash = '#settings'; }
-
-        function changeBranch() {
-            const branchSel = document.getElementById('branch-select');
-            if (branchSel) currentBranch = branchSel.value;
-            localStorage.setItem('pos_current_branch', currentBranch);
-            showNotification("Cabang diubah ke: " + currentBranch, "info");
-        }
-
-        function initSupabaseClient() {
-            const url = localStorage.getItem('supabase_url') || 'https://pftuivzghfscfczfckvd.supabase.co';
-            const key = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODQ0NjgsImV4cCI6MjA1NjU2MDQ2OH0.C83vJysq6_1u7aGj_t5WnOa63N2iK9s9lM0-86P0';
-            
-            const urlInput = document.getElementById('setting-supabase-url');
-            const keyInput = document.getElementById('setting-supabase-key');
-            if (urlInput) urlInput.value = url;
-            if (keyInput) keyInput.value = key;
-
-            if (url && key && window.supabase) {
-                try {
-                    supabaseClient = window.supabase.createClient(url, key);
-                    syncWithSupabase();
-                } catch(e) {
-                    console.error('Supabase connect error:', e);
-                }
-            }
-        }
-
-        async function fetchUsersFromSupabase() {
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient.from('users').select('*');
-                    if (!error && data && data.length > 0) {
-                        userAccounts = data;
-                        localStorage.setItem('pos_users', JSON.stringify(data));
-                        populateLoginDropdown(data);
-                        return;
-                    }
-                } catch(e) {
-                    console.error('Fetch users error:', e);
-                }
-            }
-            userAccounts = JSON.parse(localStorage.getItem('pos_users')) || defaultAccounts;
-            populateLoginDropdown(userAccounts);
-        }
-
-        function populateLoginDropdown(accounts) {
-            const select = document.getElementById('login-username');
-            if (!select) return;
-            select.innerHTML = accounts.map(acc => {
-                const icon = acc.role === 'admin' ? '👑' : '🛒';
-                return '<option value="' + acc.username + '">' + icon + ' ' + acc.name + ' (' + acc.username + ')</option>';
-            }).join('');
-        }
-
-        function initAuthSystem() {
-            const savedUser = localStorage.getItem('pos_active_user');
-            if (savedUser) {
-                try {
-                    activeUser = JSON.parse(savedUser);
-                    applyUserRolePermissions(activeUser);
-                } catch(e) {
-                    openLoginModal();
-                }
-            } else {
-                openLoginModal();
-            }
-        }
-
-        async function openLoginModal() {
-            const pinEl = document.getElementById('login-pin');
-            if (pinEl) pinEl.value = '';
-            const errEl = document.getElementById('login-error-msg');
-            if (errEl) errEl.classList.add('hidden');
-            await fetchUsersFromSupabase();
-            const modalEl = document.getElementById('login-modal');
-            if (modalEl) modalEl.classList.remove('hidden');
-        }
-
-        async function handleLoginSubmit(e) {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const pin = document.getElementById('login-pin').value;
-            const errorMsg = document.getElementById('login-error-msg');
-
-            let foundUser = null;
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('users')
-                        .select('*')
-                        .eq('username', username)
-                        .eq('pin', pin)
-                        .single();
-                    if (!error && data) foundUser = data;
-                } catch(err) {
-                    console.error('Supabase authentication error:', err);
-                }
-            }
-
-            if (!foundUser) {
-                foundUser = userAccounts.find(acc => acc.username === username && acc.pin === pin);
-            }
-
-            if (foundUser) {
-                activeUser = foundUser;
-                localStorage.setItem('pos_active_user', JSON.stringify(foundUser));
-                applyUserRolePermissions(foundUser);
-                const modalEl = document.getElementById('login-modal');
-                if (modalEl) modalEl.classList.add('hidden');
-                if (errorMsg) errorMsg.classList.add('hidden');
-                showNotification("Selamat datang, " + foundUser.name + "!", "success");
-            } else {
-                if (errorMsg) {
-                    errorMsg.innerText = 'PIN atau Akun tidak valid!';
-                    errorMsg.classList.remove('hidden');
-                }
-            }
-        }
-
-        function applyUserRolePermissions(user) {
-            currentRole = user.role;
-            const nameEl = document.getElementById('user-display-name');
-            const roleEl = document.getElementById('user-display-role');
-            if (nameEl) nameEl.innerText = user.name;
-            if (roleEl) roleEl.innerText = user.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
-
-            const adminNavs = document.querySelectorAll('.nav-admin-only');
-            adminNavs.forEach(el => {
-                if (user.role === 'admin') el.classList.remove('hidden');
-                else el.classList.add('hidden');
-            });
-
-            const currentHash = window.location.hash;
-            if (user.role === 'cashier' && currentHash !== '#pos' && currentHash !== '') {
-                window.location.hash = '#pos';
-            }
-        }
-
-        function appendPin(num) {
-            const pinInput = document.getElementById('login-pin');
-            if (pinInput && pinInput.value.length < 6) pinInput.value += num;
-        }
-        function clearPin() {
-            const pinInput = document.getElementById('login-pin');
-            if (pinInput) pinInput.value = '';
-        }
-        function deletePin() {
-            const pinInput = document.getElementById('login-pin');
-            if (pinInput) pinInput.value = pinInput.value.slice(0, -1);
-        }
-
-        function generateUUID() {
-            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-
         function loadLocalStorageData() {
-            products = JSON.parse(localStorage.getItem('pos_products')) || defaultProducts;
-            customers = JSON.parse(localStorage.getItem('pos_customers')) || defaultCustomers;
-            transactions = JSON.parse(localStorage.getItem('pos_transactions')) || [];
-            vouchers = JSON.parse(localStorage.getItem('pos_vouchers')) || defaultVouchers;
-        }
-
-        function saveLocalStorageData() {
-            localStorage.setItem('pos_products', JSON.stringify(products));
-            localStorage.setItem('pos_customers', JSON.stringify(customers));
-            localStorage.setItem('pos_transactions', JSON.stringify(transactions));
-            localStorage.setItem('pos_vouchers', JSON.stringify(vouchers));
-        }
-
-        async function syncWithSupabase() {
-            if (!supabaseClient) return;
-            const icon = document.getElementById('sync-icon');
-            if (icon) icon.classList.add('fa-spin');
+            try {
+                const savedProds = JSON.parse(localStorage.getItem('pos_products'));
+                products = (Array.isArray(savedProds) && savedProds.length > 0) ? savedProds : [...defaultProducts];
+            } catch(e) { products = [...defaultProducts]; }
 
             try {
-                const { data: cloudProds } = await supabaseClient.from('products').select('*');
-                if (cloudProds && cloudProds.length > 0) {
-                    products = cloudProds;
-                    saveLocalStorageData();
-                    renderProductGrid();
-                    renderAdminProductsTable();
-                }
+                const savedCusts = JSON.parse(localStorage.getItem('pos_customers'));
+                customers = (Array.isArray(savedCusts) && savedCusts.length > 0) ? savedCusts : [...defaultCustomers];
+            } catch(e) { customers = [...defaultCustomers]; }
 
-                const { data: cloudCusts } = await supabaseClient.from('customers').select('*');
-                if (cloudCusts && cloudCusts.length > 0) {
-                    customers = cloudCusts;
-                    saveLocalStorageData();
-                    renderCustomersTable();
-                    renderCartCustomerDropdown();
-                }
+            try {
+                const savedTx = JSON.parse(localStorage.getItem('pos_transactions'));
+                transactions = Array.isArray(savedTx) ? savedTx : [];
+            } catch(e) { transactions = []; }
 
-                const { data: cloudVouch } = await supabaseClient.from('vouchers').select('*');
-                if (cloudVouch && cloudVouch.length > 0) {
-                    vouchers = cloudVouch;
-                    saveLocalStorageData();
-                    renderVouchersTable();
-                    renderCartVoucherDropdown();
-                }
+            try {
+                const savedVouch = JSON.parse(localStorage.getItem('pos_vouchers'));
+                vouchers = (Array.isArray(savedVouch) && savedVouch.length > 0) ? savedVouch : [...defaultVouchers];
+            } catch(e) { vouchers = [...defaultVouchers]; }
 
-                const { data: cloudTx } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
-                if (cloudTx) {
-                    transactions = cloudTx;
-                    saveLocalStorageData();
-                    renderHistoryTable();
-                    updateCharts();
-                }
-            } catch(e) {
-                console.error('Sync error:', e);
-            } finally {
-                if (icon) icon.classList.remove('fa-spin');
-            }
+            saveLocalStorageData();
         }
 
-        function setupHashNavigation() {
-            window.addEventListener('hashchange', handleNavigation);
-            handleNavigation();
+        function restoreDefaultData() {
+            products = [...defaultProducts];
+            customers = [...defaultCustomers];
+            vouchers = [...defaultVouchers];
+            saveLocalStorageData();
+            renderCategories();
+            renderProductGrid();
+            renderAdminProductsTable();
+            renderCustomersTable();
+            renderVouchersTable();
+            showNotification("Data produk default berhasil dimuat kembali!", "success");
         }
 
         function handleNavigation() {
@@ -1634,73 +1697,16 @@
             });
             const activeNav = document.getElementById('nav-link-' + hash.replace('#', ''));
             if (activeNav) activeNav.className = 'px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 bg-blue-600 text-white shadow';
-        }
 
-        function renderCategories() {
-            const cats = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
-            const container = document.getElementById('category-pills');
-            if (!container) return;
-            container.innerHTML = cats.map(cat => {
-                const isSelected = selectedCategory === cat;
-                const activeClass = isSelected ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
-                return '<button onclick="filterCategory(\'' + cat.replace(/'/g, "\\'") + '\')" class="px-3 py-1 rounded-full text-xs font-bold transition whitespace-nowrap ' + activeClass + '">' + cat + '</button>';
-            }).join('');
-        }
-
-        function filterCategory(cat) {
-            selectedCategory = cat;
-            renderCategories();
-            renderProductGrid();
-        }
-
-        function handleSearch(e) {
-            const q = e.target.value;
-            renderProductGrid(q);
-            if (e.key === 'Enter' && q.trim()) {
-                const exact = products.find(p => (p.barcode && p.barcode === q.trim()) || (p.sku && p.sku.toLowerCase() === q.trim().toLowerCase()));
-                if (exact) {
-                    addToCart(exact.id);
-                    e.target.value = '';
-                    renderProductGrid();
-                }
-            }
-        }
-
-        function isVoucherDateValid(v) {
-            const today = new Date().setHours(0,0,0,0);
-            const fromOk = !v.valid_from || new Date(v.valid_from).setHours(0,0,0,0) <= today;
-            const untilOk = !v.valid_until || new Date(v.valid_until).setHours(0,0,0,0) >= today;
-            return fromOk && untilOk;
-        }
-
-        function productMatchesVoucherTarget(product, voucher) {
-            const targetCat = voucher.target_category || 'Semua';
-            const targetBrand = voucher.target_brand || 'Semua';
-            const targetFamily = voucher.target_family || 'Semua';
-            const targetPromo = voucher.target_promo || 'Semua';
-
-            if (targetCat !== 'Semua' && product.category !== targetCat) return false;
-            if (targetBrand !== 'Semua' && product.brand !== targetBrand) return false;
-            if (targetFamily !== 'Semua' && product.family !== targetFamily) return false;
-            if (targetPromo !== 'Semua' && product.promo !== targetPromo) return false;
-
-            return true;
-        }
-
-        function getActiveDiscountForProduct(product) {
-            let activeDiscount = null;
-            vouchers.forEach(v => {
-                if (v.is_active && v.promo_type === 'auto_category' && isVoucherDateValid(v)) {
-                    if (productMatchesVoucherTarget(product, v)) {
-                        if (v.min_qty && v.min_qty > 0 && v.min_purchase_scope === 'criteria') {
-                            const matchingItemInCart = cart.find(i => i.id === product.id);
-                            if (!matchingItemInCart || matchingItemInCart.qty < v.min_qty) return;
-                        }
-                        activeDiscount = v;
-                    }
-                }
+            document.querySelectorAll('.lg\\:hidden a').forEach(a => {
+                a.className = 'px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0';
             });
-            return activeDiscount;
+            const activeMobileNav = document.getElementById('mobile-nav-' + hash.replace('#', ''));
+            if (activeMobileNav) activeMobileNav.className = 'px-3 py-1 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0';
+
+            if (hash === '#pos') {
+                switchMobilePosTab('catalog');
+            }
         }
 
         function renderProductGrid(filterQuery = '') {
@@ -1716,6 +1722,19 @@
 
             const countEl = document.getElementById('product-count');
             if (countEl) countEl.innerText = list.length + ' Produk';
+
+            if (list.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400 text-xs flex flex-col items-center justify-center gap-2">' +
+                    '<i class="fa-solid fa-boxes-stacked text-3xl text-slate-300"></i>' +
+                    '<p class="font-bold text-slate-600">Tidak Ada Produk Ditemukan</p>' +
+                    '<p class="text-[11px] text-slate-400">Coba ubah kata kunci pencarian, pilih kategori lain, atau muat ulang data sampel.</p>' +
+                    '<button onclick="restoreDefaultData()" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">' +
+                        '<i class="fa-solid fa-rotate-left"></i>' +
+                        '<span>Muat Ulang Data Sampel</span>' +
+                    '</button>' +
+                '</div>';
+                return;
+            }
 
             grid.innerHTML = list.map(p => {
                 const activeDiscount = getActiveDiscountForProduct(p);
@@ -2925,7 +2944,6 @@
                 created_at: new Date().toISOString()
             };
 
-            // Update local and cloud product stock
             cart.forEach(async (item) => {
                 const p = products.find(prod => prod.id === item.id);
                 if (p) {
