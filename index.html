@@ -85,17 +85,17 @@
 
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <header class="bg-slate-900 text-white px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
-        <div class="flex items-center space-x-3">
-            <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-10 h-10 shadow-lg shadow-blue-500/35 tracking-widest cursor-pointer" onclick="openStoreModal()" title="Pengaturan Toko">
+    <header class="bg-slate-900 text-white px-3 sm:px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shadow-lg shadow-blue-500/35 tracking-widest cursor-pointer shrink-0" onclick="openStoreModal()" title="Pengaturan Toko">
                 POS
             </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <h1 id="header-store-name" class="font-extrabold text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition" onclick="openStoreModal()">MY KSR</h1>
-                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-2 py-0.5 rounded-md border border-blue-400/30">v12.8 Pro</span>
+            <div class="min-w-0">
+                <div class="flex items-center gap-1.5 truncate">
+                    <h1 id="header-store-name" class="font-extrabold text-sm sm:text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition truncate" onclick="openStoreModal()">MY KSR</h1>
+                    <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-1.5 py-0.5 rounded-md border border-blue-400/30 shrink-0">v12.8</span>
                 </div>
-                <p id="header-store-sub" class="text-[11px] text-slate-400">Sistem Kasir Cloud & Multi-Criteria BOGO</p>
+                <p id="header-store-sub" class="text-[10px] sm:text-[11px] text-slate-400 truncate">Sistem Kasir Cloud & Multi-Criteria BOGO</p>
             </div>
         </div>
 
@@ -126,7 +126,7 @@
             </a>
         </nav>
 
-        <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="flex items-center space-x-1.5 sm:space-x-3">
             <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
                 <i class="fa-solid fa-store text-amber-400 ml-1.5 mr-1 text-xs"></i>
                 <select id="branch-select" onchange="changeBranch()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
@@ -136,9 +136,9 @@
                 </select>
             </div>
 
-            <div class="flex items-center gap-2 bg-slate-800 border border-slate-700/60 rounded-xl px-2.5 py-1 text-xs">
+            <div class="flex items-center gap-1.5 bg-slate-800 border border-slate-700/60 rounded-xl px-2 py-1 text-xs">
                 <i class="fa-solid fa-user-circle text-blue-400 text-sm"></i>
-                <div class="flex flex-col text-left">
+                <div class="hidden sm:flex flex-col text-left">
                     <span id="user-display-name" class="font-bold text-white text-[11px] leading-tight">Admin</span>
                     <span id="user-display-role" class="text-[9px] text-blue-300 font-semibold uppercase">Owner/Admin</span>
                 </div>
@@ -151,7 +151,7 @@
                 onclick="connectBluetoothPrinter()"
                 id="bt-printer-btn"
                 title="Koneksi Printer Bluetooth Thermal"
-                class="flex items-center gap-1.5 bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
+                class="hidden sm:flex items-center gap-1.5 bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
                 <i class="fa-solid fa-print"></i>
                 <span class="hidden xl:inline" id="bt-printer-status">BT Printer</span>
             </button>
@@ -160,35 +160,26 @@
                 onclick="syncWithSupabase()"
                 id="sync-btn"
                 title="Sinkronkan Data dengan Supabase Cloud"
-                class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
+                class="hidden md:flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
                 <i class="fa-solid fa-rotate" id="sync-icon"></i>
-                <span class="hidden lg:inline">Sync Cloud</span>
-            </button>
-
-            <button 
-                onclick="openConfigModal()"
-                id="db-status-badge"
-                title="Atur Koneksi Supabase"
-                class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" id="db-status-dot"></span>
-                <span id="db-status-text" class="text-slate-300 hidden md:inline">Supabase</span>
+                <span class="hidden lg:inline">Sync</span>
             </button>
         </div>
     </header>
 
-    <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-2 py-1.5 flex gap-1 text-[11px] overflow-x-auto custom-scrollbar">
-        <a href="#pos" id="mobile-nav-pos" class="px-3 py-1.5 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
-        <a href="#products" id="mobile-nav-products" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
-        <a href="#customers" id="mobile-nav-customers" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pelanggan</a>
-        <a href="#vouchers" id="mobile-nav-vouchers" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Diskon</a>
-        <a href="#history" id="mobile-nav-history" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Laporan</a>
-        <a href="#settings" id="mobile-nav-settings" class="nav-admin-only px-3 py-1.5 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
+    <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-2 py-1.5 flex gap-1 text-[11px] overflow-x-auto custom-scrollbar shrink-0">
+        <a href="#pos" id="mobile-nav-pos" class="px-3 py-1 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
+        <a href="#products" id="mobile-nav-products" class="nav-admin-only px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
+        <a href="#customers" id="mobile-nav-customers" class="nav-admin-only px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pelanggan</a>
+        <a href="#vouchers" id="mobile-nav-vouchers" class="nav-admin-only px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Diskon</a>
+        <a href="#history" id="mobile-nav-history" class="nav-admin-only px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Laporan</a>
+        <a href="#settings" id="mobile-nav-settings" class="nav-admin-only px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
     </div>
 
-    <main class="flex-1 flex overflow-hidden relative">
+    <main class="flex-1 flex overflow-hidden relative min-h-0">
         
         <!-- POS VIEW -->
-        <div id="view-pos" class="view-page flex-1 flex flex-col w-full h-full overflow-hidden">
+        <div id="view-pos" class="view-page flex-1 flex flex-col w-full h-full overflow-hidden min-h-0">
             <!-- MOBILE TAB SWITCHER BAR -->
             <div class="md:hidden bg-slate-800 text-white px-3 py-2 flex gap-2 text-xs shrink-0 border-b border-slate-700">
                 <button onclick="switchMobilePosTab('catalog')" id="mob-tab-catalog" class="flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5">
@@ -200,17 +191,17 @@
             </div>
 
             <!-- POS CONTENT CONTAINER (FLEX ROW ON DESKTOP, TAB TOGGLE ON MOBILE) -->
-            <div class="flex-1 flex flex-col md:flex-row overflow-hidden w-full h-full">
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden w-full h-full min-h-0">
                 <!-- CATALOG SECTION -->
-                <section id="pos-catalog-section" class="flex flex-1 p-3 sm:p-4 flex-col gap-3 overflow-hidden bg-white border-r border-slate-200 w-full h-full">
-                    <div class="flex gap-2">
+                <section id="pos-catalog-section" class="flex flex-1 p-3 sm:p-4 flex-col gap-2.5 overflow-hidden bg-white border-r border-slate-200 w-full h-full min-h-0">
+                    <div class="flex gap-2 shrink-0">
                         <div class="relative flex-1">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                             <input 
                                 type="text" 
                                 id="search-input"
                                 onkeyup="handleSearch(event)"
-                                placeholder="Cari nama produk, SKU, brand, barcode (Tekan Enter)..." 
+                                placeholder="Cari nama produk, SKU, barcode (Tekan Enter)..." 
                                 class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                             >
                         </div>
@@ -218,27 +209,27 @@
                             onclick="openCameraScanner()"
                             class="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0">
                             <i class="fa-solid fa-camera"></i>
-                            <span>SCAN</span>
+                            <span class="hidden sm:inline">SCAN</span>
                         </button>
                     </div>
 
                     <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs shrink-0" id="category-pills">
                     </div>
 
-                    <div class="flex justify-between items-center px-1">
+                    <div class="flex justify-between items-center px-1 shrink-0">
                         <div class="flex items-center gap-2">
                             <h2 class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider">Katalog Produk</h2>
-                            <span id="product-count" class="text-[11px] font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full border border-blue-100">0 Produk</span>
+                            <span id="product-count" class="text-[11px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">0 Produk</span>
                         </div>
                     </div>
 
-                    <div id="product-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 p-1">
+                    <div id="product-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 p-1 min-h-0">
                     </div>
                 </section>
 
                 <!-- CART SECTION -->
-                <section id="pos-cart-section" class="hidden md:flex w-full md:w-80 lg:w-96 bg-slate-50 flex-col h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0">
-                    <div class="p-3 bg-slate-800 text-white flex justify-between items-center">
+                <section id="pos-cart-section" class="hidden md:flex w-full md:w-80 lg:w-96 bg-slate-50 flex-col h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0 min-h-0">
+                    <div class="p-3 bg-slate-800 text-white flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-cart-shopping text-blue-400"></i>
                             <h2 class="font-bold text-sm">Keranjang Belanja</h2>
@@ -248,7 +239,7 @@
                         </button>
                     </div>
 
-                    <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-2">
+                    <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-2 shrink-0">
                         <!-- SEARCH MEMBER & SELECT MEMBER -->
                         <div class="space-y-1.5">
                             <div class="flex items-center gap-2 text-xs">
@@ -292,11 +283,11 @@
                     </div>
 
                     <!-- CART ITEMS LIST -->
-                    <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-100 bg-white min-h-[140px]">
+                    <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-3 divide-y divide-slate-100 bg-white min-h-0">
                     </div>
 
                     <!-- CART FOOTER WITH SEPARATED DISCOUNTS -->
-                    <div class="p-4 bg-slate-100 border-t border-slate-200 space-y-2 shadow-lg">
+                    <div class="p-3 bg-slate-100 border-t border-slate-200 space-y-2 shadow-lg shrink-0">
                         <div class="flex justify-between text-xs text-slate-600">
                             <span>Subtotal Sebelum Diskon</span>
                             <span id="cart-subtotal" class="font-bold text-slate-800">Rp 0</span>
@@ -350,7 +341,7 @@
                             id="btn-checkout" 
                             onclick="openPaymentModal()" 
                             disabled 
-                            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 sm:py-3 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
                             <i class="fa-solid fa-money-bill-wave"></i>
                             <span>PROSES PEMBAYARAN</span>
                         </button>
@@ -360,7 +351,7 @@
         </div>
 
         <!-- PRODUCTS VIEW WITH FULL BARCODE COLUMN -->
-        <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
+        <div id="view-products" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU, Barcode, Brand, Family & Promo</h2>
@@ -420,7 +411,7 @@
         </div>
 
         <!-- CUSTOMERS VIEW -->
-        <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
+        <div id="view-customers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member</h2>
@@ -466,7 +457,7 @@
         </div>
 
         <!-- VOUCHERS VIEW -->
-        <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
+        <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Diskon & Voucher Promo</h2>
@@ -512,7 +503,7 @@
         </div>
 
         <!-- HISTORY VIEW -->
-        <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
+        <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Laporan Penjualan & Analytics</h2>
@@ -569,7 +560,7 @@
         </div>
 
         <!-- SETTINGS VIEW -->
-        <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full">
+        <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir</h2>
                 <p class="text-xs text-slate-500">Konfigurasi database cloud Supabase & informasi toko.</p>
@@ -616,7 +607,7 @@
 
     <!-- MODAL: ADD / EDIT PRODUCT -->
     <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="product-modal-title" class="font-bold text-slate-800 text-base">Tambah Produk Baru</h3>
                 <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
@@ -705,7 +696,7 @@
             </div>
 
             <!-- PRINTABLE SHEET CONTAINER (3 COLUMNS GRID) -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar border rounded-xl p-4 bg-white" id="barcode-sheet-scroll-container">
+            <div class="flex-1 overflow-y-auto custom-scrollbar border rounded-xl p-4 bg-white min-h-0" id="barcode-sheet-scroll-container">
                 <div id="printable-barcode-sheet" class="grid grid-cols-3 gap-3">
                     <div class="text-center text-slate-400 py-12 text-xs col-span-3">Pilih produk dan klik Generate Label untuk pratinjau cetak 3 kolom.</div>
                 </div>
@@ -1266,7 +1257,9 @@
                 return;
             }
             try {
-                document.getElementById('bt-printer-status').innerText = 'Mencari...';
+                const statusEl = document.getElementById('bt-printer-status');
+                if (statusEl) statusEl.innerText = 'Mencari...';
+                
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
                     optionalServices: [
@@ -1302,11 +1295,12 @@
                 }
 
                 bluetoothCharacteristic = foundChar;
-                document.getElementById('bt-printer-status').innerText = device.name || 'BT Terhubung';
+                if (statusEl) statusEl.innerText = device.name || 'BT Terhubung';
                 showNotification("Printer Bluetooth berhasil terhubung!", "success");
             } catch (e) {
                 console.warn('Bluetooth connection error:', e);
-                document.getElementById('bt-printer-status').innerText = 'Print Manual';
+                const statusEl = document.getElementById('bt-printer-status');
+                if (statusEl) statusEl.innerText = 'Print Manual';
                 showNotification("Gagal terhubung ke printer Bluetooth. Gunakan Print Manual.", "info");
             }
         }
@@ -1392,7 +1386,8 @@
         function openStoreModal() { window.location.hash = '#settings'; }
 
         function changeBranch() {
-            currentBranch = document.getElementById('branch-select').value;
+            const branchSel = document.getElementById('branch-select');
+            if (branchSel) currentBranch = branchSel.value;
             localStorage.setItem('pos_current_branch', currentBranch);
             showNotification(`Cabang diubah ke: ${currentBranch}`, "info");
         }
@@ -1401,14 +1396,18 @@
             const url = localStorage.getItem('supabase_url') || 'https://pftuivzghfscfczfckvd.supabase.co';
             const key = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6InBmdHVpdnpnaGZzY2ZjemZja3ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODQ0NjgsImV4cCI6MjA1NjU2MDQ2OH0.C83vJysq6_1u7aGj_t5WnOa63N2iK9s9lM0-86P0';
             
-            document.getElementById('setting-supabase-url').value = url;
-            document.getElementById('setting-supabase-key').value = key;
+            const urlInput = document.getElementById('setting-supabase-url');
+            const keyInput = document.getElementById('setting-supabase-key');
+            if (urlInput) urlInput.value = url;
+            if (keyInput) keyInput.value = key;
 
             if (url && key && window.supabase) {
                 try {
                     supabaseClient = window.supabase.createClient(url, key);
-                    document.getElementById('db-status-dot').className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
-                    document.getElementById('db-status-text').innerText = 'Cloud Connected';
+                    const dot = document.getElementById('db-status-dot');
+                    const txt = document.getElementById('db-status-text');
+                    if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                    if (txt) txt.innerText = 'Cloud Connected';
                     syncWithSupabase();
                 } catch(e) {
                     console.error('Supabase connect error:', e);
@@ -1459,10 +1458,13 @@
         }
 
         async function openLoginModal() {
-            document.getElementById('login-pin').value = '';
-            document.getElementById('login-error-msg').classList.add('hidden');
+            const pinEl = document.getElementById('login-pin');
+            if (pinEl) pinEl.value = '';
+            const errEl = document.getElementById('login-error-msg');
+            if (errEl) errEl.classList.add('hidden');
             await fetchUsersFromSupabase();
-            document.getElementById('login-modal').classList.remove('hidden');
+            const modalEl = document.getElementById('login-modal');
+            if (modalEl) modalEl.classList.remove('hidden');
         }
 
         async function handleLoginSubmit(e) {
@@ -1494,19 +1496,24 @@
                 activeUser = foundUser;
                 localStorage.setItem('pos_active_user', JSON.stringify(foundUser));
                 applyUserRolePermissions(foundUser);
-                document.getElementById('login-modal').classList.add('hidden');
-                errorMsg.classList.add('hidden');
+                const modalEl = document.getElementById('login-modal');
+                if (modalEl) modalEl.classList.add('hidden');
+                if (errorMsg) errorMsg.classList.add('hidden');
                 showNotification(`Selamat datang, ${foundUser.name}!`, "success");
             } else {
-                errorMsg.innerText = 'PIN atau Akun tidak valid!';
-                errorMsg.classList.remove('hidden');
+                if (errorMsg) {
+                    errorMsg.innerText = 'PIN atau Akun tidak valid!';
+                    errorMsg.classList.remove('hidden');
+                }
             }
         }
 
         function applyUserRolePermissions(user) {
             currentRole = user.role;
-            document.getElementById('user-display-name').innerText = user.name;
-            document.getElementById('user-display-role').innerText = user.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
+            const nameEl = document.getElementById('user-display-name');
+            const roleEl = document.getElementById('user-display-role');
+            if (nameEl) nameEl.innerText = user.name;
+            if (roleEl) roleEl.innerText = user.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
 
             const adminNavs = document.querySelectorAll('.nav-admin-only');
             adminNavs.forEach(el => {
@@ -1522,12 +1529,15 @@
 
         function appendPin(num) {
             const pinInput = document.getElementById('login-pin');
-            if (pinInput.value.length < 6) pinInput.value += num;
+            if (pinInput && pinInput.value.length < 6) pinInput.value += num;
         }
-        function clearPin() { document.getElementById('login-pin').value = ''; }
+        function clearPin() {
+            const pinInput = document.getElementById('login-pin');
+            if (pinInput) pinInput.value = '';
+        }
         function deletePin() {
             const pinInput = document.getElementById('login-pin');
-            pinInput.value = pinInput.value.slice(0, -1);
+            if (pinInput) pinInput.value = pinInput.value.slice(0, -1);
         }
 
         function generateUUID() {
@@ -1694,7 +1704,8 @@
                 list = list.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.barcode && p.barcode.includes(q)) || (p.brand && p.brand.toLowerCase().includes(q)));
             }
 
-            document.getElementById('product-count').innerText = `${list.length} Produk`;
+            const countEl = document.getElementById('product-count');
+            if (countEl) countEl.innerText = `${list.length} Produk`;
 
             grid.innerHTML = list.map(p => {
                 const activeDiscount = getActiveDiscountForProduct(p);
@@ -1718,7 +1729,7 @@
                 const badgeColorClass = isBogo ? 'bg-amber-600' : 'bg-red-600';
 
                 return `
-                    <div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">
+                    <div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">
                         ${activeDiscount ? `
                             <div class="absolute top-0 right-0 ${badgeColorClass} text-white text-[9px] font-black px-2.5 py-1 rounded-bl-xl shadow uppercase tracking-wider">
                                 <i class="fa-solid ${isBogo ? 'fa-gift' : 'fa-tag'} mr-0.5"></i>${activeAutoPromoText}
@@ -1734,7 +1745,7 @@
                                 <span class="font-mono text-[10px] text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 inline-block font-bold tracking-wider">${p.barcode || 'Tanpa Barcode'}</span>
                             </div>
                         </div>
-                        <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
+                        <div class="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1">
                             <div class="flex justify-between items-start">
                                 <div>
                                     ${activeDiscount && activeDiscount.benefit_type !== 'buy_x_get_y' ? `
