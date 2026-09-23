@@ -235,11 +235,24 @@
                 </div>
 
                 <div class="px-3 pt-2 pb-2 bg-slate-100 border-b border-slate-200 space-y-2">
-                    <div class="flex items-center gap-2 text-xs">
-                        <i class="fa-solid fa-id-card text-blue-500"></i>
-                        <select id="cart-customer-select" onchange="onSelectCustomerForCart()" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
-                            <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
-                        </select>
+                    <!-- SEARCH MEMBER & SELECT MEMBER -->
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2 text-xs">
+                            <i class="fa-solid fa-magnifying-glass text-blue-500"></i>
+                            <input 
+                                type="text" 
+                                id="cart-customer-search" 
+                                oninput="filterCartCustomerDropdown(this.value)" 
+                                placeholder="Cari No. Member / Nama / No. HP..." 
+                                class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                            >
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <i class="fa-solid fa-id-card text-blue-500"></i>
+                            <select id="cart-customer-select" onchange="onSelectCustomerForCart()" class="w-full py-1 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- MULTI-VOUCHER DROPDOWN SELECTOR -->
@@ -336,7 +349,7 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Produk, SKU, Barcode, Brand, Family & Promo</h2>
-                    <p class="text-xs text-slate-500">Kelola katalog barang beserta barcode, brand, family, dan label promo.</p>
+                    <p class="text-xs text-slate-500">Kelola katalog barang beserta barcode lengkap, brand, family, dan label promo.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button 
@@ -1125,10 +1138,10 @@
             renderCategories();
             renderProductGrid();
             renderCartItems();
+            renderCartCustomerDropdown();
             renderCartVoucherDropdown();
             renderAdminProductsTable();
             renderCustomersTable();
-            renderCartCustomerDropdown();
             renderVouchersTable();
             renderHistoryTable();
             initCharts();
@@ -1584,7 +1597,7 @@
             const q = e.target.value;
             renderProductGrid(q);
             if (e.key === 'Enter' && q.trim()) {
-                const exact = products.find(p => (p.barcode && p.barcode === q.trim()) || (p.sku && p.sku === q.trim()));
+                const exact = products.find(p => (p.barcode && p.barcode === q.trim()) || (p.sku && p.sku.toLowerCase() === q.trim().toLowerCase()));
                 if (exact) {
                     addToCart(exact.id);
                     e.target.value = '';
@@ -1678,7 +1691,7 @@
                             </div>
                             <h4 class="font-bold text-xs text-slate-800 mt-1.5 line-clamp-2">${p.name}</h4>
                             <div class="mt-1 flex flex-col gap-0.5">
-                                <span class="font-mono text-[10px] text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 inline-block font-bold">${p.barcode || 'Tanpa Barcode'}</span>
+                                <span class="font-mono text-[10px] text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 inline-block font-bold tracking-wider">${p.barcode || 'Tanpa Barcode'}</span>
                             </div>
                         </div>
                         <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col gap-1">
@@ -1841,11 +1854,27 @@
             calculateCartTotals();
         }
 
-        function renderCartCustomerDropdown() {
+        function renderCartCustomerDropdown(filterQuery = '') {
             const select = document.getElementById('cart-customer-select');
             if (!select) return;
+            const q = (filterQuery || '').toLowerCase().trim();
+
+            const custArray = Array.isArray(customers) ? customers : [];
+            let filtered = custArray;
+            if (q) {
+                filtered = custArray.filter(c => 
+                    (c.name && c.name.toLowerCase().includes(q)) || 
+                    (c.phone && String(c.phone).toLowerCase().includes(q)) || 
+                    (c.member_number && String(c.member_number).toLowerCase().includes(q))
+                );
+            }
+
             select.innerHTML = `<option value="Pelanggan Umum">-- Pelanggan Umum --</option>` +
-                customers.map(c => `<option value="${c.name}">${c.member_number || 'REG'} | ${c.name} | ${c.phone || '-'}</option>`).join('');
+                filtered.map(c => `<option value="${c.name}">${c.member_number || 'REG'} | ${c.name} | ${c.phone || '-'}</option>`).join('');
+        }
+
+        function filterCartCustomerDropdown(val) {
+            renderCartCustomerDropdown(val);
         }
 
         function renderCartVoucherDropdown() {
