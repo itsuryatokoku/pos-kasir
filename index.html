@@ -1719,7 +1719,7 @@
                 let badgeHtml = '';
                 if (activeDiscount) {
                     const iconClass = isBogo ? 'fa-gift' : 'fa-tag';
-                    badgeHtml = '<div class="absolute top-0 right-0 ' + badgeColorClass + ' text-white text-[9px] font-black px-2 py-0.5 rounded-bl-lg shadow uppercase tracking-wider z-10 max-w-[70%] truncate">' +
+                    badgeHtml = '<div class="absolute top-0 right-0 ' + badgeColorClass + ' text-white text-[9px] font-black px-2 py-0.5 rounded-tr-2xl rounded-bl-lg shadow uppercase tracking-wider z-10 max-w-[70%] truncate">' +
                         '<i class="fa-solid ' + iconClass + ' mr-0.5"></i>' + activeAutoPromoText +
                     '</div>';
                 }
@@ -1731,45 +1731,45 @@
 
                 let priceDisplayHtml = '';
                 if (activeDiscount && activeDiscount.benefit_type !== 'buy_x_get_y') {
-                    priceDisplayHtml = '<div class="flex flex-col">' +
+                    priceDisplayHtml = '<div class="flex flex-col justify-end">' +
                         '<span class="text-[10px] text-slate-400 line-through leading-none">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>' +
-                        '<span class="font-extrabold text-xs text-emerald-600 leading-tight mt-0.5">Rp ' + finalPrice.toLocaleString('id-ID') + '</span>' +
+                        '<span class="font-extrabold text-xs sm:text-sm text-emerald-600 leading-tight mt-0.5">Rp ' + finalPrice.toLocaleString('id-ID') + '</span>' +
                         '<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200 mt-1 inline-block w-fit max-w-full truncate">' +
                             '<i class="fa-solid fa-arrow-trend-down text-red-500 mr-0.5"></i>' + activeAutoPromoText +
                         '</span>' +
                     '</div>';
                 } else if (activeDiscount && activeDiscount.benefit_type === 'buy_x_get_y') {
-                    priceDisplayHtml = '<div class="flex flex-col">' +
-                        '<span class="font-extrabold text-xs text-blue-600 leading-tight">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>' +
+                    priceDisplayHtml = '<div class="flex flex-col justify-end">' +
+                        '<span class="font-extrabold text-xs sm:text-sm text-blue-600 leading-tight">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>' +
                         '<span class="text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-1 inline-block w-fit max-w-full truncate">' +
                             '<i class="fa-solid fa-gift mr-0.5"></i>' + activeAutoPromoText +
                         '</span>' +
                     '</div>';
                 } else {
-                    priceDisplayHtml = '<span class="font-extrabold text-xs text-blue-600 leading-tight">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>';
+                    priceDisplayHtml = '<span class="font-extrabold text-xs sm:text-sm text-blue-600 leading-tight block">Rp ' + normalPrice.toLocaleString('id-ID') + '</span>';
                 }
 
                 const stockClass = p.stock <= 5 ? 'text-red-500 font-bold' : 'text-slate-400';
                 const topPaddingClass = activeDiscount ? 'pt-2.5' : '';
 
-                return '<div onclick="addToCart(\'' + p.id + '\')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between cursor-pointer transition relative group overflow-hidden">' +
+                return '<div onclick="addToCart(\'' + p.id + '\')" class="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer transition relative group min-h-[165px]">' +
                     badgeHtml +
-                    '<div class="' + topPaddingClass + '">' +
+                    '<div class="' + topPaddingClass + ' flex-1 flex flex-col justify-start">' +
                         '<div class="flex flex-wrap items-center gap-1 pr-14">' +
                             '<span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md truncate max-w-[85px]">' + (p.category || 'Umum') + '</span>' +
                             brandBadgeHtml +
                         '</div>' +
-                        '<h4 class="font-bold text-xs text-slate-800 mt-1.5 line-clamp-2 leading-snug">' + p.name + '</h4>' +
+                        '<h4 class="font-bold text-xs text-slate-800 mt-1.5 line-clamp-2 leading-snug min-h-[2rem]">' + p.name + '</h4>' +
                         '<div class="mt-1 flex flex-wrap items-center gap-1">' +
-                            '<span class="font-mono text-[10px] text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 font-bold tracking-wider truncate max-w-full">' + (p.barcode || 'Tanpa Barcode') + '</span>' +
+                            '<span class="font-mono text-[10px] text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 font-bold tracking-wider truncate max-w-full">' + (p.barcode || 'Tanpa Barcode') + '</span>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1">' +
-                        '<div class="flex justify-between items-end gap-1">' +
-                            '<div class="min-w-0 flex-1">' +
+                    '<div class="mt-2.5 pt-2 border-t border-slate-100 flex flex-col gap-1 shrink-0">' +
+                        '<div class="flex justify-between items-end gap-1.5">' +
+                            '<div class="min-w-0 flex-1 flex flex-col justify-end">' +
                                 priceDisplayHtml +
                             '</div>' +
-                            '<span class="text-[10px] font-semibold shrink-0 text-right ' + stockClass + '">Stok: ' + p.stock + '</span>' +
+                            '<span class="text-[10px] font-bold shrink-0 text-right pb-0.5 ' + stockClass + '">Stok: ' + p.stock + '</span>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
