@@ -1328,14 +1328,14 @@
                 commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
 
                 const storeName = document.getElementById('header-store-name').innerText || 'MY KSR';
-                const storeSub = document.getElementById('header-store-sub').innerText || 'POS Kasir';
+                const storeSub = document.getElementById('header-store-sub').innerText || 'POS Kasir & Cloud Sync';
 
                 commands.push(encoder.encode(storeName + '\n' + storeSub + '\n--------------------------------\n'));
                 commands.push(new Uint8Array([0x1B, 0x61, 0x00])); // Left
-                commands.push(encoder.encode('No. Nota : ' + tx.id + '\n'));
-                commands.push(encoder.encode('Tanggal  : ' + new Date(tx.created_at).toLocaleString('id-ID') + '\n'));
-                commands.push(encoder.encode('Kasir    : ' + tx.cashier + '\n'));
-                commands.push(encoder.encode('Pelanggan: ' + tx.customer_name + '\n'));
+                commands.push(encoder.encode('No. Nota  : ' + tx.id + '\n'));
+                commands.push(encoder.encode('Tanggal   : ' + new Date(tx.created_at).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('Kasir     : ' + tx.cashier + '\n'));
+                commands.push(encoder.encode('Pelanggan : ' + tx.customer_name + '\n'));
                 commands.push(encoder.encode('--------------------------------\n'));
 
                 tx.items.forEach(item => {
@@ -1343,32 +1343,34 @@
                     commands.push(encoder.encode(item.name + '\n'));
                     commands.push(encoder.encode('  ' + item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID') + ' = Rp ' + roundPrice(itemTotal).toLocaleString('id-ID') + '\n'));
                     if (item.item_discount && item.item_discount > 0) {
-                        commands.push(encoder.encode('  Disc Prod: -Rp ' + roundPrice(item.item_discount).toLocaleString('id-ID') + '\n'));
+                        const tagText = item.disc_title ? (' (' + item.disc_title + ')') : '';
+                        commands.push(encoder.encode('  Diskon Item' + tagText + ': - Rp ' + roundPrice(item.item_discount).toLocaleString('id-ID') + '\n'));
                     }
                 });
 
                 commands.push(encoder.encode('--------------------------------\n'));
-                commands.push(encoder.encode('Subtotal : Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('Subtotal      : Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID') + '\n'));
                 
                 if (tx.category_discount > 0) {
-                    commands.push(encoder.encode('Disc Prod: -Rp ' + roundPrice(tx.category_discount).toLocaleString('id-ID') + '\n'));
+                    commands.push(encoder.encode('Diskon Produk : - Rp ' + roundPrice(tx.category_discount).toLocaleString('id-ID') + '\n'));
                 }
                 if (tx.manual_discount > 0) {
-                    commands.push(encoder.encode('Disc Man : -Rp ' + roundPrice(tx.manual_discount).toLocaleString('id-ID') + '\n'));
+                    commands.push(encoder.encode('Diskon Manual : - Rp ' + roundPrice(tx.manual_discount).toLocaleString('id-ID') + '\n'));
                 }
                 if (tx.vip_discount > 0) {
-                    commands.push(encoder.encode('Disc VIP : -Rp ' + roundPrice(tx.vip_discount).toLocaleString('id-ID') + '\n'));
+                    commands.push(encoder.encode('Diskon Member : - Rp ' + roundPrice(tx.vip_discount).toLocaleString('id-ID') + '\n'));
                 }
                 if (tx.voucher_discount > 0) {
-                    const codes = Array.isArray(tx.voucher_codes) ? tx.voucher_codes.join(',') : (tx.voucher_codes || '');
-                    commands.push(encoder.encode('Voucher  : -Rp ' + roundPrice(tx.voucher_discount).toLocaleString('id-ID') + (codes ? ' (' + codes + ')' : '') + '\n'));
+                    const codes = Array.isArray(tx.voucher_codes) ? tx.voucher_codes.join(', ') : (tx.voucher_codes || '');
+                    const codeText = codes ? (' (' + codes + ')') : '';
+                    commands.push(encoder.encode('Diskon Voucher' + codeText + ': - Rp ' + roundPrice(tx.voucher_discount).toLocaleString('id-ID') + '\n'));
                 } else if (tx.discount > 0 && !tx.category_discount && !tx.manual_discount && !tx.vip_discount) {
-                    commands.push(encoder.encode('Diskon   : -Rp ' + roundPrice(tx.discount).toLocaleString('id-ID') + '\n'));
+                    commands.push(encoder.encode('Diskon        : - Rp ' + roundPrice(tx.discount).toLocaleString('id-ID') + '\n'));
                 }
 
-                commands.push(encoder.encode('TOTAL    : Rp ' + roundPrice(tx.total).toLocaleString('id-ID') + '\n'));
-                commands.push(encoder.encode('Bayar    : Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID') + '\n'));
-                commands.push(encoder.encode('Kembali  : Rp ' + roundPrice(tx.change).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('TOTAL         : Rp ' + roundPrice(tx.total).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('Bayar         : Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID') + '\n'));
+                commands.push(encoder.encode('Kembali       : Rp ' + roundPrice(tx.change).toLocaleString('id-ID') + '\n'));
                 commands.push(encoder.encode('--------------------------------\n'));
                 commands.push(new Uint8Array([0x1B, 0x61, 0x01])); // Center
                 const footerText = document.getElementById('setting-receipt-footer')?.value || 'Terima kasih telah berbelanja di MY KSR!';
