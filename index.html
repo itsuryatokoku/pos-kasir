@@ -1126,8 +1126,10 @@
         ];
 
         function roundPrice(val) {
-            if (!val || isNaN(val)) return 0;
-            return Math.ceil(val);
+            if (val === null || val === undefined || isNaN(val)) return 0;
+            const num = Number(val);
+            if (!isFinite(num)) return 0;
+            return Math.ceil(num);
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
