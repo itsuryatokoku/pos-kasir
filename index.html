@@ -972,7 +972,7 @@
                 <div class="border-b border-dashed border-slate-300"></div>
                 <div class="space-y-1 text-right">
                     <div class="flex justify-between"><span>Subtotal:</span><span id="rec-subtotal">Rp 0</span></div>
-                    <div class="flex justify-between text-red-600"><span>Diskon:</span><span id="rec-discount">Rp 0</span></div>
+                    <div id="rec-discount-breakdown" class="space-y-0.5 text-red-600"></div>
                     <div class="flex justify-between font-bold text-sm"><span>TOTAL:</span><span id="rec-total">Rp 0</span></div>
                     <div class="flex justify-between"><span>Bayar:</span><span id="rec-paid">Rp 0</span></div>
                     <div class="flex justify-between"><span>Kembali:</span><span id="rec-change">Rp 0</span></div>
@@ -1339,15 +1339,33 @@
                 commands.push(encoder.encode('--------------------------------\n'));
 
                 tx.items.forEach(item => {
+                    const itemTotal = item.qty * item.price;
                     commands.push(encoder.encode(item.name + '\n'));
-                    commands.push(encoder.encode('  ' + item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID') + ' = Rp ' + roundPrice(item.qty * item.price).toLocaleString('id-ID') + '\n'));
+                    commands.push(encoder.encode('  ' + item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID') + ' = Rp ' + roundPrice(itemTotal).toLocaleString('id-ID') + '\n'));
+                    if (item.item_discount && item.item_discount > 0) {
+                        commands.push(encoder.encode('  Disc Prod: -Rp ' + roundPrice(item.item_discount).toLocaleString('id-ID') + '\n'));
+                    }
                 });
 
                 commands.push(encoder.encode('--------------------------------\n'));
                 commands.push(encoder.encode('Subtotal : Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID') + '\n'));
-                if (tx.discount > 0) {
-                    commands.push(encoder.encode('Diskon   : - Rp ' + roundPrice(tx.discount).toLocaleString('id-ID') + '\n'));
+                
+                if (tx.category_discount > 0) {
+                    commands.push(encoder.encode('Disc Prod: -Rp ' + roundPrice(tx.category_discount).toLocaleString('id-ID') + '\n'));
                 }
+                if (tx.manual_discount > 0) {
+                    commands.push(encoder.encode('Disc Man : -Rp ' + roundPrice(tx.manual_discount).toLocaleString('id-ID') + '\n'));
+                }
+                if (tx.vip_discount > 0) {
+                    commands.push(encoder.encode('Disc VIP : -Rp ' + roundPrice(tx.vip_discount).toLocaleString('id-ID') + '\n'));
+                }
+                if (tx.voucher_discount > 0) {
+                    const codes = Array.isArray(tx.voucher_codes) ? tx.voucher_codes.join(',') : (tx.voucher_codes || '');
+                    commands.push(encoder.encode('Voucher  : -Rp ' + roundPrice(tx.voucher_discount).toLocaleString('id-ID') + (codes ? ' (' + codes + ')' : '') + '\n'));
+                } else if (tx.discount > 0 && !tx.category_discount && !tx.manual_discount && !tx.vip_discount) {
+                    commands.push(encoder.encode('Diskon   : -Rp ' + roundPrice(tx.discount).toLocaleString('id-ID') + '\n'));
+                }
+
                 commands.push(encoder.encode('TOTAL    : Rp ' + roundPrice(tx.total).toLocaleString('id-ID') + '\n'));
                 commands.push(encoder.encode('Bayar    : Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID') + '\n'));
                 commands.push(encoder.encode('Kembali  : Rp ' + roundPrice(tx.change).toLocaleString('id-ID') + '\n'));
@@ -2845,6 +2863,43 @@
                 }
             });
 
+            const enrichedItems = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                const origPrice = roundPrice(product ? product.selling_price : item.price);
+                const autoDisc = product ? getActiveDiscountForProduct(product) : null;
+                let itemDiscAmount = 0;
+                let discTitle = '';
+
+                if (autoDisc && !appliedVouchers.some(v => v.id === autoDisc.id)) {
+                    if (autoDisc.benefit_type === 'buy_x_get_y') {
+                        const sets = Math.floor(item.qty / (autoDisc.buy_qty + autoDisc.get_qty));
+                        const freeQty = sets * autoDisc.get_qty;
+                        if (freeQty > 0) {
+                            itemDiscAmount = roundPrice(origPrice * freeQty);
+                            discTitle = 'Beli ' + autoDisc.buy_qty + ' Gratis ' + autoDisc.get_qty;
+                        }
+                    } else if (autoDisc.type === 'percentage') {
+                        const eff = roundPrice(origPrice * (1 - autoDisc.value / 100));
+                        itemDiscAmount = roundPrice((origPrice - eff) * item.qty);
+                        discTitle = 'Diskon ' + autoDisc.value + '%';
+                    } else {
+                        const eff = roundPrice(Math.max(0, origPrice - autoDisc.value));
+                        itemDiscAmount = roundPrice((origPrice - eff) * item.qty);
+                        discTitle = 'Potongan Rp ' + roundPrice(autoDisc.value).toLocaleString('id-ID');
+                    }
+                }
+
+                return {
+                    id: item.id,
+                    sku: item.sku || '',
+                    name: item.name,
+                    price: origPrice,
+                    qty: item.qty,
+                    item_discount: itemDiscAmount,
+                    disc_title: discTitle
+                };
+            });
+
             const invoiceNum = 'TRX-' + Math.floor(100000 + Math.random() * 900000);
             const customerName = document.getElementById('cart-customer-select').value;
             const newTx = {
@@ -2852,12 +2907,17 @@
                 cashier: activeUser ? activeUser.name : (currentRole === 'admin' ? 'Owner Admin' : 'Kasir Staff'),
                 customer_name: customerName,
                 subtotal: roundPrice(state.grossSubtotal),
+                category_discount: roundPrice(state.categoryDiscountTotal),
+                manual_discount: roundPrice(state.manualDiscAmount),
+                vip_discount: roundPrice(state.vipDiscAmount),
+                voucher_discount: roundPrice(state.voucherDiscAmount),
+                voucher_codes: state.voucherCodesList || [],
                 discount: roundPrice(state.grandTotalDiscount),
                 total: roundPrice(state.grandTotal),
                 cash_paid: roundPrice(cashPaid),
                 change: roundPrice(Math.max(0, cashPaid - state.grandTotal)),
                 payment_method: payMethod,
-                items: [...cart],
+                items: enrichedItems,
                 created_at: new Date().toISOString()
             };
 
@@ -2915,17 +2975,56 @@
 
             const itemsContainer = document.getElementById('rec-items-list');
             itemsContainer.innerHTML = tx.items.map(item => {
-                return '<div>' +
+                const itemTotal = item.qty * item.price;
+                let discHtml = '';
+                if (item.item_discount && item.item_discount > 0) {
+                    const tagText = item.disc_title ? (' (' + item.disc_title + ')') : '';
+                    discHtml = '<div class="flex justify-between text-[10px] text-red-600 pl-2">' +
+                        '<span>Diskon Item' + tagText + ':</span>' +
+                        '<span>- Rp ' + roundPrice(item.item_discount).toLocaleString('id-ID') + '</span>' +
+                    '</div>';
+                }
+                return '<div class="space-y-0.5">' +
                     '<div class="font-bold">' + item.name + '</div>' +
                     '<div class="flex justify-between text-slate-500">' +
                         '<span>' + item.qty + ' x Rp ' + roundPrice(item.price).toLocaleString('id-ID') + '</span>' +
-                        '<span class="font-bold text-slate-800">Rp ' + roundPrice(item.qty * item.price).toLocaleString('id-ID') + '</span>' +
+                        '<span class="font-bold text-slate-800">Rp ' + roundPrice(itemTotal).toLocaleString('id-ID') + '</span>' +
                     '</div>' +
+                    discHtml +
                 '</div>';
             }).join('');
 
             document.getElementById('rec-subtotal').innerText = 'Rp ' + roundPrice(tx.subtotal).toLocaleString('id-ID');
-            document.getElementById('rec-discount').innerText = '- Rp ' + roundPrice(tx.discount).toLocaleString('id-ID');
+
+            const breakdownContainer = document.getElementById('rec-discount-breakdown');
+            let breakdownHtml = '';
+
+            const catDisc = tx.category_discount || 0;
+            const manDisc = tx.manual_discount || 0;
+            const vipDisc = tx.vip_discount || 0;
+            const vouchDisc = tx.voucher_discount || 0;
+            const codes = Array.isArray(tx.voucher_codes) ? tx.voucher_codes.join(', ') : (tx.voucher_codes || '');
+
+            if (catDisc > 0) {
+                breakdownHtml += '<div class="flex justify-between text-red-600"><span>Diskon Produk:</span><span>- Rp ' + roundPrice(catDisc).toLocaleString('id-ID') + '</span></div>';
+            }
+            if (manDisc > 0) {
+                breakdownHtml += '<div class="flex justify-between text-red-600"><span>Diskon Manual:</span><span>- Rp ' + roundPrice(manDisc).toLocaleString('id-ID') + '</span></div>';
+            }
+            if (vipDisc > 0) {
+                breakdownHtml += '<div class="flex justify-between text-red-600"><span>Diskon Member VIP:</span><span>- Rp ' + roundPrice(vipDisc).toLocaleString('id-ID') + '</span></div>';
+            }
+            if (vouchDisc > 0) {
+                const codeText = codes ? (' (' + codes + ')') : '';
+                breakdownHtml += '<div class="flex justify-between text-red-600"><span>Diskon Voucher' + codeText + ':</span><span>- Rp ' + roundPrice(vouchDisc).toLocaleString('id-ID') + '</span></div>';
+            }
+
+            if (!breakdownHtml && tx.discount > 0) {
+                breakdownHtml = '<div class="flex justify-between text-red-600"><span>Diskon:</span><span>- Rp ' + roundPrice(tx.discount).toLocaleString('id-ID') + '</span></div>';
+            }
+
+            breakdownContainer.innerHTML = breakdownHtml;
+
             document.getElementById('rec-total').innerText = 'Rp ' + roundPrice(tx.total).toLocaleString('id-ID');
             document.getElementById('rec-paid').innerText = 'Rp ' + roundPrice(tx.cash_paid).toLocaleString('id-ID');
             document.getElementById('rec-change').innerText = 'Rp ' + roundPrice(tx.change).toLocaleString('id-ID');
