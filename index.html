@@ -161,7 +161,7 @@
                 onclick="syncWithSupabase()"
                 id="sync-btn"
                 title="Sinkronkan Data dengan Supabase Cloud"
-                class="hidden md:flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
+                class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
                 <i class="fa-solid fa-rotate" id="sync-icon"></i>
                 <span class="hidden lg:inline">Sync</span>
             </button>
@@ -1219,7 +1219,11 @@
             localStorage.setItem('pos_supabase_key', key);
 
             initSupabaseClient();
-            showNotification("Pengaturan Supabase Disimpan & Menghubungkan Cloud...", "success");
+            if (supabaseClient) {
+                syncWithSupabase();
+            } else {
+                showNotification("Pengaturan Supabase Disimpan. Periksa URL & Key Anda.", "warning");
+            }
         }
 
         function initSupabaseClient() {
@@ -1637,16 +1641,21 @@
             initAuthSystem();
             setupHashNavigation();
             switchMobilePosTab('catalog');
-            renderCategories();
-            renderProductGrid();
-            renderCartItems();
-            renderCartCustomerDropdown();
-            renderCartVoucherDropdown();
-            renderAdminProductsTable();
-            renderCustomersTable();
-            renderVouchersTable();
-            renderHistoryTable();
-            initCharts();
+            
+            if (supabaseClient) {
+                await syncWithSupabase();
+            } else {
+                renderCategories();
+                renderProductGrid();
+                renderCartItems();
+                renderCartCustomerDropdown();
+                renderCartVoucherDropdown();
+                renderAdminProductsTable();
+                renderCustomersTable();
+                renderVouchersTable();
+                renderHistoryTable();
+                initCharts();
+            }
         });
 
         function loadLocalStorageData() {
