@@ -1389,6 +1389,8 @@
                 saveLocalStorageData();
                 renderCategories();
                 renderProductGrid();
+                renderCartCustomerDropdown();
+                renderCartVoucherDropdown();
                 renderAdminProductsTable();
                 renderCustomersTable();
                 renderVouchersTable();
@@ -1764,18 +1766,19 @@
             setupHashNavigation();
             switchMobilePosTab('catalog');
             
+            renderCategories();
+            renderProductGrid();
+            renderCartItems();
+            renderCartCustomerDropdown();
+            renderCartVoucherDropdown();
+            renderAdminProductsTable();
+            renderCustomersTable();
+            renderVouchersTable();
+            renderHistoryTable();
+
             if (supabaseClient) {
                 await syncWithSupabase();
             } else {
-                renderCategories();
-                renderProductGrid();
-                renderCartItems();
-                renderCartCustomerDropdown();
-                renderCartVoucherDropdown();
-                renderAdminProductsTable();
-                renderCustomersTable();
-                renderVouchersTable();
-                renderHistoryTable();
                 initCharts();
             }
         });
