@@ -83,7 +83,6 @@
 </head>
 <body class="h-screen overflow-hidden text-slate-800 flex flex-col antialiased bg-slate-100">
 
-    <!-- Toast Container for Notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <header class="bg-slate-900 text-white px-3 sm:px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
@@ -177,6 +176,7 @@
         </div>
     </header>
 
+    <!-- Mobile Navigation Bar -->
     <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-2 py-1.5 flex gap-1 text-[11px] overflow-x-auto custom-scrollbar shrink-0">
         <a href="#pos" id="mobile-nav-pos" class="px-3 py-1 font-bold rounded-lg text-center bg-blue-600 text-white shrink-0">Kasir</a>
         <a href="#products" id="mobile-nav-products" class="nav-admin-only px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Produk</a>
@@ -190,6 +190,7 @@
         
         <!-- POS VIEW -->
         <div id="view-pos" class="view-page flex-1 flex flex-col w-full h-full overflow-hidden min-h-0">
+            <!-- Mobile Tab Switcher -->
             <div class="md:hidden bg-slate-800 text-white px-3 py-2 flex gap-2 text-xs shrink-0 border-b border-slate-700">
                 <button onclick="switchMobilePosTab('catalog')" id="mob-tab-catalog" class="flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-boxes-stacked"></i> Katalog Produk
@@ -710,6 +711,7 @@
         </div>
 
     </main>
+
 
     <!-- MODAL: ADD / EDIT PRODUCT -->
     <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
@@ -1506,6 +1508,43 @@
         }
         window.initCharts = initCharts;
 
+        window.updateCharts = function() {
+            if (!salesChartInstance || !paymentChartInstance) return;
+            const dates = [];
+            const totals = [];
+            const today = new Date();
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                dates.push(dateStr);
+
+                const dayTotal = (transactions || [])
+                    .filter(t => (t.created_at || '').startsWith(dateStr))
+                    .reduce((sum, t) => sum + (Number(t.total) || 0), 0);
+                totals.push(dayTotal);
+            }
+
+            salesChartInstance.data.labels = dates;
+            salesChartInstance.data.datasets[0].data = totals;
+            salesChartInstance.update();
+
+            const payCounts = { 'Tunai': 0, 'QRIS': 0, 'Transfer': 0, 'Debit/Kredit': 0 };
+            (transactions || []).forEach(t => {
+                const method = t.payment_method || 'Tunai';
+                if (payCounts[method] !== undefined) payCounts[method] += Number(t.total) || 0;
+            });
+
+            paymentChartInstance.data.datasets[0].data = [
+                payCounts['Tunai'],
+                payCounts['QRIS'],
+                payCounts['Transfer'],
+                payCounts['Debit/Kredit']
+            ];
+            paymentChartInstance.update();
+        };
+
         window.switchMobilePosTab = function(tab) {
             const catSec = document.getElementById('pos-catalog-section');
             const cartSec = document.getElementById('pos-cart-section');
@@ -1558,6 +1597,9 @@
                     transactions = cloudTxs;
                 }
 
+                await window.fetchUsersFromSupabase();
+                await window.fetchStoreSettingsFromSupabase();
+
                 window.saveLocalStorageData();
                 renderProductGrid();
                 renderAdminProductsTable();
@@ -1578,615 +1620,932 @@
 
         window.fetchUsersFromSupabase = async function() {
             if (!supabaseClient) {
-                userAccounts = defaultAccounts;
+                renderUsersTable();
                 return;
             }
             try {
                 const { data, error } = await supabaseClient.from('users').select('*');
                 if (!error && data && data.length > 0) {
                     userAccounts = data;
-                } else {
-                    userAccounts = defaultAccounts;
+                    localStorage.setItem('pos_users', JSON.stringify(userAccounts));
                 }
             } catch (e) {
-                userAccounts = defaultAccounts;
+                console.warn("Fetch users error:", e);
             }
+            renderUsersTable();
         };
 
-        window.setupHashNavigation = function() {
-            function handleHashChange() {
-                const hash = window.location.hash || '#pos';
-                const pages = document.querySelectorAll('.view-page');
-                pages.forEach(page => page.classList.add('hidden'));
-
-                if (currentRole === 'cashier' && hash !== '#pos') {
-                    window.location.hash = '#pos';
-                    window.showNotification("Akses Terbatas untuk Akun Kasir", "warning");
-                    return;
-                }
-
-                const target = document.querySelector(hash === '#pos' ? '#view-pos' : '#view-' + hash.replace('#', ''));
-                if (target) {
-                    target.classList.remove('hidden');
-                } else {
-                    document.querySelector('#view-pos')?.classList.remove('hidden');
-                }
-
-                if (hash === '#history' && typeof window.updateCharts === 'function') {
-                    window.updateCharts();
-                }
-            }
-
-            window.addEventListener('hashchange', handleHashChange);
-            handleHashChange();
-        };
-
-        window.initAuthSystem = function() {
-            const savedUser = localStorage.getItem('pos_active_user');
-            if (savedUser) {
+        window.fetchStoreSettingsFromSupabase = async function() {
+            let settings = null;
+            if (supabaseClient) {
                 try {
-                    activeUser = JSON.parse(savedUser);
-                    currentRole = activeUser.role || 'cashier';
-                    updateUserDisplay();
+                    const { data, error } = await supabaseClient.from('store_settings').select('*').eq('id', 'default_store').single();
+                    if (!error && data) {
+                        settings = data;
+                    }
                 } catch (e) {
-                    window.openLoginModal();
+                    console.warn("Fetch store settings error:", e);
                 }
-            } else {
-                window.openLoginModal();
+            }
+
+            if (!settings) {
+                try {
+                    const local = localStorage.getItem('pos_store_settings');
+                    if (local) settings = JSON.parse(local);
+                } catch (e) {}
+            }
+
+            if (settings) {
+                applyStoreSettingsToUI(settings);
             }
         };
 
-        function updateUserDisplay() {
-            const nameEl = document.getElementById('user-display-name');
-            const roleEl = document.getElementById('user-display-role');
-            if (nameEl && activeUser) nameEl.innerText = activeUser.name || 'Admin';
-            if (roleEl && activeUser) roleEl.innerText = (activeUser.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff');
+        function applyStoreSettingsToUI(settings) {
+            if (!settings) return;
+            const nameEl = document.getElementById('setting-store-name');
+            const subEl = document.getElementById('setting-store-sub');
+            const phoneEl = document.getElementById('setting-store-phone');
+            const taxIdEl = document.getElementById('setting-store-tax-id');
+            const addrEl = document.getElementById('setting-store-address');
+            const footEl = document.getElementById('setting-receipt-footer');
+            const paperEl = document.getElementById('setting-receipt-paper');
+            const taxRateEl = document.getElementById('setting-receipt-tax-rate');
+            const showAddrEl = document.getElementById('setting-show-address-receipt');
+            const showPointsEl = document.getElementById('setting-show-points-receipt');
+
+            if (nameEl && settings.store_name) nameEl.value = settings.store_name;
+            if (subEl && settings.store_sub) subEl.value = settings.store_sub;
+            if (phoneEl) phoneEl.value = settings.store_phone || '';
+            if (taxIdEl) taxIdEl.value = settings.store_tax_id || '';
+            if (addrEl) addrEl.value = settings.store_address || '';
+            if (footEl) footEl.value = settings.receipt_footer || 'Terima kasih telah berbelanja!';
+            if (paperEl && settings.receipt_paper) paperEl.value = settings.receipt_paper;
+            if (taxRateEl) taxRateEl.value = settings.receipt_tax_rate || 0;
+            if (showAddrEl) showAddrEl.checked = settings.show_address_receipt !== false;
+            if (showPointsEl) showPointsEl.checked = settings.show_points_receipt !== false;
+
+            const headerName = document.getElementById('header-store-name');
+            const headerSub = document.getElementById('header-store-sub');
+            const recName = document.getElementById('rec-store-name');
+            const recSub = document.getElementById('rec-store-sub');
+            const recAddr = document.getElementById('rec-store-address');
+            const recPhone = document.getElementById('rec-store-phone');
+            const recFoot = document.getElementById('rec-footer-text');
+
+            if (headerName && settings.store_name) headerName.innerText = settings.store_name;
+            if (headerSub && settings.store_sub) headerSub.innerText = settings.store_sub;
+            if (recName && settings.store_name) recName.innerText = settings.store_name;
+            if (recSub && settings.store_sub) recSub.innerText = settings.store_sub;
+            
+            if (recAddr) {
+                if (settings.store_address && settings.show_address_receipt !== false) {
+                    recAddr.innerText = settings.store_address;
+                    recAddr.classList.remove('hidden');
+                } else {
+                    recAddr.classList.add('hidden');
+                }
+            }
+            if (recPhone) {
+                if (settings.store_phone && settings.show_address_receipt !== false) {
+                    recPhone.innerText = 'Telp/WA: ' + settings.store_phone;
+                    recPhone.classList.remove('hidden');
+                } else {
+                    recPhone.classList.add('hidden');
+                }
+            }
+            if (recFoot && settings.receipt_footer) recFoot.innerText = settings.receipt_footer;
         }
 
-        window.openLoginModal = function() {
-            const select = document.getElementById('login-username');
-            if (select) {
-                select.innerHTML = (userAccounts || defaultAccounts).map(u => `<option value="${u.username}">${u.name} (${u.role === 'admin' ? 'Admin' : 'Kasir'})</option>`).join('');
-            }
-            document.getElementById('login-modal')?.classList.remove('hidden');
+        window.renderUsersTable = function() {
+            const tbody = document.getElementById('users-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = (userAccounts || []).map(u => {
+                const perms = u.permissions || {};
+                const permLabels = [];
+                if (perms.products) permLabels.push('Produk');
+                if (perms.customers) permLabels.push('Pelanggan');
+                if (perms.vouchers) permLabels.push('Voucher');
+                if (perms.history) permLabels.push('Laporan');
+
+                return `<tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="p-2.5 font-mono font-bold text-blue-600">${u.username}</td>
+                    <td class="p-2.5 font-bold text-slate-800">${u.name}</td>
+                    <td class="p-2.5">
+                        <span class="px-2 py-0.5 rounded font-bold text-[10px] ${u.role === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700'}">
+                            ${u.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff'}
+                        </span>
+                    </td>
+                    <td class="p-2.5 text-center font-mono font-bold tracking-widest text-slate-600">••••</td>
+                    <td class="p-2.5">
+                        ${u.role === 'admin' 
+                            ? '<span class="text-emerald-600 font-bold text-[10px]"><i class="fa-solid fa-check-double mr-1"></i>Akses Penuh</span>' 
+                            : (permLabels.length > 0 
+                                ? permLabels.map(l => `<span class="inline-block bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-semibold mr-1 mb-1">${l}</span>`).join('') 
+                                : '<span class="text-slate-400 text-[10px] font-semibold">Hanya Kasir (POS)</span>')}
+                    </td>
+                    <td class="p-2.5 text-center">
+                        <div class="flex justify-center items-center gap-1">
+                            <button onclick="openUserModal('${u.id}')" class="text-blue-600 hover:text-blue-800 p-1" title="Edit User"><i class="fa-solid fa-pen-to-square"></i></button>
+                            ${u.username !== 'admin' ? `<button onclick="deleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-1" title="Hapus User"><i class="fa-solid fa-trash"></i></button>` : ''}
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
         };
 
-        window.appendPin = function(num) {
-            const input = document.getElementById('login-pin');
-            if (input && input.value.length < 6) {
-                input.value += num;
-            }
-        };
+        window.openUserModal = function(id = null) {
+            document.getElementById('user-modal-title').innerText = id ? "Edit Akun User / Kasir" : "Tambah Akun User / Kasir";
+            document.getElementById('user-id').value = id || "";
 
-        window.clearPin = function() {
-            const input = document.getElementById('login-pin');
-            if (input) input.value = '';
-        };
-
-        window.deletePin = function() {
-            const input = document.getElementById('login-pin');
-            if (input) input.value = input.value.slice(0, -1);
-        };
-
-        window.handleLoginSubmit = function(e) {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const pin = document.getElementById('login-pin').value;
-            const err = document.getElementById('login-error-msg');
-
-            const acc = (userAccounts || defaultAccounts).find(u => u.username === username && u.pin === pin);
-            if (acc) {
-                activeUser = acc;
-                currentRole = acc.role;
-                localStorage.setItem('pos_active_user', JSON.stringify(acc));
-                updateUserDisplay();
-                document.getElementById('login-modal')?.classList.add('hidden');
-                if (err) err.classList.add('hidden');
-                window.showNotification(`Selamat datang, ${acc.name}!`, "success");
-                window.setupHashNavigation();
+            if (id) {
+                const u = (userAccounts || []).find(acc => acc.id === id);
+                if (u) {
+                    document.getElementById('user-username').value = u.username || "";
+                    document.getElementById('user-pin').value = u.pin || "";
+                    document.getElementById('user-fullname').value = u.name || "";
+                    document.getElementById('user-role').value = u.role || "cashier";
+                    
+                    const perms = u.permissions || {};
+                    document.getElementById('perm-products').checked = !!perms.products;
+                    document.getElementById('perm-customers').checked = !!perms.customers;
+                    document.getElementById('perm-vouchers').checked = !!perms.vouchers;
+                    document.getElementById('perm-history').checked = !!perms.history;
+                }
             } else {
-                if (err) err.classList.remove('hidden');
+                document.getElementById('user-username').value = "";
+                document.getElementById('user-pin').value = "0000";
+                document.getElementById('user-fullname').value = "";
+                document.getElementById('user-role').value = "cashier";
+                document.getElementById('perm-products').checked = false;
+                document.getElementById('perm-customers').checked = false;
+                document.getElementById('perm-vouchers').checked = false;
+                document.getElementById('perm-history').checked = false;
+            }
+
+            toggleUserPermissionsUI();
+            document.getElementById('user-modal')?.classList.remove('hidden');
+        };
+
+        window.closeUserModal = function() {
+            document.getElementById('user-modal')?.classList.add('hidden');
+        };
+
+        window.toggleUserPermissionsUI = function() {
+            const role = document.getElementById('user-role')?.value;
+            const permGroup = document.getElementById('user-permissions-group');
+            if (role === 'admin') {
+                if (permGroup) permGroup.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                if (permGroup) permGroup.classList.remove('opacity-50', 'pointer-events-none');
             }
         };
 
-        window.updateCharts = function() {
-            if (!salesChartInstance || !paymentChartInstance) {
-                window.initCharts();
-                if (!salesChartInstance || !paymentChartInstance) return;
-            }
-
-            const last7Days = [];
-            const salesMap = {};
-
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                last7Days.push(dateStr);
-                salesMap[dateStr] = 0;
-            }
-
-            const paymentMap = {
-                'Tunai': 0,
-                'QRIS': 0,
-                'Transfer': 0,
-                'Debit/Kredit': 0,
-                'Lainnya': 0
+        window.handleUserSubmit = async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('user-id').value || window.generateUUID();
+            const username = document.getElementById('user-username').value.trim();
+            const pin = document.getElementById('user-pin').value.trim();
+            const name = document.getElementById('user-fullname').value.trim();
+            const role = document.getElementById('user-role').value;
+            
+            const permissions = {
+                products: role === 'admin' ? true : document.getElementById('perm-products').checked,
+                customers: role === 'admin' ? true : document.getElementById('perm-customers').checked,
+                vouchers: role === 'admin' ? true : document.getElementById('perm-vouchers').checked,
+                history: role === 'admin' ? true : document.getElementById('perm-history').checked
             };
 
-            (transactions || []).forEach(tx => {
-                if (tx.created_at) {
-                    const txDate = tx.created_at.split('T')[0];
-                    if (salesMap[txDate] !== undefined) {
-                        salesMap[txDate] += (Number(tx.total) || 0);
-                    }
-                }
+            const userRecord = { id, username, pin, name, role, permissions };
 
-                const method = tx.payment_method || 'Tunai';
-                if (paymentMap[method] !== undefined) {
-                    paymentMap[method] += (Number(tx.total) || 0);
-                } else if (method.includes('Debit') || method.includes('Kredit')) {
-                    paymentMap['Debit/Kredit'] += (Number(tx.total) || 0);
-                } else {
-                    paymentMap['Lainnya'] += (Number(tx.total) || 0);
-                }
-            });
-
-            salesChartInstance.data.labels = last7Days.map(d => {
-                const parts = d.split('-');
-                return parts[2] + '/' + parts[1];
-            });
-            salesChartInstance.data.datasets[0].data = last7Days.map(d => salesMap[d] || 0);
-            salesChartInstance.update();
-
-            const activeMethods = Object.keys(paymentMap).filter(k => paymentMap[k] > 0);
-            if (activeMethods.length === 0) {
-                paymentChartInstance.data.labels = ['Belum ada transaksi'];
-                paymentChartInstance.data.datasets[0].data = [1];
-                paymentChartInstance.data.datasets[0].backgroundColor = ['#cbd5e1'];
+            const idx = userAccounts.findIndex(u => u.id === id || u.username === username);
+            if (idx >= 0) {
+                userAccounts[idx] = userRecord;
             } else {
-                paymentChartInstance.data.labels = activeMethods;
-                paymentChartInstance.data.datasets[0].data = activeMethods.map(k => paymentMap[k]);
-                paymentChartInstance.data.datasets[0].backgroundColor = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#64748b'];
+                userAccounts.push(userRecord);
             }
-            paymentChartInstance.update();
+
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from('users').upsert([userRecord]);
+                    if (error) console.error("Cloud user save error:", error);
+                } catch (err) {
+                    console.error("Cloud user save exception:", err);
+                }
+            }
+
+            window.saveLocalStorageData();
+            renderUsersTable();
+            closeUserModal();
+            window.showNotification(`Akun ${username} berhasil disimpan!`, "success");
+        };
+
+        window.deleteUser = async function(id) {
+            const u = userAccounts.find(acc => acc.id === id);
+            if (u && u.username === 'admin') {
+                window.showNotification("Akun admin utama tidak dapat dihapus!", "error");
+                return;
+            }
+
+            userAccounts = userAccounts.filter(acc => acc.id !== id);
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('users').delete().eq('id', id);
+                } catch (err) {
+                    console.error("Cloud delete user error:", err);
+                }
+            }
+
+            window.saveLocalStorageData();
+            renderUsersTable();
+            window.showNotification("Akun user berhasil dihapus.", "info");
+        };
+
+        window.saveStoreSettings = async function() {
+            const settings = {
+                id: 'default_store',
+                store_name: document.getElementById('setting-store-name').value.trim(),
+                store_sub: document.getElementById('setting-store-sub').value.trim(),
+                store_phone: document.getElementById('setting-store-phone').value.trim(),
+                store_tax_id: document.getElementById('setting-store-tax-id').value.trim(),
+                store_address: document.getElementById('setting-store-address').value.trim(),
+                receipt_footer: document.getElementById('setting-receipt-footer').value.trim(),
+                receipt_paper: document.getElementById('setting-receipt-paper').value,
+                receipt_tax_rate: Number(document.getElementById('setting-receipt-tax-rate').value) || 0,
+                show_address_receipt: document.getElementById('setting-show-address-receipt').checked,
+                show_points_receipt: document.getElementById('setting-show-points-receipt').checked,
+                updated_at: new Date().toISOString()
+            };
+
+            localStorage.setItem('pos_store_settings', JSON.stringify(settings));
+            applyStoreSettingsToUI(settings);
+
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from('store_settings').upsert([settings]);
+                    if (error) {
+                        console.error("Cloud save store settings error:", error);
+                        window.showNotification("Tersimpan di Lokal. Gagal update ke Supabase Cloud.", "warning");
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Cloud store settings error:", err);
+                }
+            }
+
+            window.showNotification("Profil toko berhasil disimpan ke Cloud!", "success");
+        };
+
+        window.saveReceiptSettings = function() {
+            window.saveStoreSettings();
+        };
+
+        window.saveSupabaseSettings = function() {
+            const url = window.sanitizeSupabaseUrl(document.getElementById('setting-supabase-url').value);
+            const key = document.getElementById('setting-supabase-key').value.trim();
+
+            localStorage.setItem('pos_supa_url', url);
+            localStorage.setItem('pos_supa_key', key);
+
+            window.initSupabaseClient();
+            window.syncWithSupabase();
+        };
+
+        window.generateMobileConnectLink = function() {
+            const url = window.sanitizeSupabaseUrl(document.getElementById('setting-supabase-url').value);
+            const key = document.getElementById('setting-supabase-key').value.trim();
+
+            if (!url || !key) {
+                window.showNotification("Isi URL dan Key Supabase terlebih dahulu!", "warning");
+                return;
+            }
+
+            const currentBase = window.location.origin + window.location.pathname;
+            const fullLink = `${currentBase}?supa_url=${encodeURIComponent(url)}&supa_key=${encodeURIComponent(key)}`;
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(fullLink);
+                window.showNotification("Link koneksi HP berhasil disalin ke Clipboard!", "success");
+            } else {
+                prompt("Salin Link Koneksi HP berikut:", fullLink);
+            }
         };
 
         function renderProductGrid() {
             const grid = document.getElementById('product-grid');
-            const countEl = document.getElementById('product-count');
             if (!grid) return;
 
-            const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+            const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
             const filtered = (products || []).filter(p => {
-                const matchCategory = (selectedCategory === 'Semua' || p.category === selectedCategory);
-                const matchSearch = !q || 
-                    (p.name && p.name.toLowerCase().includes(q)) || 
-                    (p.sku && p.sku.toLowerCase().includes(q)) || 
-                    (p.barcode && String(p.barcode).toLowerCase().includes(q));
-                return matchCategory && matchSearch;
+                const matchCat = selectedCategory === 'Semua' || (p.category || '') === selectedCategory;
+                const matchQuery = !query || 
+                    (p.name || '').toLowerCase().includes(query) || 
+                    (p.sku || '').toLowerCase().includes(query) || 
+                    (p.barcode || '').toLowerCase().includes(query) ||
+                    (p.brand || '').toLowerCase().includes(query);
+                return matchCat && matchQuery;
             });
 
+            const countEl = document.getElementById('product-count');
             if (countEl) countEl.innerText = `${filtered.length} Produk`;
+
+            renderCategoryPills();
 
             if (filtered.length === 0) {
                 grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 space-y-2">
-                    <i class="fa-solid fa-box-open text-3xl"></i>
-                    <p class="text-xs font-semibold">Tidak ada produk ditemukan</p>
-                    <button onclick="window.loadLocalStorageData(); renderProductGrid();" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-200">Muat Ulang Data</button>
+                    <i class="fa-solid fa-box-open text-4xl"></i>
+                    <p class="text-xs font-semibold">Produk tidak ditemukan</p>
+                    <button onclick="loadDefaultProducts()" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition">Muat Ulang Data Sampel</button>
                 </div>`;
                 return;
             }
 
             grid.innerHTML = filtered.map(p => {
+                const stock = Number(p.stock) || 0;
+                const price = Number(p.selling_price) || 0;
                 const hasPromo = p.promo && p.promo !== 'Standard';
-                return `<div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 rounded-2xl p-3 flex flex-col justify-between hover:border-blue-500 hover:shadow-md cursor-pointer transition relative group min-h-[165px]">
-                    ${hasPromo ? `<div class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl rounded-tr-2xl uppercase tracking-wider max-w-[70%] truncate shadow-sm z-10"><i class="fa-solid fa-tag mr-0.5"></i>${p.promo}</div>` : ''}
-                    <div>
-                        <div class="flex items-center justify-between gap-1 mb-1 pr-14 pt-2.5">
-                            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md truncate">${p.category || 'Umum'}</span>
-                        </div>
-                        <h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition mb-1">${p.name}</h3>
-                        <p class="text-[10px] font-mono text-slate-400 truncate bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5 w-fit">${p.barcode || p.sku || '-'}</p>
+
+                return `<div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer relative group min-h-[165px]">
+                    ${hasPromo ? `<span class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2 py-1 rounded-tr-2xl rounded-bl-xl shadow-sm z-10 max-w-[75%] truncate uppercase"><i class="fa-solid fa-tag mr-1"></i>${p.promo}</span>` : ''}
+                    
+                    <div class="space-y-1 pr-12 pt-1">
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md inline-block max-w-full truncate">${p.category || 'Umum'}</span>
+                        <h3 class="font-extrabold text-xs text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition">${p.name}</h3>
+                        <p class="text-[10px] font-mono text-slate-400 truncate">${p.barcode || p.sku || '-'}</p>
                     </div>
-                    <div class="flex justify-between items-end mt-2 pt-2 border-t border-slate-100">
+
+                    <div class="pt-2 border-t border-slate-100 flex items-end justify-between mt-2 gap-1 shrink-0">
                         <div class="min-w-0 flex-1">
-                            <span class="text-xs sm:text-sm font-black text-blue-600 block">Rp ${window.roundPrice(p.selling_price).toLocaleString('id-ID')}</span>
+                            <span class="text-xs sm:text-sm font-black text-blue-600 block truncate">Rp ${price.toLocaleString('id-ID')}</span>
                         </div>
-                        <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">Stok: ${p.stock}</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${stock > 10 ? 'bg-emerald-50 text-emerald-700' : (stock > 0 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600')}">
+                            Stok: ${stock}
+                        </span>
                     </div>
                 </div>`;
             }).join('');
+        }
 
-            renderCategoryPills();
+        function loadDefaultProducts() {
+            products = defaultProducts;
+            window.saveLocalStorageData();
+            renderProductGrid();
         }
 
         function renderCategoryPills() {
-            const pills = document.getElementById('category-pills');
-            if (!pills) return;
+            const container = document.getElementById('category-pills');
+            if (!container) return;
 
             const categories = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
             
-            pills.innerHTML = categories.map(cat => {
-                const isActive = cat === selectedCategory;
-                return `<button onclick="selectCategory('${cat}')" class="px-3 py-1 rounded-xl text-xs font-bold transition shrink-0 ${isActive ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${cat}</button>`;
+            container.innerHTML = categories.map(cat => {
+                const active = cat === selectedCategory;
+                return `<button onclick="filterByCategory('${cat}')" class="px-3 py-1 rounded-xl font-bold transition shrink-0 text-xs ${active ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    ${cat}
+                </button>`;
             }).join('');
         }
 
-        window.selectCategory = function(cat) {
+        function filterByCategory(cat) {
             selectedCategory = cat;
             renderProductGrid();
-        };
+        }
 
-        window.handleSearch = function(e) {
+        function handleSearch(e) {
             renderProductGrid();
-        };
+        }
 
-        window.addToCart = function(prodId) {
-            const prod = (products || []).find(p => p.id === prodId);
-            if (!prod) return;
+        function addToCart(prodId) {
+            const product = (products || []).find(p => p.id === prodId);
+            if (!product) return;
 
-            if (prod.stock <= 0) {
-                window.showNotification("Stok barang ini sudah habis!", "error");
+            if ((Number(product.stock) || 0) <= 0) {
+                window.showNotification("Stok produk habis!", "warning");
                 return;
             }
 
             const existing = cart.find(item => item.id === prodId);
             if (existing) {
-                if (existing.qty + 1 > prod.stock) {
-                    window.showNotification("Jumlah di keranjang melebihi sisa stok!", "warning");
+                if (existing.qty + 1 > product.stock) {
+                    window.showNotification("Jumlah melebihi stok yang tersedia!", "warning");
                     return;
                 }
                 existing.qty += 1;
             } else {
-                cart.push({ ...prod, qty: 1 });
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: Number(product.selling_price) || 0,
+                    qty: 1,
+                    category: product.category,
+                    brand: product.brand,
+                    family: product.family,
+                    promo: product.promo
+                });
             }
 
             renderCartItems();
-            window.calculateCartTotals();
-        };
+            calculateCartTotals();
+            window.showNotification(`+ ${product.name} dimasukkan ke keranjang`, "success");
+        }
 
         function renderCartItems() {
             const container = document.getElementById('cart-items');
-            const countEl = document.getElementById('mob-cart-count');
-            if (countEl) countEl.innerText = cart.reduce((sum, i) => sum + i.qty, 0);
+            const mobCount = document.getElementById('mob-cart-count');
+            
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            if (mobCount) mobCount.innerText = totalQty;
 
             if (!container) return;
 
             if (cart.length === 0) {
-                container.innerHTML = `<div class="py-12 text-center text-slate-400 space-y-2">
+                container.innerHTML = `<div class="py-12 text-center text-slate-400 space-y-1">
                     <i class="fa-solid fa-cart-flatbed text-3xl"></i>
-                    <p class="text-xs">Keranjang masih kosong</p>
+                    <p class="text-xs">Keranjang belanja kosong</p>
                 </div>`;
                 return;
             }
 
-            container.innerHTML = cart.map((item, idx) => {
-                const sub = window.roundPrice(item.selling_price * item.qty);
-                return `<div class="py-2 flex items-center justify-between gap-2">
+            container.innerHTML = cart.map(item => {
+                const sub = item.price * item.qty;
+                return `<div class="py-2.5 flex items-center justify-between gap-2 border-b border-slate-100 text-xs">
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-bold text-xs text-slate-800 truncate">${item.name}</h4>
-                        <div class="text-[10px] text-slate-500">Rp ${window.roundPrice(item.selling_price).toLocaleString('id-ID')} × ${item.qty}</div>
+                        <h4 class="font-bold text-slate-800 truncate">${item.name}</h4>
+                        <div class="text-[10px] text-slate-500">Rp ${item.price.toLocaleString('id-ID')} x ${item.qty}</div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="updateCartQty(${idx}, -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">-</button>
-                        <span class="text-xs font-bold w-6 text-center">${item.qty}</span>
-                        <button onclick="updateCartQty(${idx}, 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">+</button>
+                    
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center transition">-</button>
+                        <span class="w-6 text-center font-extrabold text-slate-800">${item.qty}</span>
+                        <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center transition">+</button>
                     </div>
-                    <div class="text-right shrink-0 min-w-[70px]">
-                        <span class="font-bold text-xs text-slate-800 block">Rp ${sub.toLocaleString('id-ID')}</span>
+
+                    <div class="text-right font-extrabold text-slate-800 min-w-[70px]">
+                        Rp ${sub.toLocaleString('id-ID')}
                     </div>
+
+                    <button onclick="removeFromCart('${item.id}')" class="text-slate-300 hover:text-red-500 transition p-1"><i class="fa-solid fa-xmark"></i></button>
                 </div>`;
             }).join('');
         }
 
-        window.updateCartQty = function(index, delta) {
-            if (!cart[index]) return;
-            cart[index].qty += delta;
-            if (cart[index].qty <= 0) {
-                cart.splice(index, 1);
-            }
-            renderCartItems();
-            window.calculateCartTotals();
-        };
+        function updateCartQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
 
-        window.clearCart = function() {
-            cart = [];
-            appliedVouchers = [];
-            renderCartItems();
-            window.calculateCartTotals();
-        };
+            const product = products.find(p => p.id === id);
+            const newQty = item.qty + delta;
 
-        window.calculateCartTotals = function() {
-            const rawSubtotal = cart.reduce((sum, item) => sum + (Number(item.selling_price) * item.qty), 0);
-            const subtotal = window.roundPrice(rawSubtotal);
-
-            let manualDisc = 0;
-            const discType = document.getElementById('cart-discount-type')?.value || 'percentage';
-            const discInput = Number(document.getElementById('cart-discount-input')?.value || 0);
-
-            if (discType === 'percentage') {
-                manualDisc = window.roundPrice(subtotal * (discInput / 100));
-            } else {
-                manualDisc = window.roundPrice(discInput);
-            }
-
-            let vipDisc = 0;
-            const selectMember = document.getElementById('cart-customer-select')?.value;
-            const customer = (customers || []).find(c => c.id === selectMember || c.member_number === selectMember);
-            if (customer && customer.type === 'VIP') {
-                vipDisc = window.roundPrice((subtotal - manualDisc) * 0.05);
-            }
-
-            let voucherDisc = 0;
-            (appliedVouchers || []).forEach(v => {
-                if (v.type === 'percentage') {
-                    voucherDisc += window.roundPrice(subtotal * (v.value / 100));
-                } else {
-                    voucherDisc += window.roundPrice(v.value);
-                }
-            });
-
-            const totalDisc = manualDisc + vipDisc + voucherDisc;
-            const grandTotal = Math.max(0, subtotal - totalDisc);
-
-            const subEl = document.getElementById('cart-subtotal');
-            const grandEl = document.getElementById('cart-grand-total');
-            const btnCheckout = document.getElementById('btn-checkout');
-
-            if (subEl) subEl.innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
-            if (grandEl) grandEl.innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-            if (btnCheckout) btnCheckout.disabled = (cart.length === 0);
-        };
-
-        function renderCartVoucherDropdown() {
-            const dropdown = document.getElementById('cart-voucher-dropdown');
-            if (!dropdown) return;
-
-            dropdown.innerHTML = '<option value="">-- Pilih Voucher / Promo --</option>' + 
-                (vouchers || []).filter(v => v.is_active).map(v => `<option value="${v.code}">${v.code} - ${v.title}</option>`).join('');
-        }
-
-        window.applyDropdownVoucher = function(elem) {
-            const code = elem.value;
-            if (!code) return;
-
-            const vouch = (vouchers || []).find(v => v.code === code);
-            if (vouch) {
-                if (!appliedVouchers.some(v => v.code === code)) {
-                    appliedVouchers.push(vouch);
-                    window.showNotification(`Voucher ${vouch.code} diterapkan!`, "success");
-                }
-            }
-            elem.value = "";
-            window.calculateCartTotals();
-        };
-
-        window.openPaymentModal = function() {
-            if (cart.length === 0) return;
-            const totalText = document.getElementById('cart-grand-total')?.innerText || 'Rp 0';
-            const modalTotal = document.getElementById('pay-modal-total');
-            if (modalTotal) modalTotal.innerText = totalText;
-            document.getElementById('payment-modal')?.classList.remove('hidden');
-        };
-
-        window.closePaymentModal = function() {
-            document.getElementById('payment-modal')?.classList.add('hidden');
-        };
-
-        window.setQuickCash = function(val) {
-            const grandText = document.getElementById('cart-grand-total')?.innerText || '0';
-            const total = parseInt(grandText.replace(/[^0-9]/g, '')) || 0;
-            const cashInput = document.getElementById('pay-cash-amount');
-
-            if (val === 'pas') {
-                if (cashInput) cashInput.value = total;
-            } else {
-                if (cashInput) cashInput.value = val;
-            }
-            window.calculateChange();
-        };
-
-        window.calculateChange = function() {
-            const grandText = document.getElementById('cart-grand-total')?.innerText || '0';
-            const total = parseInt(grandText.replace(/[^0-9]/g, '')) || 0;
-            const paid = parseInt(document.getElementById('pay-cash-amount')?.value || 0);
-            const change = Math.max(0, paid - total);
-
-            const changeEl = document.getElementById('pay-change-amount');
-            if (changeEl) changeEl.innerText = `Rp ${change.toLocaleString('id-ID')}`;
-        };
-
-        window.processTransaction = async function() {
-            const grandText = document.getElementById('cart-grand-total')?.innerText || '0';
-            const total = parseInt(grandText.replace(/[^0-9]/g, '')) || 0;
-            const paid = parseInt(document.getElementById('pay-cash-amount')?.value || 0);
-            const method = document.getElementById('pay-method')?.value || 'Tunai';
-
-            if (paid < total && method === 'Tunai') {
-                window.showNotification("Jumlah pembayaran kurang!", "warning");
+            if (newQty <= 0) {
+                removeFromCart(id);
                 return;
             }
 
-            const selectMember = document.getElementById('cart-customer-select')?.value;
-            const customer = (customers || []).find(c => c.id === selectMember || c.member_number === selectMember);
+            if (product && newQty > product.stock) {
+                window.showNotification("Jumlah melebihi stok tersedia!", "warning");
+                return;
+            }
 
+            item.qty = newQty;
+            renderCartItems();
+            calculateCartTotals();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            renderCartItems();
+            calculateCartTotals();
+        }
+
+        function clearCart() {
+            cart = [];
+            appliedVouchers = [];
+            renderCartItems();
+            calculateCartTotals();
+        }
+
+        function calculateCartTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            let categoryDiscount = 0;
+            cart.forEach(item => {
+                if (item.promo && item.promo.includes('Potongan')) {
+                    const match = item.promo.match(/(\d+[\d\.]*)/);
+                    if (match) {
+                        const amount = Number(match[1].replace(/\./g, '')) || 0;
+                        categoryDiscount += (amount * item.qty);
+                    }
+                }
+            });
+
+            const discountType = document.getElementById('cart-discount-type')?.value || 'percentage';
+            const discountInput = Number(document.getElementById('cart-discount-input')?.value) || 0;
+            let manualDiscount = 0;
+
+            if (discountType === 'percentage') {
+                manualDiscount = Math.round((subtotal * discountInput) / 100);
+            } else {
+                manualDiscount = discountInput;
+            }
+
+            let vipDiscount = 0;
+            const selectedCustId = document.getElementById('cart-customer-select')?.value;
+            const customer = customers.find(c => c.id === selectedCustId || c.member_number === selectedCustId);
+            if (customer && customer.type === 'VIP') {
+                vipDiscount = Math.round((subtotal - categoryDiscount - manualDiscount) * 0.05);
+                if (vipDiscount < 0) vipDiscount = 0;
+            }
+
+            let voucherDiscount = 0;
+            appliedVouchers.forEach(v => {
+                if (v.type === 'percentage') {
+                    voucherDiscount += Math.round((subtotal * v.value) / 100);
+                } else {
+                    voucherDiscount += v.value;
+                }
+            });
+
+            const totalDiscount = categoryDiscount + manualDiscount + vipDiscount + voucherDiscount;
+            const grandTotal = Math.max(0, subtotal - totalDiscount);
+
+            document.getElementById('cart-subtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('cart-grand-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+
+            const btnCheckout = document.getElementById('btn-checkout');
+            if (btnCheckout) btnCheckout.disabled = cart.length === 0;
+
+            const rowCat = document.getElementById('row-category-discount');
+            if (rowCat) {
+                if (categoryDiscount > 0) {
+                    rowCat.classList.remove('hidden');
+                    document.getElementById('cart-category-discount-amount').innerText = `- Rp ${categoryDiscount.toLocaleString('id-ID')}`;
+                } else {
+                    rowCat.classList.add('hidden');
+                }
+            }
+
+            const rowManual = document.getElementById('row-manual-discount');
+            if (rowManual) {
+                if (manualDiscount > 0) {
+                    rowManual.classList.remove('hidden');
+                    document.getElementById('cart-manual-discount-amount').innerText = `- Rp ${manualDiscount.toLocaleString('id-ID')}`;
+                } else {
+                    rowManual.classList.add('hidden');
+                }
+            }
+
+            const rowVip = document.getElementById('row-vip-discount');
+            if (rowVip) {
+                if (vipDiscount > 0) {
+                    rowVip.classList.remove('hidden');
+                    document.getElementById('cart-vip-discount-amount').innerText = `- Rp ${vipDiscount.toLocaleString('id-ID')}`;
+                } else {
+                    rowVip.classList.add('hidden');
+                }
+            }
+
+            const rowVouch = document.getElementById('row-voucher-discount');
+            if (rowVouch) {
+                if (voucherDiscount > 0) {
+                    rowVouch.classList.remove('hidden');
+                    document.getElementById('cart-voucher-discount-amount').innerText = `- Rp ${voucherDiscount.toLocaleString('id-ID')}`;
+                    document.getElementById('cart-voucher-code-label').innerText = appliedVouchers.map(v => v.code).join(', ');
+                } else {
+                    rowVouch.classList.add('hidden');
+                }
+            }
+        }
+
+        function renderCartVoucherDropdown() {
+            const select = document.getElementById('cart-voucher-dropdown');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">-- Pilih Voucher / Promo --</option>';
+            (vouchers || []).filter(v => v.is_active).forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = `${v.code} - ${v.title} (${v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function applyDropdownVoucher(selectEl) {
+            const vId = selectEl.value;
+            if (!vId) return;
+
+            const voucher = vouchers.find(v => v.id === vId);
+            if (!voucher) return;
+
+            if (appliedVouchers.some(v => v.id === vId)) {
+                window.showNotification("Voucher ini sudah dipakai!", "warning");
+                selectEl.value = "";
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            if (voucher.min_purchase && subtotal < voucher.min_purchase) {
+                window.showNotification(`Minimal belanja Rp ${voucher.min_purchase.toLocaleString('id-ID')} untuk voucher ini!`, "warning");
+                selectEl.value = "";
+                return;
+            }
+
+            appliedVouchers.push(voucher);
+            renderAppliedVouchersUI();
+            calculateCartTotals();
+            selectEl.value = "";
+            window.showNotification(`Voucher ${voucher.code} berhasil dipasang!`, "success");
+        }
+
+        function renderAppliedVouchersUI() {
+            const container = document.getElementById('applied-vouchers-container');
+            if (!container) return;
+
+            if (appliedVouchers.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            container.innerHTML = appliedVouchers.map(v => `<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-1.5 flex justify-between items-center text-xs">
+                <span class="font-bold text-indigo-900">${v.code} (${v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value.toLocaleString('id-ID')})</span>
+                <button onclick="removeVoucher('${v.id}')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>`).join('');
+        }
+
+        function removeVoucher(id) {
+            appliedVouchers = appliedVouchers.filter(v => v.id !== id);
+            renderAppliedVouchersUI();
+            calculateCartTotals();
+        }
+
+        function openPaymentModal() {
+            if (cart.length === 0) return;
+            calculateCartTotals();
+
+            const totalText = document.getElementById('cart-grand-total')?.innerText || 'Rp 0';
+            document.getElementById('pay-modal-total').innerText = totalText;
+            document.getElementById('pay-cash-amount').value = '';
+            document.getElementById('pay-change-amount').innerText = 'Rp 0';
+            document.getElementById('payment-modal')?.classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal')?.classList.add('hidden');
+        }
+
+        function setQuickCash(val) {
+            const totalText = document.getElementById('pay-modal-total').innerText;
+            const grandTotal = Number(totalText.replace(/[^0-9]/g, '')) || 0;
+
+            if (val === 'pas') {
+                document.getElementById('pay-cash-amount').value = grandTotal;
+            } else {
+                document.getElementById('pay-cash-amount').value = val;
+            }
+            calculateChange();
+        }
+
+        function calculateChange() {
+            const totalText = document.getElementById('pay-modal-total').innerText;
+            const grandTotal = Number(totalText.replace(/[^0-9]/g, '')) || 0;
+            const cash = Number(document.getElementById('pay-cash-amount').value) || 0;
+
+            const change = Math.max(0, cash - grandTotal);
+            document.getElementById('pay-change-amount').innerText = `Rp ${change.toLocaleString('id-ID')}`;
+        }
+
+        async function processTransaction() {
+            const totalText = document.getElementById('pay-modal-total').innerText;
+            const grandTotal = Number(totalText.replace(/[^0-9]/g, '')) || 0;
+            const cash = Number(document.getElementById('pay-cash-amount').value) || 0;
+            const method = document.getElementById('pay-method').value;
+
+            if (cash < grandTotal && method === 'Tunai') {
+                window.showNotification("Jumlah uang tunai kurang!", "warning");
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            let categoryDiscount = 0;
+            cart.forEach(item => {
+                if (item.promo && item.promo.includes('Potongan')) {
+                    const match = item.promo.match(/(\d+[\d\.]*)/);
+                    if (match) {
+                        const amount = Number(match[1].replace(/\./g, '')) || 0;
+                        categoryDiscount += (amount * item.qty);
+                    }
+                }
+            });
+
+            const discountType = document.getElementById('cart-discount-type')?.value || 'percentage';
+            const discountInput = Number(document.getElementById('cart-discount-input')?.value) || 0;
+            let manualDiscount = discountType === 'percentage' ? Math.round((subtotal * discountInput) / 100) : discountInput;
+
+            const selectedCustId = document.getElementById('cart-customer-select')?.value;
+            const customer = customers.find(c => c.id === selectedCustId || c.member_number === selectedCustId);
+            
+            let vipDiscount = 0;
+            if (customer && customer.type === 'VIP') {
+                vipDiscount = Math.round((subtotal - categoryDiscount - manualDiscount) * 0.05);
+            }
+
+            let voucherDiscount = 0;
+            appliedVouchers.forEach(v => {
+                voucherDiscount += v.type === 'percentage' ? Math.round((subtotal * v.value) / 100) : v.value;
+            });
+
+            const totalDiscount = categoryDiscount + manualDiscount + vipDiscount + voucherDiscount;
+            const change = Math.max(0, cash - grandTotal);
+
+            const txId = 'TRX-' + Date.now().toString().slice(-6);
             const txRecord = {
-                id: 'TRX-' + Date.now().toString().slice(-6),
-                cashier: activeUser?.name || 'Admin',
-                customer_name: customer ? customer.name : 'Pelanggan Umum',
-                subtotal: parseInt((document.getElementById('cart-subtotal')?.innerText || '0').replace(/[^0-9]/g, '')),
-                total: total,
-                cash_paid: paid,
-                change: Math.max(0, paid - total),
+                id: txId,
+                items: [...cart],
+                subtotal: subtotal,
+                category_discount: categoryDiscount,
+                manual_discount: manualDiscount,
+                vip_discount: vipDiscount,
+                voucher_discount: voucherDiscount,
+                voucher_codes: appliedVouchers.map(v => v.code),
+                discount: totalDiscount,
+                total: grandTotal,
+                cash_paid: cash,
+                change: change,
                 payment_method: method,
-                items: cart,
+                cashier_name: activeUser ? activeUser.name : 'Admin',
+                customer_name: customer ? customer.name : 'Pelanggan Umum',
+                customer_id: customer ? customer.id : null,
                 created_at: new Date().toISOString()
             };
 
             transactions.unshift(txRecord);
 
+            cart.forEach(item => {
+                const prod = products.find(p => p.id === item.id);
+                if (prod) {
+                    prod.stock = Math.max(0, prod.stock - item.qty);
+                }
+            });
+
+            if (customer) {
+                const addPoints = Math.floor(grandTotal / 10000);
+                customer.points = (customer.points || 0) + addPoints;
+                customer.total_tx = (customer.total_tx || 0) + grandTotal;
+            }
+
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('transactions').insert([txRecord]);
+                    const { error: txErr } = await supabaseClient.from('transactions').insert([txRecord]);
+                    if (txErr) console.error("Cloud Tx error:", txErr);
+
+                    for (const item of cart) {
+                        const prod = products.find(p => p.id === item.id);
+                        if (prod) {
+                            await supabaseClient.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+                        }
+                    }
+
+                    if (customer) {
+                        await supabaseClient.from('customers').update({
+                            points: customer.points,
+                            total_tx: customer.total_tx
+                        }).eq('id', customer.id);
+                    }
                 } catch (e) {
-                    console.error("Cloud insert error:", e);
+                    console.error("Cloud sync exception:", e);
                 }
             }
 
             window.saveLocalStorageData();
-            window.closePaymentModal();
-            window.clearCart();
+            renderProductGrid();
+            renderAdminProductsTable();
+            renderCustomersTable();
             renderHistoryTable();
-            if (typeof window.updateCharts === 'function') window.updateCharts();
 
-            window.showNotification("Transaksi Berhasil!", "success");
-            window.viewTransactionReceipt(txRecord.id);
-        };
+            closePaymentModal();
+            clearCart();
+
+            showReceipt(txRecord);
+            window.showNotification("Transaksi Berhasil Disimpan!", "success");
+        }
+
+        function showReceipt(tx) {
+            document.getElementById('rec-id').innerText = tx.id;
+            document.getElementById('rec-date').innerText = new Date(tx.created_at).toLocaleString('id-ID');
+            document.getElementById('rec-cashier').innerText = tx.cashier_name || 'Admin';
+            document.getElementById('rec-customer').innerText = tx.customer_name || 'Pelanggan Umum';
+
+            const itemsContainer = document.getElementById('rec-items-list');
+            if (itemsContainer) {
+                itemsContainer.innerHTML = (tx.items || []).map(item => `<div class="space-y-0.5">
+                    <div class="font-bold text-slate-800 truncate">${item.name}</div>
+                    <div class="flex justify-between items-baseline text-[10px] text-slate-600">
+                        <span>${item.qty} x Rp ${item.price.toLocaleString('id-ID')}</span>
+                        <span class="font-bold text-right ml-auto">Rp ${(item.qty * item.price).toLocaleString('id-ID')}</span>
+                    </div>
+                </div>`).join('');
+            }
+
+            document.getElementById('rec-subtotal').innerText = `Rp ${(tx.subtotal || 0).toLocaleString('id-ID')}`;
+
+            const discBreakdown = document.getElementById('rec-discount-breakdown');
+            if (discBreakdown) {
+                discBreakdown.innerHTML = '';
+                if (tx.category_discount > 0) {
+                    discBreakdown.innerHTML += `<div class="flex justify-between items-baseline w-full text-[10px]"><span>Diskon Produk:</span><span class="text-right ml-auto">- Rp ${tx.category_discount.toLocaleString('id-ID')}</span></div>`;
+                }
+                if (tx.manual_discount > 0) {
+                    discBreakdown.innerHTML += `<div class="flex justify-between items-baseline w-full text-[10px]"><span>Diskon Manual:</span><span class="text-right ml-auto">- Rp ${tx.manual_discount.toLocaleString('id-ID')}</span></div>`;
+                }
+                if (tx.vip_discount > 0) {
+                    discBreakdown.innerHTML += `<div class="flex justify-between items-baseline w-full text-[10px]"><span>Diskon Member VIP:</span><span class="text-right ml-auto">- Rp ${tx.vip_discount.toLocaleString('id-ID')}</span></div>`;
+                }
+                if (tx.voucher_discount > 0) {
+                    discBreakdown.innerHTML += `<div class="flex justify-between items-baseline w-full text-[10px]"><span>Diskon Voucher (${(tx.voucher_codes || []).join(', ')}):</span><span class="text-right ml-auto">- Rp ${tx.voucher_discount.toLocaleString('id-ID')}</span></div>`;
+                }
+            }
+
+            document.getElementById('rec-total').innerText = `Rp ${(tx.total || 0).toLocaleString('id-ID')}`;
+            document.getElementById('rec-paid').innerText = `Rp ${(tx.cash_paid || 0).toLocaleString('id-ID')}`;
+            document.getElementById('rec-change').innerText = `Rp ${(tx.change || 0).toLocaleString('id-ID')}`;
+
+            const pointsRow = document.getElementById('rec-points-row');
+            if (pointsRow) {
+                const customer = customers.find(c => c.name === tx.customer_name);
+                if (customer) {
+                    pointsRow.classList.remove('hidden');
+                    document.getElementById('rec-member-points').innerText = `${customer.points || 0} Pts`;
+                } else {
+                    pointsRow.classList.add('hidden');
+                }
+            }
+
+            document.getElementById('receipt-modal')?.classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal')?.classList.add('hidden');
+        }
+
+        function viewTransactionReceipt(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (tx) showReceipt(tx);
+        }
+
+        function handleThermalPrintAction() {
+            window.print();
+        }
+
+        function sendWhatsAppReceipt() {
+            const txId = document.getElementById('rec-id').innerText;
+            const total = document.getElementById('rec-total').innerText;
+            const text = `Nota Transaksi ${txId} di MY KSR dengan total ${total}. Terima kasih telah berbelanja!`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
 
         function renderAdminProductsTable() {
             const tbody = document.getElementById('admin-products-tbody');
             if (!tbody) return;
 
-            tbody.innerHTML = (products || []).map(p => `<tr>
-                <td class="p-3 font-mono">${p.sku || '-'}</td>
-                <td class="p-3 font-mono">${p.barcode || '-'}</td>
-                <td class="p-3 font-bold text-slate-800">${p.name}</td>
-                <td class="p-3">${p.category || '-'}</td>
-                <td class="p-3">${p.brand || '-'} / ${p.family || '-'}</td>
-                <td class="p-3"><span class="bg-red-50 text-red-600 px-2 py-0.5 rounded font-bold">${p.promo || 'Standard'}</span></td>
-                <td class="p-3 text-right font-bold">Rp ${window.roundPrice(p.selling_price).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center font-bold">${p.stock}</td>
-                <td class="p-3 text-center">
-                    <button onclick="window.deleteProduct('${p.id}')" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>`).join('');
-        }
-
-        function renderCustomersTable() {
-            const tbody = document.getElementById('customers-tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = (customers || []).map(c => `<tr>
-                <td class="p-3 font-mono font-bold">${c.member_number || '-'}</td>
-                <td class="p-3 font-bold text-slate-800">${c.name}</td>
-                <td class="p-3 font-mono">${c.phone || '-'}</td>
-                <td class="p-3"><span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold">${c.type || 'Regular'}</span></td>
-                <td class="p-3 text-center">${c.birth_date || '-'}</td>
-                <td class="p-3 text-right font-bold text-emerald-600">${c.points || 0} Pts</td>
-                <td class="p-3 text-right font-bold">Rp ${window.roundPrice(c.total_tx || 0).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center">
-                    <button onclick="window.deleteCustomer('${c.id}')" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>`).join('');
-        }
-
-        function renderVouchersTable() {
-            const tbody = document.getElementById('vouchers-tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = (vouchers || []).map(v => `<tr>
-                <td class="p-3"><span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-bold uppercase">${v.promo_type || 'Voucher'}</span></td>
-                <td class="p-3 font-mono font-bold">${v.code}</td>
-                <td class="p-3 font-bold">${v.title}</td>
-                <td class="p-3">${v.target_category || 'Semua'}</td>
-                <td class="p-3 font-bold text-emerald-600">${v.type === 'percentage' ? v.value + '%' : 'Rp ' + window.roundPrice(v.value).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center">${v.valid_until || 'Selamanya'}</td>
-                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded font-bold ${v.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${v.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
-                <td class="p-3 text-center">
-                    <button onclick="window.deleteVoucher('${v.id}')" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>`).join('');
-        }
-
-        function renderHistoryTable() {
-            const tbody = document.getElementById('history-tbody');
-            const countEl = document.getElementById('history-count');
-            if (!tbody) return;
-
-            if (countEl) countEl.innerText = `${(transactions || []).length} Transaksi`;
-
-            tbody.innerHTML = (transactions || []).map(t => `<tr>
-                <td class="p-3 font-mono font-bold text-blue-600">${t.id}</td>
-                <td class="p-3 text-slate-500">${t.created_at ? t.created_at.replace('T', ' ').slice(0, 16) : '-'}</td>
-                <td class="p-3 font-semibold">${t.cashier || 'Admin'}</td>
-                <td class="p-3 font-semibold">${t.customer_name || 'Pelanggan Umum'}</td>
-                <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold">${t.payment_method || 'Tunai'}</span></td>
-                <td class="p-3 text-right font-black text-slate-800">Rp ${window.roundPrice(t.total).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center">
-                    <button onclick="window.viewTransactionReceipt('${t.id}')" class="bg-slate-800 text-white px-2.5 py-1 rounded-lg font-bold text-[10px] hover:bg-slate-700 transition">Lihat Struk</button>
-                </td>
-            </tr>`).join('');
-        }
-
-        window.viewTransactionReceipt = function(txId) {
-            const tx = (transactions || []).find(t => t.id === txId);
-            if (!tx) return;
-
-            document.getElementById('rec-id').innerText = tx.id;
-            document.getElementById('rec-date').innerText = tx.created_at ? tx.created_at.replace('T', ' ').slice(0, 16) : '-';
-            document.getElementById('rec-cashier').innerText = tx.cashier || 'Admin';
-            document.getElementById('rec-customer').innerText = tx.customer_name || 'Pelanggan Umum';
-            document.getElementById('rec-subtotal').innerText = `Rp ${window.roundPrice(tx.subtotal || tx.total).toLocaleString('id-ID')}`;
-            document.getElementById('rec-total').innerText = `Rp ${window.roundPrice(tx.total).toLocaleString('id-ID')}`;
-            document.getElementById('rec-paid').innerText = `Rp ${window.roundPrice(tx.cash_paid || tx.total).toLocaleString('id-ID')}`;
-            document.getElementById('rec-change').innerText = `Rp ${window.roundPrice(tx.change || 0).toLocaleString('id-ID')}`;
-
-            const list = document.getElementById('rec-items-list');
-            if (list) {
-                list.innerHTML = (tx.items || []).map(item => `<div>
-                    <div class="flex justify-between font-bold"><span>${item.name}</span><span>Rp ${window.roundPrice(item.selling_price * item.qty).toLocaleString('id-ID')}</span></div>
-                    <div class="text-[10px] text-slate-500">${item.qty} × Rp ${window.roundPrice(item.selling_price).toLocaleString('id-ID')}</div>
-                </div>`).join('');
+            const filterCat = document.getElementById('admin-category-filter');
+            if (filterCat && filterCat.options.length === 0) {
+                const cats = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
+                filterCat.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
             }
 
-            document.getElementById('receipt-modal')?.classList.remove('hidden');
-        };
+            const q = (document.getElementById('admin-search-input')?.value || '').toLowerCase();
+            const cat = filterCat ? filterCat.value : 'Semua';
 
-        window.closeReceiptModal = function() {
-            document.getElementById('receipt-modal')?.classList.add('hidden');
-        };
+            const filtered = (products || []).filter(p => {
+                const matchCat = cat === 'Semua' || p.category === cat;
+                const matchQ = !q || (p.name || '').toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q) || (p.barcode || '').toLowerCase().includes(q);
+                return matchCat && matchQ;
+            });
 
-        window.handleThermalPrintAction = function() {
-            window.print();
-        };
-
-        window.sendWhatsAppReceipt = function() {
-            const recId = document.getElementById('rec-id')?.innerText || 'TRX';
-            const recTotal = document.getElementById('rec-total')?.innerText || '0';
-            const msg = `Struk Transaksi ${recId}\nTotal: ${recTotal}\nTerima kasih telah berbelanja di MY KSR!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-        };
-
-        window.deleteProduct = function(id) {
-            products = products.filter(p => p.id !== id);
-            window.saveLocalStorageData();
-            renderProductGrid();
-            renderAdminProductsTable();
-            window.showNotification("Produk berhasil dihapus.", "info");
-        };
-
-        window.deleteCustomer = function(id) {
-            customers = customers.filter(c => c.id !== id);
-            window.saveLocalStorageData();
-            renderCustomersTable();
-            window.filterCartCustomerDropdown('');
-            window.showNotification("Member berhasil dihapus.", "info");
-        };
-
-        window.deleteVoucher = function(id) {
-            vouchers = vouchers.filter(v => v.id !== id);
-            window.saveLocalStorageData();
-            renderVouchersTable();
-            renderCartVoucherDropdown();
-            window.showNotification("Voucher berhasil dihapus.", "info");
-        };
+            tbody.innerHTML = filtered.map(p => `<tr class="border-b border-slate-100 hover:bg-slate-50">
+                <td class="p-3 font-mono font-bold text-slate-700">${p.sku || '-'}</td>
+                <td class="p-3 font-mono text-slate-500">${p.barcode || '-'}</td>
+                <td class="p-3 font-bold text-slate-800">${p.name}</td>
+                <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-semibold">${p.category || '-'}</span></td>
+                <td class="p-3 text-slate-500">${p.brand || '-'} / ${p.family || '-'}</td>
+                <td class="p-3"><span class="bg-red-50 text-red-600 px-2 py-0.5 rounded font-bold text-[10px]">${p.promo || 'Standard'}</span></td>
+                <td class="p-3 text-right font-extrabold text-blue-600">Rp ${(Number(p.selling_price) || 0).toLocaleString('id-ID')}</td>
+                <td class="p-3 text-center font-bold">${p.stock}</td>
+                <td class="p-3 text-center">
+                    <button onclick="openProductModal('${p.id}')" class="text-blue-600 hover:text-blue-800 px-1.5"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteProduct('${p.id}')" class="text-red-500 hover:text-red-700 px-1.5"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
 
         window.openProductModal = function(id = null) {
             document.getElementById('product-modal-title').innerText = id ? "Edit Produk" : "Tambah Produk Baru";
             document.getElementById('prod-id').value = id || "";
+
             if (id) {
-                const p = products.find(prod => prod.id === id);
+                const p = products.find(item => item.id === id);
                 if (p) {
                     document.getElementById('prod-sku').value = p.sku || "";
                     document.getElementById('prod-barcode').value = p.barcode || "";
@@ -2194,23 +2553,24 @@
                     document.getElementById('prod-category').value = p.category || "";
                     document.getElementById('prod-brand').value = p.brand || "";
                     document.getElementById('prod-family').value = p.family || "";
-                    document.getElementById('prod-promo').value = p.promo || "Standard";
+                    document.getElementById('prod-promo').value = p.promo || "";
                     document.getElementById('prod-purchase-price').value = p.purchase_price || 0;
                     document.getElementById('prod-selling-price').value = p.selling_price || 0;
                     document.getElementById('prod-stock').value = p.stock || 0;
                 }
             } else {
-                document.getElementById('prod-sku').value = "SKU-" + Math.floor(100 + Math.random() * 900);
-                document.getElementById('prod-barcode').value = "899" + Math.floor(10000000 + Math.random() * 90000000);
+                document.getElementById('prod-sku').value = "";
+                document.getElementById('prod-barcode').value = "";
                 document.getElementById('prod-name').value = "";
-                document.getElementById('prod-category').value = "Sembako";
+                document.getElementById('prod-category').value = "";
                 document.getElementById('prod-brand').value = "";
                 document.getElementById('prod-family').value = "";
-                document.getElementById('prod-promo').value = "Standard";
+                document.getElementById('prod-promo').value = "";
                 document.getElementById('prod-purchase-price').value = 0;
                 document.getElementById('prod-selling-price').value = 0;
-                document.getElementById('prod-stock').value = 10;
+                document.getElementById('prod-stock').value = 0;
             }
+
             document.getElementById('product-modal')?.classList.remove('hidden');
         };
 
@@ -2218,11 +2578,11 @@
             document.getElementById('product-modal')?.classList.add('hidden');
         };
 
-        window.handleProductSubmit = function(e) {
+        window.handleProductSubmit = async function(e) {
             e.preventDefault();
-            const id = document.getElementById('prod-id').value || window.generateUUID();
-            const record = {
-                id: id,
+            const id = document.getElementById('prod-id').value || 'prod-' + Date.now();
+            const prodData = {
+                id,
                 sku: document.getElementById('prod-sku').value,
                 barcode: document.getElementById('prod-barcode').value,
                 name: document.getElementById('prod-name').value,
@@ -2236,10 +2596,11 @@
             };
 
             const idx = products.findIndex(p => p.id === id);
-            if (idx >= 0) {
-                products[idx] = record;
-            } else {
-                products.unshift(record);
+            if (idx >= 0) products[idx] = prodData;
+            else products.unshift(prodData);
+
+            if (supabaseClient) {
+                try { await supabaseClient.from('products').upsert([prodData]); } catch (e) {}
             }
 
             window.saveLocalStorageData();
@@ -2249,11 +2610,45 @@
             window.showNotification("Produk berhasil disimpan!", "success");
         };
 
+        window.deleteProduct = async function(id) {
+            products = products.filter(p => p.id !== id);
+            if (supabaseClient) {
+                try { await supabaseClient.from('products').delete().eq('id', id); } catch (e) {}
+            }
+            window.saveLocalStorageData();
+            renderProductGrid();
+            renderAdminProductsTable();
+            window.showNotification("Produk dihapus", "info");
+        };
+
+        function renderCustomersTable() {
+            const tbody = document.getElementById('customers-tbody');
+            if (!tbody) return;
+
+            const q = (document.getElementById('customer-search-input')?.value || '').toLowerCase();
+            const filtered = (customers || []).filter(c => !q || (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q) || (c.member_number || '').toLowerCase().includes(q));
+
+            tbody.innerHTML = filtered.map(c => `<tr class="border-b border-slate-100 hover:bg-slate-50">
+                <td class="p-3 font-mono font-bold text-blue-600">${c.member_number || '-'}</td>
+                <td class="p-3 font-bold text-slate-800">${c.name}</td>
+                <td class="p-3 text-slate-600">${c.phone || '-'}</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${c.type === 'VIP' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}">${c.type || 'Regular'}</span></td>
+                <td class="p-3 text-center text-slate-500">${c.birth_date || '-'}</td>
+                <td class="p-3 text-right font-bold text-emerald-600">${c.points || 0} Pts</td>
+                <td class="p-3 text-right font-extrabold text-slate-800">Rp ${(Number(c.total_tx) || 0).toLocaleString('id-ID')}</td>
+                <td class="p-3 text-center">
+                    <button onclick="openCustomerModal('${c.id}')" class="text-blue-600 hover:text-blue-800 px-1.5"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteCustomer('${c.id}')" class="text-red-500 hover:text-red-700 px-1.5"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
         window.openCustomerModal = function(id = null) {
             document.getElementById('customer-modal-title').innerText = id ? "Edit Member" : "Tambah Member Baru";
             document.getElementById('cust-id').value = id || "";
+
             if (id) {
-                const c = customers.find(cust => cust.id === id);
+                const c = customers.find(item => item.id === id);
                 if (c) {
                     document.getElementById('cust-member-number').value = c.member_number || "";
                     document.getElementById('cust-type').value = c.type || "Regular";
@@ -2263,13 +2658,14 @@
                     document.getElementById('cust-address').value = c.address || "";
                 }
             } else {
-                document.getElementById('cust-member-number').value = "MBR-" + Math.floor(100 + Math.random() * 900);
+                document.getElementById('cust-member-number').value = "MBR-" + Date.now().toString().slice(-4);
                 document.getElementById('cust-type').value = "Regular";
                 document.getElementById('cust-name').value = "";
                 document.getElementById('cust-phone').value = "";
                 document.getElementById('cust-birth-date').value = "";
                 document.getElementById('cust-address').value = "";
             }
+
             document.getElementById('customer-modal')?.classList.remove('hidden');
         };
 
@@ -2277,11 +2673,11 @@
             document.getElementById('customer-modal')?.classList.add('hidden');
         };
 
-        window.handleCustomerSubmit = function(e) {
+        window.handleCustomerSubmit = async function(e) {
             e.preventDefault();
-            const id = document.getElementById('cust-id').value || window.generateUUID();
-            const record = {
-                id: id,
+            const id = document.getElementById('cust-id').value || 'cust-' + Date.now();
+            const custData = {
+                id,
                 member_number: document.getElementById('cust-member-number').value,
                 type: document.getElementById('cust-type').value,
                 name: document.getElementById('cust-name').value,
@@ -2293,23 +2689,59 @@
             };
 
             const idx = customers.findIndex(c => c.id === id);
-            if (idx >= 0) {
-                customers[idx] = { ...customers[idx], ...record };
-            } else {
-                customers.unshift(record);
+            if (idx >= 0) customers[idx] = { ...customers[idx], ...custData };
+            else customers.unshift(custData);
+
+            if (supabaseClient) {
+                try { await supabaseClient.from('customers').upsert([custData]); } catch (e) {}
             }
 
             window.saveLocalStorageData();
             renderCustomersTable();
             window.filterCartCustomerDropdown('');
             closeCustomerModal();
-            window.showNotification("Member berhasil disimpan!", "success");
+            window.showNotification("Data Member berhasil disimpan!", "success");
         };
 
+        window.deleteCustomer = async function(id) {
+            customers = customers.filter(c => c.id !== id);
+            if (supabaseClient) {
+                try { await supabaseClient.from('customers').delete().eq('id', id); } catch (e) {}
+            }
+            window.saveLocalStorageData();
+            renderCustomersTable();
+            window.filterCartCustomerDropdown('');
+            window.showNotification("Member dihapus", "info");
+        };
+
+        function renderVouchersTable() {
+            const tbody = document.getElementById('vouchers-tbody');
+            if (!tbody) return;
+
+            const q = (document.getElementById('voucher-search-input')?.value || '').toLowerCase();
+            const filtered = (vouchers || []).filter(v => !q || (v.code || '').toLowerCase().includes(q) || (v.title || '').toLowerCase().includes(q));
+
+            tbody.innerHTML = filtered.map(v => `<tr class="border-b border-slate-100 hover:bg-slate-50">
+                <td class="p-3 font-semibold text-slate-600">${v.promo_type || 'Voucher'}</td>
+                <td class="p-3 font-mono font-bold text-indigo-600">${v.code}</td>
+                <td class="p-3 font-bold text-slate-800">${v.title}</td>
+                <td class="p-3 text-slate-500">${v.target_category || 'Semua'}</td>
+                <td class="p-3 font-extrabold text-emerald-600">${v.type === 'percentage' ? v.value + '%' : 'Rp ' + (Number(v.value) || 0).toLocaleString('id-ID')}</td>
+                <td class="p-3 text-center text-slate-500">${v.valid_until || 'Selamanya'}</td>
+                <td class="p-3 text-center"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${v.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}">${v.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
+                <td class="p-3 text-center">
+                    <button onclick="openVoucherModal('${v.id}')" class="text-blue-600 hover:text-blue-800 px-1.5"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteVoucher('${v.id}')" class="text-red-500 hover:text-red-700 px-1.5"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
         window.openVoucherModal = function(id = null) {
+            document.getElementById('voucher-modal-title').innerText = id ? "Edit Promo / Voucher" : "Tambah Promo / Voucher";
             document.getElementById('vouch-id').value = id || "";
+
             if (id) {
-                const v = vouchers.find(vouch => vouch.id === id);
+                const v = vouchers.find(item => item.id === id);
                 if (v) {
                     document.getElementById('vouch-code').value = v.code || "";
                     document.getElementById('vouch-type').value = v.type || "fixed";
@@ -2320,14 +2752,15 @@
                     document.getElementById('vouch-valid-until').value = v.valid_until || "";
                 }
             } else {
-                document.getElementById('vouch-code').value = "PROMO" + Math.floor(10 + Math.random() * 90);
+                document.getElementById('vouch-code').value = "";
                 document.getElementById('vouch-type').value = "fixed";
-                document.getElementById('vouch-title').value = "Promo Spesial Toko";
-                document.getElementById('vouch-value').value = 5000;
-                document.getElementById('vouch-min-purchase').value = 30000;
+                document.getElementById('vouch-title').value = "";
+                document.getElementById('vouch-value').value = 0;
+                document.getElementById('vouch-min-purchase').value = 0;
                 document.getElementById('vouch-target-category').value = "Semua";
-                document.getElementById('vouch-valid-until').value = "2026-12-31";
+                document.getElementById('vouch-valid-until').value = "";
             }
+
             document.getElementById('voucher-modal')?.classList.remove('hidden');
         };
 
@@ -2335,215 +2768,328 @@
             document.getElementById('voucher-modal')?.classList.add('hidden');
         };
 
-        window.handleVoucherSubmit = function(e) {
+        window.handleVoucherSubmit = async function(e) {
             e.preventDefault();
-            const id = document.getElementById('vouch-id').value || window.generateUUID();
-            const record = {
-                id: id,
+            const id = document.getElementById('vouch-id').value || 'vouch-' + Date.now();
+            const vouchData = {
+                id,
                 promo_type: 'voucher',
                 code: document.getElementById('vouch-code').value.toUpperCase(),
                 type: document.getElementById('vouch-type').value,
                 title: document.getElementById('vouch-title').value,
                 value: Number(document.getElementById('vouch-value').value) || 0,
                 min_purchase: Number(document.getElementById('vouch-min-purchase').value) || 0,
-                target_category: document.getElementById('vouch-target-category').value || "Semua",
+                target_category: document.getElementById('vouch-target-category').value || 'Semua',
                 valid_until: document.getElementById('vouch-valid-until').value,
                 is_active: true
             };
 
             const idx = vouchers.findIndex(v => v.id === id);
-            if (idx >= 0) {
-                vouchers[idx] = record;
-            } else {
-                vouchers.unshift(record);
+            if (idx >= 0) vouchers[idx] = vouchData;
+            else vouchers.unshift(vouchData);
+
+            if (supabaseClient) {
+                try { await supabaseClient.from('vouchers').upsert([vouchData]); } catch (e) {}
             }
 
             window.saveLocalStorageData();
             renderVouchersTable();
             renderCartVoucherDropdown();
             closeVoucherModal();
-            window.showNotification("Voucher Promo berhasil disimpan!", "success");
+            window.showNotification("Voucher Promo disimpan!", "success");
         };
 
-        window.openBarcodeSheetModal = function() {
+        window.deleteVoucher = async function(id) {
+            vouchers = vouchers.filter(v => v.id !== id);
+            if (supabaseClient) {
+                try { await supabaseClient.from('vouchers').delete().eq('id', id); } catch (e) {}
+            }
+            window.saveLocalStorageData();
+            renderVouchersTable();
+            renderCartVoucherDropdown();
+            window.showNotification("Voucher dihapus", "info");
+        };
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-tbody');
+            if (!tbody) return;
+
+            const countEl = document.getElementById('history-count');
+            if (countEl) countEl.innerText = `${transactions.length} Transaksi`;
+
+            tbody.innerHTML = (transactions || []).map(tx => `<tr class="border-b border-slate-100 hover:bg-slate-50">
+                <td class="p-3 font-mono font-bold text-blue-600">${tx.id}</td>
+                <td class="p-3 text-slate-500">${new Date(tx.created_at).toLocaleString('id-ID')}</td>
+                <td class="p-3 text-slate-700">${tx.cashier_name || 'Admin'}</td>
+                <td class="p-3 font-semibold text-slate-800">${tx.customer_name || 'Pelanggan Umum'}</td>
+                <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold text-[10px]">${tx.payment_method || 'Tunai'}</span></td>
+                <td class="p-3 text-right font-black text-slate-900">Rp ${(Number(tx.total) || 0).toLocaleString('id-ID')}</td>
+                <td class="p-3 text-center">
+                    <button onclick="viewTransactionReceipt('${tx.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-2.5 py-1 rounded-lg font-bold text-[11px] transition">
+                        <i class="fa-solid fa-receipt mr-1"></i> Struk
+                    </button>
+                </td>
+            </tr>`).join('');
+        }
+
+        function exportTransactionsCSV() {
+            if (transactions.length === 0) {
+                window.showNotification("Tidak ada data transaksi untuk diekspor!", "warning");
+                return;
+            }
+
+            let csv = 'No. Nota,Tanggal,Kasir,Pelanggan,Metode,Subtotal,Diskon,Total,Bayar,Kembali\n';
+            transactions.forEach(t => {
+                csv += `"${t.id}","${t.created_at}","${t.cashier_name}","${t.customer_name}","${t.payment_method}",${t.subtotal},${t.discount},${t.total},${t.cash_paid},${t.change}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function openBarcodeSheetModal() {
             const select = document.getElementById('barcode-prod-select');
             if (select) {
-                select.innerHTML = (products || []).map(p => `<option value="${p.id}">${p.name} (${p.barcode || p.sku})</option>`).join('');
+                select.innerHTML = (products || []).map(p => `<option value="${p.id}">${p.name} (${p.barcode || p.sku || 'No Barcode'})</option>`).join('');
             }
             document.getElementById('barcode-sheet-modal')?.classList.remove('hidden');
-        };
+        }
 
-        window.closeBarcodeSheetModal = function() {
+        function closeBarcodeSheetModal() {
             document.getElementById('barcode-sheet-modal')?.classList.add('hidden');
-        };
+        }
 
-        window.generateBarcodeSheetPreview = function() {
+        function generateBarcodeSheetPreview() {
             const select = document.getElementById('barcode-prod-select');
-            const qty = Number(document.getElementById('barcode-label-qty')?.value || 9);
+            const qty = Number(document.getElementById('barcode-label-qty').value) || 9;
             const container = document.getElementById('printable-barcode-sheet');
-            
-            if (!select || !container) return;
-            const p = products.find(prod => prod.id === select.value);
-            if (!p) return;
 
-            let html = '';
+            if (!select || !select.value || !container) return;
+
+            const product = products.find(p => p.id === select.value);
+            if (!product) return;
+
+            const barcodeVal = String(product.barcode || product.sku || '899000000000');
+
+            container.innerHTML = '';
             for (let i = 0; i < qty; i++) {
-                html += `<div class="border border-slate-300 p-2 rounded text-center flex flex-col items-center justify-center bg-white">
-                    <span class="font-bold text-[10px] truncate max-w-full">${p.name}</span>
-                    <svg id="bc-item-${i}" class="max-h-12 w-full my-1"></svg>
-                    <span class="text-[9px] font-mono">Rp ${window.roundPrice(p.selling_price).toLocaleString('id-ID')}</span>
-                </div>`;
-            }
-            container.innerHTML = html;
+                const labelBox = document.createElement('div');
+                labelBox.className = "border border-slate-300 p-2 rounded-xl text-center flex flex-col items-center justify-between bg-white shadow-sm space-y-1";
+                labelBox.innerHTML = `
+                    <span class="font-extrabold text-[10px] text-slate-800 truncate w-full">${product.name}</span>
+                    <svg id="barcode-svg-${i}" class="w-full h-12"></svg>
+                    <span class="font-extrabold text-xs text-blue-600">Rp ${Number(product.selling_price).toLocaleString('id-ID')}</span>
+                `;
+                container.appendChild(labelBox);
 
-            setTimeout(() => {
-                for (let i = 0; i < qty; i++) {
-                    const el = document.getElementById(`bc-item-${i}`);
-                    if (el && typeof JsBarcode !== 'undefined') {
-                        try {
-                            JsBarcode(el, String(p.barcode || p.sku || '12345678'), {
-                                format: "CODE128",
-                                height: 30,
-                                fontSize: 10,
-                                displayValue: true,
-                                margin: 2
-                            });
-                        } catch (e) {}
-                    }
+                try {
+                    JsBarcode(`#barcode-svg-${i}`, barcodeVal, {
+                        format: "CODE128",
+                        width: 1.2,
+                        height: 35,
+                        displayValue: true,
+                        fontSize: 10,
+                        margin: 2
+                    });
+                } catch (e) {
+                    console.warn("Barcode SVG render warning:", e);
                 }
-            }, 50);
-        };
+            }
+        }
 
-        window.openCameraScanner = function() {
+        function openCameraScanner() {
             document.getElementById('camera-modal')?.classList.remove('hidden');
             if (typeof Html5QrcodeScanner !== 'undefined') {
-                try {
-                    html5QrScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 200, height: 200 } }, false);
-                    html5QrScanner.render((decodedText) => {
-                        const found = products.find(p => p.barcode === decodedText || p.sku === decodedText);
-                        if (found) {
-                            window.addToCart(found.id);
-                            window.showNotification(`Ditambahkan: ${found.name}`, "success");
-                        } else {
-                            window.showNotification(`Barang (${decodedText}) tidak ditemukan!`, "warning");
-                        }
+                html5QrScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 220, height: 120 } });
+                html5QrScanner.render((decodedText) => {
+                    const prod = products.find(p => p.barcode === decodedText || p.sku === decodedText);
+                    if (prod) {
+                        addToCart(prod.id);
                         closeCameraScanner();
-                    }, (err) => {});
-                } catch (e) {}
+                    } else {
+                        window.showNotification(`Barang (${decodedText}) tidak ditemukan!`, "error");
+                    }
+                }, (error) => {});
             }
-        };
+        }
 
-        window.closeCameraScanner = function() {
+        function closeCameraScanner() {
             if (html5QrScanner) {
                 try { html5QrScanner.clear(); } catch (e) {}
             }
             document.getElementById('camera-modal')?.classList.add('hidden');
+        }
+
+        window.initAuthSystem = function() {
+            populateLoginDropdown();
+            activeUser = userAccounts[0];
+            currentRole = activeUser.role;
+            updateUserDisplayUI();
         };
+
+        function populateLoginDropdown() {
+            const select = document.getElementById('login-username');
+            if (!select) return;
+
+            select.innerHTML = (userAccounts || []).map(u => `<option value="${u.username}">${u.name} (${u.role === 'admin' ? 'Owner' : 'Kasir Staff'})</option>`).join('');
+        }
+
+        function openLoginModal() {
+            populateLoginDropdown();
+            document.getElementById('login-pin').value = '';
+            document.getElementById('login-error-msg')?.classList.add('hidden');
+            document.getElementById('login-modal')?.classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal')?.classList.add('hidden');
+        }
+
+        function appendPin(num) {
+            const input = document.getElementById('login-pin');
+            if (input && input.value.length < 6) input.value += num;
+        }
+
+        function clearPin() {
+            const input = document.getElementById('login-pin');
+            if (input) input.value = '';
+        }
+
+        function deletePin() {
+            const input = document.getElementById('login-pin');
+            if (input) input.value = input.value.slice(0, -1);
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const pin = document.getElementById('login-pin').value;
+
+            const user = userAccounts.find(u => u.username === username && u.pin === pin);
+            if (user) {
+                activeUser = user;
+                currentRole = user.role;
+                updateUserDisplayUI();
+                closeLoginModal();
+                window.showNotification(`Selamat datang, ${user.name}!`, "success");
+            } else {
+                document.getElementById('login-error-msg')?.classList.remove('hidden');
+            }
+        }
+
+        function updateUserDisplayUI() {
+            const nameEl = document.getElementById('user-display-name');
+            const roleEl = document.getElementById('user-display-role');
+
+            if (nameEl) nameEl.innerText = activeUser ? activeUser.name : 'Admin';
+            if (roleEl) roleEl.innerText = currentRole === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
+
+            const adminNavs = document.querySelectorAll('.nav-admin-only');
+            adminNavs.forEach(nav => {
+                if (currentRole === 'admin') {
+                    nav.classList.remove('hidden');
+                } else {
+                    nav.classList.add('hidden');
+                }
+            });
+
+            if (currentRole !== 'admin') {
+                window.location.hash = '#pos';
+            }
+        }
+
+        window.setupHashNavigation = function() {
+            window.addEventListener('hashchange', handleNavigation);
+            handleNavigation();
+        };
+
+        function handleNavigation() {
+            const hash = window.location.hash || '#pos';
+
+            if (currentRole !== 'admin' && hash !== '#pos') {
+                window.location.hash = '#pos';
+                window.showNotification("Akses Terbatas untuk Kasir!", "warning");
+                return;
+            }
+
+            document.querySelectorAll('.view-page').forEach(page => page.classList.add('hidden'));
+            
+            const activePage = document.getElementById(`view-${hash.replace('#', '')}`);
+            if (activePage) activePage.classList.remove('hidden');
+
+            document.querySelectorAll('nav a, div.lg\\:hidden a').forEach(a => {
+                a.classList.remove('bg-blue-600', 'text-white');
+                a.classList.add('text-slate-400');
+            });
+
+            const activeLink = document.getElementById(`nav-link-${hash.replace('#', '')}`);
+            if (activeLink) {
+                activeLink.classList.remove('text-slate-400');
+                activeLink.classList.add('bg-blue-600', 'text-white');
+            }
+        }
 
         window.openStoreModal = function() {
             window.location.hash = '#settings';
         };
 
         window.changeBranch = function() {
-            const select = document.getElementById('branch-select');
-            window.showNotification(`Cabang aktif: ${select?.value || 'Pusat'}`, "info");
-        };
-
-        window.connectBluetoothPrinter = function() {
-            window.showNotification("Gunakan tombol Print Thermal untuk mencetak struk.", "info");
+            const val = document.getElementById('branch-select').value;
+            window.showNotification(`Cabang aktif diubah ke: ${val}`, "info");
         };
 
         window.checkCloudStatusOrPrompt = function() {
-            window.location.hash = '#settings';
+            if (supabaseClient) {
+                window.showNotification("Cloud Terhubung & Online!", "success");
+            } else {
+                window.location.hash = '#settings';
+                window.showNotification("Masukkan Supabase Key di Pengaturan untuk terhubung", "info");
+            }
         };
 
-        window.saveStoreSettings = function() {
-            window.showNotification("Pengaturan toko disimpan!", "success");
-        };
-
-        window.saveReceiptSettings = function() {
-            window.showNotification("Pengaturan struk disimpan!", "success");
-        };
-
-        window.saveSupabaseSettings = function() {
-            const rawUrl = document.getElementById('setting-supabase-url').value;
-            const key = document.getElementById('setting-supabase-key').value;
-            const cleanUrl = window.sanitizeSupabaseUrl(rawUrl);
-            if (cleanUrl) localStorage.setItem('pos_supa_url', cleanUrl);
-            if (key) localStorage.setItem('pos_supa_key', key.trim());
-            window.initSupabaseClient();
-            window.syncWithSupabase();
-        };
-
-        window.generateMobileConnectLink = function() {
-            const url = window.sanitizeSupabaseUrl(localStorage.getItem('pos_supa_url') || DEFAULT_SUPA_URL);
-            const key = (localStorage.getItem('pos_supa_key') || DEFAULT_SUPA_KEY).trim();
-            const link = `${window.location.origin}${window.location.pathname}?supa_url=${encodeURIComponent(url)}&supa_key=${encodeURIComponent(key)}`;
-            navigator.clipboard.writeText(link);
-            window.showNotification("Link koneksi tersalin! Buka link ini di HP untuk auto-connect.", "success");
-        };
-
-        window.generateMobileConnectLink = function() {
-            const url = localStorage.getItem('pos_supa_url') || DEFAULT_SUPA_URL;
-            const key = localStorage.getItem('pos_supa_key') || DEFAULT_SUPA_KEY;
-            const link = `${window.location.origin}${window.location.pathname}?supa_url=${encodeURIComponent(url)}&supa_key=${encodeURIComponent(key)}`;
-            navigator.clipboard.writeText(link);
-            window.showNotification("Link koneksi tersalin ke clipboard!", "success");
-        };
-
-        window.openUserModal = function() {
-            document.getElementById('user-modal')?.classList.remove('hidden');
-        };
-
-        window.closeUserModal = function() {
-            document.getElementById('user-modal')?.classList.add('hidden');
-        };
-
-        window.toggleUserPermissionsUI = function() {};
-
-        window.handleUserSubmit = function(e) {
-            e.preventDefault();
-            window.showNotification("User baru berhasil ditambahkan!", "success");
-            closeUserModal();
-        };
-
-        window.exportTransactionsCSV = function() {
-            if (transactions.length === 0) {
-                window.showNotification("Tidak ada data transaksi untuk diekspor", "warning");
+        window.connectBluetoothPrinter = async function() {
+            if (!navigator.bluetooth) {
+                window.showNotification("Browser tidak mendukung Web Bluetooth API!", "error");
                 return;
             }
-            let csv = "ID,Waktu,Kasir,Pelanggan,Metode,Total\n";
-            transactions.forEach(t => {
-                csv += `"${t.id}","${t.created_at}","${t.cashier}","${t.customer_name}","${t.payment_method}",${t.total}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `laporan_penjualan_${Date.now()}.csv`;
-            a.click();
-        };
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            try { window.loadLocalStorageData(); } catch (e) { console.warn(e); }
-            try { window.initSupabaseClient(); } catch (e) { console.warn(e); }
-            try { await window.fetchUsersFromSupabase(); } catch (e) { console.warn(e); }
-            try { window.setupHashNavigation(); } catch (e) { console.warn(e); }
-            try { window.initAuthSystem(); } catch (e) { console.warn(e); }
-            
-            try { window.filterCartCustomerDropdown(''); } catch (e) { console.warn(e); }
-            try { renderCartVoucherDropdown(); } catch (e) { console.warn(e); }
-            try { renderAdminProductsTable(); } catch (e) { console.warn(e); }
-            try { renderCustomersTable(); } catch (e) { console.warn(e); }
-            try { renderVouchersTable(); } catch (e) { console.warn(e); }
-            try { renderHistoryTable(); } catch (e) { console.warn(e); }
-            try { renderProductGrid(); } catch (e) { console.warn(e); }
 
             try {
-                window.initCharts();
-            } catch (e) {
-                console.warn("Chart initialization skipped:", e);
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+                });
+
+                bluetoothServer = await bluetoothDevice.gatt.connect();
+                document.getElementById('bt-printer-status').innerText = 'BT Terhubung';
+                window.showNotification(`Printer Bluetooth (${bluetoothDevice.name}) terhubung!`, "success");
+            } catch (err) {
+                console.error("Bluetooth printer connection error:", err);
+                window.showNotification("Batal menghubungkan printer Bluetooth.", "warning");
             }
+        };
+
+        /* Initialization Pipeline */
+        document.addEventListener('DOMContentLoaded', async () => {
+            try { window.loadLocalStorageData(); } catch (e) {}
+            try { window.initSupabaseClient(); } catch (e) {}
+            try { await window.fetchUsersFromSupabase(); } catch (e) {}
+            try { await window.fetchStoreSettingsFromSupabase(); } catch (e) {}
+            try { window.setupHashNavigation(); } catch (e) {}
+            try { window.initAuthSystem(); } catch (e) {}
+            
+            try { window.filterCartCustomerDropdown(''); } catch (e) {}
+            try { renderCartVoucherDropdown(); } catch (e) {}
+            try { renderAdminProductsTable(); } catch (e) {}
+            try { renderCustomersTable(); } catch (e) {}
+            try { renderVouchersTable(); } catch (e) {}
+            try { renderHistoryTable(); } catch (e) {}
+            try { renderProductGrid(); } catch (e) {}
+
+            try { window.initCharts(); } catch (e) {}
         });
     </script>
 </body>
