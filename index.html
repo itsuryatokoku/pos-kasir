@@ -1103,6 +1103,9 @@
     </div>
 
     <script>
+        const DEFAULT_SUPA_URL = 'https://zxsyggyekdbxtumdpisq.supabase.co';
+        const DEFAULT_SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4c3lnZ3lla2RieHR1bWRwaXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzI5MTgsImV4cCI6MjEwNTU0ODkxOH0.b2HoXlKgchtRwOmqRyb9pPQp9tHCQ6x4EibLH6W_tQI';
+
         let supabaseClient = null;
         let products = [];
         let customers = [];
@@ -1215,8 +1218,11 @@
             const storeName = localStorage.getItem('pos_store_name') || 'MY KSR';
             const storeSub = localStorage.getItem('pos_store_sub') || 'Sistem Kasir Cloud & Multi-Criteria BOGO';
             const receiptFooter = localStorage.getItem('pos_receipt_footer') || 'Terima kasih telah berbelanja di MY KSR!';
-            const supaUrl = localStorage.getItem('pos_supabase_url') || '';
-            const supaKey = localStorage.getItem('pos_supabase_key') || '';
+            const supaUrl = localStorage.getItem('pos_supabase_url') || DEFAULT_SUPA_URL;
+            const supaKey = localStorage.getItem('pos_supabase_key') || DEFAULT_SUPA_KEY;
+
+            if (!localStorage.getItem('pos_supabase_url')) localStorage.setItem('pos_supabase_url', DEFAULT_SUPA_URL);
+            if (!localStorage.getItem('pos_supabase_key')) localStorage.setItem('pos_supabase_key', DEFAULT_SUPA_KEY);
 
             const elName = document.getElementById('header-store-name');
             const elSub = document.getElementById('header-store-sub');
@@ -1260,8 +1266,8 @@
             const url = document.getElementById('setting-supabase-url').value.trim();
             const key = document.getElementById('setting-supabase-key').value.trim();
 
-            localStorage.setItem('pos_supabase_url', url);
-            localStorage.setItem('pos_supabase_key', key);
+            localStorage.setItem('pos_supabase_url', url || DEFAULT_SUPA_URL);
+            localStorage.setItem('pos_supabase_key', key || DEFAULT_SUPA_KEY);
 
             initSupabaseClient();
             if (supabaseClient) {
@@ -1280,12 +1286,11 @@
             if (qUrl && qKey) {
                 localStorage.setItem('pos_supabase_url', qUrl);
                 localStorage.setItem('pos_supabase_key', qKey);
-                // Clean URL parameters for safety
                 window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
             }
 
-            const url = localStorage.getItem('pos_supabase_url') || '';
-            const key = localStorage.getItem('pos_supabase_key') || '';
+            const url = localStorage.getItem('pos_supabase_url') || DEFAULT_SUPA_URL;
+            const key = localStorage.getItem('pos_supabase_key') || DEFAULT_SUPA_KEY;
 
             const statusDot = document.getElementById('cloud-status-dot');
             const statusText = document.getElementById('cloud-status-text');
