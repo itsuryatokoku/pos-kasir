@@ -269,6 +269,9 @@
                                     <option value="Pelanggan Umum">-- Pelanggan Umum --</option>
                                 </select>
                             </div>
+
+                            <!-- BADGE INFO MEMBER TERPILIH -->
+                            <div id="selected-member-badge" class="hidden"></div>
                         </div>
 
                         <!-- MULTI-VOUCHER DROPDOWN SELECTOR -->
@@ -2080,8 +2083,41 @@
         }
 
         function onSelectCustomerForCart() {
-            const customerName = document.getElementById('cart-customer-select').value;
+            const select = document.getElementById('cart-customer-select');
+            const customerName = select ? select.value : 'Pelanggan Umum';
             const cust = customers.find(c => c.name === customerName);
+
+            const badgeContainer = document.getElementById('selected-member-badge');
+            if (cust && cust.name !== 'Pelanggan Umum') {
+                if (badgeContainer) {
+                    badgeContainer.classList.remove('hidden');
+                    const typeBadge = cust.type === 'VIP' 
+                        ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-300"><i class="fa-solid fa-crown text-amber-600 mr-0.5"></i>VIP (Diskon 5%)</span>'
+                        : '<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-200">Regular</span>';
+                    
+                    badgeContainer.innerHTML = '<div class="bg-blue-50/90 border border-blue-200 p-2 rounded-xl flex justify-between items-center text-xs mt-1 shadow-sm">' +
+                        '<div class="flex flex-col min-w-0 pr-1">' +
+                            '<div class="flex items-center gap-1.5 font-bold text-slate-800 truncate">' +
+                                '<i class="fa-solid fa-user-check text-blue-600 shrink-0"></i>' +
+                                '<span class="truncate">' + cust.name + '</span>' +
+                                typeBadge +
+                            '</div>' +
+                            '<div class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">' +
+                                (cust.member_number || 'REG') + ' • ' + (cust.phone || 'Tanpa HP') + ' • <b class="text-emerald-600">' + (cust.points || 0) + ' Poin</b>' +
+                            '</div>' +
+                        '</div>' +
+                        '<button onclick="deselectCustomerCart()" class="text-slate-400 hover:text-red-500 p-1 font-bold text-xs shrink-0" title="Lepas Pelanggan">' +
+                            '<i class="fa-solid fa-xmark"></i>' +
+                        '</button>' +
+                    '</div>';
+                }
+            } else {
+                if (badgeContainer) {
+                    badgeContainer.innerHTML = '';
+                    badgeContainer.classList.add('hidden');
+                }
+            }
+
             const birthdayBanner = document.getElementById('birthday-alert-banner');
             if (cust && cust.birth_date) {
                 const today = new Date();
@@ -2090,12 +2126,20 @@
                     birthdayBanner.classList.remove('hidden');
                 } else birthdayBanner.classList.add('hidden');
             } else birthdayBanner.classList.add('hidden');
+
             calculateCartTotals();
+        }
+
+        function deselectCustomerCart() {
+            const select = document.getElementById('cart-customer-select');
+            if (select) select.value = 'Pelanggan Umum';
+            onSelectCustomerForCart();
         }
 
         function renderCartCustomerDropdown(filterQuery = '') {
             const select = document.getElementById('cart-customer-select');
             if (!select) return;
+            const currentVal = select.value;
             const q = (filterQuery || '').toLowerCase().trim();
 
             const custArray = Array.isArray(customers) ? customers : [];
@@ -2110,6 +2154,12 @@
 
             select.innerHTML = '<option value="Pelanggan Umum">-- Pelanggan Umum --</option>' +
                 filtered.map(c => '<option value="' + c.name + '">' + (c.member_number || 'REG') + ' | ' + c.name + ' | ' + (c.phone || '-') + '</option>').join('');
+
+            if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+                select.value = currentVal;
+            }
+
+            onSelectCustomerForCart();
         }
 
         function filterCartCustomerDropdown(val) {
