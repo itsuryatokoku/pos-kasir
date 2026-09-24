@@ -137,6 +137,16 @@
                 </select>
             </div>
 
+            <!-- CLOUD STATUS INDICATOR BADGE -->
+            <button 
+                onclick="checkCloudStatusOrPrompt()" 
+                id="cloud-status-badge"
+                title="Status Koneksi Database Cloud Supabase"
+                class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2 py-1 rounded-xl text-[10px] sm:text-xs font-bold transition">
+                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span id="cloud-status-text" class="text-amber-300">Lokal</span>
+            </button>
+
             <div class="flex items-center gap-1.5 bg-slate-800 border border-slate-700/60 rounded-xl px-2 py-1 text-xs">
                 <i class="fa-solid fa-user-circle text-blue-400 text-sm"></i>
                 <div class="hidden sm:flex flex-col text-left">
@@ -597,9 +607,15 @@
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Supabase Anon Key</label>
                         <input type="password" id="setting-supabase-key" placeholder="eyJhbGciOi..." class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
-                    <button onclick="saveSupabaseSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition">
-                        Simpan & Hubungkan Cloud
-                    </button>
+                    <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                        <button onclick="saveSupabaseSettings()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition">
+                            Simpan & Hubungkan Cloud
+                        </button>
+                        <button onclick="generateMobileConnectLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                            <span>Kirim Koneksi ke HP</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1106,6 +1122,25 @@
         let currentTransactionRecord = null;
         let currentMobilePosTab = 'catalog';
 
+        function roundPrice(val) {
+            if (val === null || val === undefined || isNaN(val)) return 0;
+            const num = Number(val);
+            if (!isFinite(num)) return 0;
+            return Math.ceil(num);
+        }
+        window.roundPrice = roundPrice;
+
+        function generateUUID() {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        window.generateUUID = generateUUID;
+
         const defaultAccounts = [
             { username: 'admin', name: 'Owner / Admin', role: 'admin', pin: '1234' },
             { username: 'kasir1', name: 'Kasir Utama', role: 'cashier', pin: '0000' },
@@ -1136,6 +1171,16 @@
             const num = Number(val);
             if (!isFinite(num)) return 0;
             return Math.ceil(num);
+        }
+
+        function generateUUID() {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
         }
 
         function showNotification(message, type = 'info') {
@@ -1227,219 +1272,78 @@
         }
 
         function initSupabaseClient() {
+            // Check for Auto-Config URL parameters (for fast Mobile connection setup)
+            const urlParams = new URLSearchParams(window.location.search);
+            const qUrl = urlParams.get('supa_url');
+            const qKey = urlParams.get('supa_key');
+
+            if (qUrl && qKey) {
+                localStorage.setItem('pos_supabase_url', qUrl);
+                localStorage.setItem('pos_supabase_key', qKey);
+                // Clean URL parameters for safety
+                window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+            }
+
             const url = localStorage.getItem('pos_supabase_url') || '';
             const key = localStorage.getItem('pos_supabase_key') || '';
+
+            const statusDot = document.getElementById('cloud-status-dot');
+            const statusText = document.getElementById('cloud-status-text');
 
             if (url && key && window.supabase) {
                 try {
                     supabaseClient = window.supabase.createClient(url, key);
-                    showNotification("Terhubung ke Supabase Cloud Database!", "success");
-                } catch(e) {
-                    console.error("Inisialisasi Supabase Gagal:", e);
-                }
-            }
-        }
-
-        function saveLocalStorageData() {
-            try {
-                localStorage.setItem('pos_products', JSON.stringify(products));
-                localStorage.setItem('pos_customers', JSON.stringify(customers));
-                localStorage.setItem('pos_transactions', JSON.stringify(transactions));
-                localStorage.setItem('pos_vouchers', JSON.stringify(vouchers));
-            } catch(e) {
-                console.error("Gagal menyimpan local storage:", e);
-            }
-        }
-
-        function generateUUID() {
-            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-                return crypto.randomUUID();
-            }
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-
-        async function fetchUsersFromSupabase() {
-            userAccounts = [...defaultAccounts];
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient.from('users').select('*');
-                    if (!error && Array.isArray(data) && data.length > 0) {
-                        userAccounts = data;
+                    if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                    if (statusText) {
+                        statusText.innerText = 'Cloud Online';
+                        statusText.className = 'text-emerald-300 font-bold';
                     }
                 } catch(e) {
-                    console.error("Fetch users error:", e);
-                }
-            }
-            populateLoginUserDropdown();
-        }
-
-        function populateLoginUserDropdown() {
-            const select = document.getElementById('login-username');
-            if (!select) return;
-            select.innerHTML = userAccounts.map(u => 
-                '<option value="' + u.username + '">' + u.name + ' (' + u.role.toUpperCase() + ')</option>'
-            ).join('');
-        }
-
-        function initAuthSystem() {
-            const savedUser = localStorage.getItem('pos_active_user');
-            if (savedUser) {
-                try {
-                    activeUser = JSON.parse(savedUser);
-                    updateUserDisplay();
-                } catch(e) {
-                    activeUser = defaultAccounts[0];
-                    updateUserDisplay();
+                    console.error("Inisialisasi Supabase Gagal:", e);
+                    if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-red-500';
+                    if (statusText) {
+                        statusText.innerText = 'Error Cloud';
+                        statusText.className = 'text-red-300 font-bold';
+                    }
                 }
             } else {
-                activeUser = defaultAccounts[0];
-                updateUserDisplay();
+                supabaseClient = null;
+                if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                if (statusText) {
+                    statusText.innerText = 'Mode Lokal';
+                    statusText.className = 'text-amber-300 font-bold';
+                }
             }
         }
 
-        function updateUserDisplay() {
-            if (!activeUser) activeUser = defaultAccounts[0];
-            const nameEl = document.getElementById('user-display-name');
-            const roleEl = document.getElementById('user-display-role');
-            if (nameEl) nameEl.innerText = activeUser.name;
-            if (roleEl) roleEl.innerText = activeUser.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
-
-            currentRole = activeUser.role;
-
-            document.querySelectorAll('.nav-admin-only').forEach(el => {
-                if (currentRole === 'admin') {
-                    el.classList.remove('hidden');
-                } else {
-                    el.classList.add('hidden');
-                }
-            });
-        }
-
-        function openLoginModal() {
-            populateLoginUserDropdown();
-            document.getElementById('login-pin').value = '';
-            document.getElementById('login-error-msg').classList.add('hidden');
-            document.getElementById('login-modal').classList.remove('hidden');
-        }
-
-        function closeLoginModal() {
-            document.getElementById('login-modal').classList.add('hidden');
-        }
-
-        function handleLoginSubmit(e) {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const pin = document.getElementById('login-pin').value;
-
-            const found = userAccounts.find(u => u.username === username && u.pin === pin);
-            if (found) {
-                activeUser = found;
-                localStorage.setItem('pos_active_user', JSON.stringify(activeUser));
-                updateUserDisplay();
-                closeLoginModal();
-                showNotification("Selamat datang kembali, " + found.name + "!", "success");
-                window.location.hash = '#pos';
+        function checkCloudStatusOrPrompt() {
+            if (!supabaseClient) {
+                showNotification("HP belum terhubung ke Cloud. Masukkan URL & Key di Pengaturan, atau gunakan Link Koneksi HP.", "warning");
+                window.location.hash = '#settings';
                 handleNavigation();
             } else {
-                document.getElementById('login-error-msg').classList.remove('hidden');
+                showNotification("Aplikasi terhubung ke Database Supabase Cloud!", "success");
+                syncWithSupabase();
             }
         }
 
-        function appendPin(digit) {
-            const input = document.getElementById('login-pin');
-            if (input.value.length < 6) input.value += digit;
-        }
+        function generateMobileConnectLink() {
+            const url = localStorage.getItem('pos_supabase_url') || '';
+            const key = localStorage.getItem('pos_supabase_key') || '';
 
-        function clearPin() {
-            document.getElementById('login-pin').value = '';
-        }
+            if (!url || !key) {
+                showNotification("Isi dan simpan Supabase URL & Key terlebih dahulu!", "error");
+                return;
+            }
 
-        function deletePin() {
-            const input = document.getElementById('login-pin');
-            input.value = input.value.slice(0, -1);
-        }
+            const currentBase = window.location.origin + window.location.pathname;
+            const fullLink = currentBase + '?supa_url=' + encodeURIComponent(url) + '&supa_key=' + encodeURIComponent(key) + '#pos';
 
-        function openStoreModal() {
-            window.location.hash = '#settings';
-            handleNavigation();
-        }
-
-        function changeBranch() {
-            currentBranch = document.getElementById('branch-select').value;
-            showNotification("Pindah ke " + currentBranch, "info");
-        }
-
-        function setupHashNavigation() {
-            window.addEventListener('hashchange', handleNavigation);
-            handleNavigation();
-        }
-
-        function isVoucherDateValid(v) {
-            const today = new Date().toISOString().slice(0, 10);
-            if (v.valid_from && today < v.valid_from) return false;
-            if (v.valid_until && today > v.valid_until) return false;
-            return true;
-        }
-
-        function productMatchesVoucherTarget(product, v) {
-            if (!product) return false;
-            if (v.target_category && v.target_category !== 'Semua' && product.category !== v.target_category) return false;
-            if (v.target_brand && v.target_brand !== 'Semua' && product.brand !== v.target_brand) return false;
-            if (v.target_family && v.target_family !== 'Semua' && product.family !== v.target_family) return false;
-            if (v.target_promo && v.target_promo !== 'Semua' && product.promo !== v.target_promo) return false;
-            return true;
-        }
-
-        function getActiveDiscountForProduct(product) {
-            if (!product) return null;
-            return vouchers.find(v => {
-                if (!v.is_active) return false;
-                if (!isVoucherDateValid(v)) return false;
-                return productMatchesVoucherTarget(product, v);
-            }) || null;
-        }
-
-        function renderCategories() {
-            const container = document.getElementById('category-pills');
-            if (!container) return;
-            const categories = ['Semua', ...new Set(products.map(p => p.category || 'Umum'))];
-
-            container.innerHTML = categories.map(cat => {
-                const activeClass = cat === selectedCategory ? 'bg-blue-600 text-white font-bold shadow' : 'bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200';
-                return '<button onclick="selectCategory(\'' + cat + '\')" class="px-3 py-1.5 rounded-xl whitespace-nowrap transition ' + activeClass + '">' + cat + '</button>';
-            }).join('');
-        }
-
-        function selectCategory(cat) {
-            selectedCategory = cat;
-            renderCategories();
-            renderProductGrid(document.getElementById('search-input')?.value || '');
-        }
-
-        function handleSearch(e) {
-            renderProductGrid(e.target.value);
-        }
-
-        function switchMobilePosTab(tab) {
-            currentMobilePosTab = tab;
-            const catSec = document.getElementById('pos-catalog-section');
-            const cartSec = document.getElementById('pos-cart-section');
-            const tabCatBtn = document.getElementById('mob-tab-catalog');
-            const tabCartBtn = document.getElementById('mob-tab-cart');
-
-            if (tab === 'catalog') {
-                if (catSec) { catSec.classList.remove('hidden'); catSec.classList.add('flex'); }
-                if (cartSec) { cartSec.classList.add('hidden'); cartSec.classList.remove('flex'); }
-                if (tabCatBtn) { tabCatBtn.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5'; }
-                if (tabCartBtn) { tabCartBtn.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5'; }
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(fullLink);
+                showNotification("Link Koneksi HP berhasil disalin! Kirim via WA & Buka di HP Anda.", "success");
             } else {
-                if (catSec) { catSec.classList.add('hidden'); catSec.classList.remove('flex'); }
-                if (cartSec) { cartSec.classList.remove('hidden'); cartSec.classList.add('flex'); }
-                if (tabCatBtn) { tabCatBtn.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5'; }
-                if (tabCartBtn) { tabCartBtn.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5'; }
+                prompt("Salin Link ini & buka di HP Anda untuk auto-sync:", fullLink);
             }
         }
 
@@ -1453,21 +1357,25 @@
 
             if (!supabaseClient) {
                 if (icon) icon.classList.remove('fa-spin');
-                showNotification("Supabase belum dikonfigurasi. Menggunakan penyimpanan lokal.", "warning");
+                showNotification("Supabase belum terhubung di HP ini. Gunakan fitur 'Kirim Koneksi ke HP' dari Pengaturan Komputer Anda.", "warning");
                 return;
             }
 
             try {
-                const { data: prodData } = await supabaseClient.from('products').select('*');
+                const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*');
+                if (prodErr) throw prodErr;
                 if (Array.isArray(prodData) && prodData.length > 0) products = prodData;
 
-                const { data: custData } = await supabaseClient.from('customers').select('*');
+                const { data: custData, error: custErr } = await supabaseClient.from('customers').select('*');
+                if (custErr) throw custErr;
                 if (Array.isArray(custData) && custData.length > 0) customers = custData;
 
-                const { data: vouchData } = await supabaseClient.from('vouchers').select('*');
+                const { data: vouchData, error: vouchErr } = await supabaseClient.from('vouchers').select('*');
+                if (vouchErr) throw vouchErr;
                 if (Array.isArray(vouchData) && vouchData.length > 0) vouchers = vouchData;
 
-                const { data: txData } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
+                const { data: txData, error: txErr } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
+                if (txErr) throw txErr;
                 if (Array.isArray(txData)) transactions = txData;
 
                 saveLocalStorageData();
@@ -1479,10 +1387,10 @@
                 renderHistoryTable();
                 updateCharts();
 
-                showNotification("Sinkronisasi Cloud Berhasil!", "success");
+                showNotification("Sinkronisasi Cloud Berhasil di HP!", "success");
             } catch(e) {
                 console.error("Sync error:", e);
-                showNotification("Gagal sinkronisasi data cloud.", "error");
+                showNotification("Gagal sinkronisasi data cloud: " + (e.message || "Periksa jaringan/koneksi"), "error");
             } finally {
                 if (icon) icon.classList.remove('fa-spin');
             }
@@ -1633,6 +1541,212 @@
             return left + ' '.repeat(space) + right;
         }
 
+        async function fetchUsersFromSupabase() {
+            if (!supabaseClient) {
+                userAccounts = [...defaultAccounts];
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient.from('users').select('*');
+                if (error) throw error;
+                if (Array.isArray(data) && data.length > 0) {
+                    userAccounts = data;
+                } else {
+                    userAccounts = [...defaultAccounts];
+                }
+            } catch (err) {
+                console.error("Fetch users error:", err);
+                userAccounts = [...defaultAccounts];
+            }
+        }
+
+        function initAuthSystem() {
+            const savedUser = localStorage.getItem('pos_active_user');
+            if (savedUser) {
+                try {
+                    activeUser = JSON.parse(savedUser);
+                } catch(e) { activeUser = defaultAccounts[0]; }
+            } else {
+                activeUser = defaultAccounts[0];
+            }
+            updateUserDisplay();
+            populateLoginDropdown();
+        }
+
+        function updateUserDisplay() {
+            if (!activeUser) activeUser = defaultAccounts[0];
+            currentRole = activeUser.role || 'cashier';
+            const nameEl = document.getElementById('user-display-name');
+            const roleEl = document.getElementById('user-display-role');
+            if (nameEl) nameEl.innerText = activeUser.name || activeUser.username;
+            if (roleEl) roleEl.innerText = (activeUser.role === 'admin' ? 'Owner/Admin' : 'Kasir Staff');
+
+            document.querySelectorAll('.nav-admin-only').forEach(el => {
+                if (currentRole === 'admin') {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function populateLoginDropdown() {
+            const select = document.getElementById('login-username');
+            if (!select) return;
+            const accounts = (userAccounts && userAccounts.length > 0) ? userAccounts : defaultAccounts;
+            select.innerHTML = accounts.map(acc => 
+                '<option value="' + acc.username + '">' + acc.name + ' (' + (acc.role === 'admin' ? 'Admin' : 'Kasir') + ')</option>'
+            ).join('');
+        }
+
+        function openLoginModal() {
+            populateLoginDropdown();
+            const pinInput = document.getElementById('login-pin');
+            if (pinInput) pinInput.value = '';
+            const errEl = document.getElementById('login-error-msg');
+            if (errEl) errEl.classList.add('hidden');
+            document.getElementById('login-modal')?.classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal')?.classList.add('hidden');
+        }
+
+        function handleLoginSubmit(e) {
+            if (e) e.preventDefault();
+            const username = document.getElementById('login-username')?.value;
+            const pin = document.getElementById('login-pin')?.value;
+            const errEl = document.getElementById('login-error-msg');
+
+            const accounts = (userAccounts && userAccounts.length > 0) ? userAccounts : defaultAccounts;
+            const found = accounts.find(a => a.username === username && String(a.pin) === String(pin));
+
+            if (found) {
+                activeUser = found;
+                localStorage.setItem('pos_active_user', JSON.stringify(found));
+                updateUserDisplay();
+                closeLoginModal();
+                showNotification("Selamat datang, " + found.name + "!", "success");
+                if (found.role !== 'admin' && window.location.hash !== '#pos') {
+                    window.location.hash = '#pos';
+                    handleNavigation();
+                }
+            } else {
+                if (errEl) errEl.classList.remove('hidden');
+            }
+        }
+
+        function appendPin(num) {
+            const pinInput = document.getElementById('login-pin');
+            if (pinInput && pinInput.value.length < 6) {
+                pinInput.value += num;
+            }
+        }
+
+        function clearPin() {
+            const pinInput = document.getElementById('login-pin');
+            if (pinInput) pinInput.value = '';
+        }
+
+        function deletePin() {
+            const pinInput = document.getElementById('login-pin');
+            if (pinInput && pinInput.value.length > 0) {
+                pinInput.value = pinInput.value.slice(0, -1);
+            }
+        }
+
+        function setupHashNavigation() {
+            window.addEventListener('hashchange', handleNavigation);
+            handleNavigation();
+        }
+
+        function openStoreModal() {
+            window.location.hash = '#settings';
+            handleNavigation();
+        }
+
+        function changeBranch() {
+            const branch = document.getElementById('branch-select')?.value;
+            if (branch) {
+                currentBranch = branch;
+                showNotification("Cabang diubah ke: " + branch, "info");
+            }
+        }
+
+        function switchMobilePosTab(tabName) {
+            currentMobilePosTab = tabName;
+            const catSec = document.getElementById('pos-catalog-section');
+            const cartSec = document.getElementById('pos-cart-section');
+            const btnCat = document.getElementById('mob-tab-catalog');
+            const btnCart = document.getElementById('mob-tab-cart');
+
+            if (window.innerWidth < 768) {
+                if (tabName === 'catalog') {
+                    if (catSec) catSec.classList.remove('hidden');
+                    if (cartSec) cartSec.classList.add('hidden');
+                    if (btnCat) btnCat.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5';
+                    if (btnCart) btnCart.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5';
+                } else {
+                    if (catSec) catSec.classList.add('hidden');
+                    if (cartSec) cartSec.classList.remove('hidden');
+                    if (btnCat) btnCat.className = 'flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5';
+                    if (btnCart) btnCart.className = 'flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5';
+                }
+            } else {
+                if (catSec) catSec.classList.remove('hidden');
+                if (cartSec) cartSec.classList.remove('hidden');
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('category-pills');
+            if (!container) return;
+
+            const categories = ['Semua', ...new Set(products.map(p => p.category || 'Lainnya'))];
+            container.innerHTML = categories.map(cat => {
+                const isActive = selectedCategory === cat;
+                const bgClass = isActive ? 'bg-blue-600 text-white font-bold shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold';
+                return '<button onclick="filterByCategory(\'' + cat + '\')" class="px-3 py-1 rounded-xl whitespace-nowrap transition text-xs ' + bgClass + '">' + cat + '</button>';
+            }).join('');
+        }
+
+        function filterByCategory(cat) {
+            selectedCategory = cat;
+            renderCategories();
+            renderProductGrid(document.getElementById('search-input')?.value || '');
+        }
+
+        function handleSearch(e) {
+            const query = e.target.value;
+            renderProductGrid(query);
+        }
+
+        function isVoucherDateValid(v) {
+            const today = new Date().toISOString().slice(0, 10);
+            if (v.valid_from && v.valid_from > today) return false;
+            if (v.valid_until && v.valid_until < today) return false;
+            return true;
+        }
+
+        function productMatchesVoucherTarget(p, v) {
+            if (!p) return false;
+            if (v.target_category && v.target_category !== 'Semua' && p.category !== v.target_category) return false;
+            if (v.target_brand && v.target_brand !== 'Semua' && p.brand !== v.target_brand) return false;
+            if (v.target_family && v.target_family !== 'Semua' && p.family !== v.target_family) return false;
+            if (v.target_promo && v.target_promo !== 'Semua' && p.promo !== v.target_promo) return false;
+            return true;
+        }
+
+        function getActiveDiscountForProduct(product) {
+            if (!product) return null;
+            const activeAutoVouchers = vouchers.filter(v => {
+                if (!v.is_active || v.promo_type !== 'auto_category' || !isVoucherDateValid(v)) return false;
+                return productMatchesVoucherTarget(product, v);
+            });
+            if (activeAutoVouchers.length === 0) return null;
+            return activeAutoVouchers[0];
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             loadSavedStoreSettings();
             initSupabaseClient();
@@ -1657,6 +1771,18 @@
                 initCharts();
             }
         });
+
+        function saveLocalStorageData() {
+            try {
+                localStorage.setItem('pos_products', JSON.stringify(products));
+                localStorage.setItem('pos_customers', JSON.stringify(customers));
+                localStorage.setItem('pos_vouchers', JSON.stringify(vouchers));
+                localStorage.setItem('pos_transactions', JSON.stringify(transactions));
+            } catch(e) {
+                console.error("Gagal menyimpan data ke localStorage:", e);
+            }
+        }
+        window.saveLocalStorageData = saveLocalStorageData;
 
         function loadLocalStorageData() {
             try {
