@@ -100,6 +100,10 @@
                 <i class="fa-solid fa-gear text-blue-400"></i>
                 <span class="hidden sm:inline">Pengaturan</span>
             </a>
+            <button onclick="window.logoutUser()" title="Logout / Keluar Akun" class="flex items-center gap-1.5 bg-red-900/40 hover:bg-red-800/60 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-300 border border-red-700/50 transition">
+                <i class="fa-solid fa-right-from-bracket text-red-400"></i>
+                <span class="hidden sm:inline">Logout</span>
+            </button>
         </div>
     </header>
 
@@ -467,7 +471,7 @@
                     <!-- Akun User Terhubung & Logout -->
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
                         <span class="text-[11px] font-bold text-slate-500 uppercase">Akun Terhubung</span>
-                        <div class="flex items-center justify-between bg-white border border-slate-300 rounded-xl px-2 py-1">
+                        <div class="flex items-center justify-between bg-white border border-slate-300 rounded-xl p-1.5">
                             <div class="flex items-center gap-2 min-w-0">
                                 <i class="fa-solid fa-user-circle text-blue-500 text-base shrink-0"></i>
                                 <div class="flex flex-col text-left truncate">
@@ -475,8 +479,9 @@
                                     <span id="user-display-role" class="text-[9px] text-blue-600 font-bold uppercase truncate">Owner/Admin</span>
                                 </div>
                             </div>
-                            <button onclick="window.openLoginModal()" title="Ganti Akun / Logout" class="text-slate-400 hover:text-red-500 p-1 font-bold shrink-0">
+                            <button onclick="window.logoutUser()" title="Logout / Keluar Akun" class="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg text-xs font-bold transition shrink-0 border border-red-200">
                                 <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Logout</span>
                             </button>
                         </div>
                     </div>
@@ -2577,7 +2582,22 @@
         };
 
         window.openLoginModal = function() { window.populateLoginDropdown(); document.getElementById('login-pin').value = ''; document.getElementById('login-error-msg')?.classList.add('hidden'); document.getElementById('login-modal')?.classList.remove('hidden'); };
-        window.closeLoginModal = function() { document.getElementById('login-modal')?.classList.add('hidden'); };
+        window.closeLoginModal = function() { 
+            if (!activeUser) {
+                window.showNotification("Silakan verifikasi PIN & login terlebih dahulu!", "warning");
+                return;
+            }
+            document.getElementById('login-modal')?.classList.add('hidden'); 
+        };
+
+        window.logoutUser = function() {
+            const userName = activeUser ? activeUser.name : 'User';
+            activeUser = null;
+            currentRole = 'none';
+            window.updateUserDisplayUI();
+            window.openLoginModal();
+            window.showNotification("Akun " + userName + " berhasil logout.", "info");
+        };
 
         window.appendPin = function(num) { const inp = document.getElementById('login-pin'); if (inp && inp.value.length < 6) inp.value += num; };
         window.clearPin = function() { const inp = document.getElementById('login-pin'); if (inp) inp.value = ''; };
@@ -2598,13 +2618,13 @@
         };
 
         window.updateUserDisplayUI = function() {
-            document.getElementById('user-display-name').innerText = activeUser ? activeUser.name : 'Admin';
-            document.getElementById('user-display-role').innerText = currentRole === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
+            document.getElementById('user-display-name').innerText = activeUser ? activeUser.name : 'Belum Login';
+            document.getElementById('user-display-role').innerText = activeUser ? (currentRole === 'admin' ? 'Owner / Admin' : 'Kasir Staff') : 'Sistem Terkunci';
             document.querySelectorAll('.nav-admin-only').forEach(nav => {
                 if (currentRole === 'admin') nav.classList.remove('hidden');
                 else nav.classList.add('hidden');
             });
-            if (currentRole !== 'admin') window.location.hash = '#pos';
+            if (!activeUser || currentRole !== 'admin') window.location.hash = '#pos';
         };
 
         window.setupHashNavigation = function() {
