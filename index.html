@@ -757,25 +757,33 @@
                     </div>
                 </div>
 
-                <!-- Target Kriteria -->
+                <!-- Target Kriteria dengan Pilihan Dropdown dari Database -->
                 <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
-                    <span class="text-xs font-bold text-slate-700 block">Kriteria Target Produk (Ketik "Semua" jika berlaku ke semua)</span>
+                    <span class="text-xs font-bold text-slate-700 block">Kriteria Target Produk (Pilih dari Database atau "Semua")</span>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div>
                             <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Kategori</label>
-                            <input type="text" id="vouch-target-category" value="Semua" class="w-full px-2 py-1 text-xs border rounded-lg">
+                            <select id="vouch-target-category" class="w-full px-2 py-1 text-xs border rounded-lg bg-white font-medium">
+                                <option value="Semua">Semua</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Brand</label>
-                            <input type="text" id="vouch-target-brand" value="Semua" class="w-full px-2 py-1 text-xs border rounded-lg">
+                            <select id="vouch-target-brand" class="w-full px-2 py-1 text-xs border rounded-lg bg-white font-medium">
+                                <option value="Semua">Semua</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Family</label>
-                            <input type="text" id="vouch-target-family" value="Semua" class="w-full px-2 py-1 text-xs border rounded-lg">
+                            <select id="vouch-target-family" class="w-full px-2 py-1 text-xs border rounded-lg bg-white font-medium">
+                                <option value="Semua">Semua</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Promo Tag</label>
-                            <input type="text" id="vouch-target-promo" value="Semua" class="w-full px-2 py-1 text-xs border rounded-lg">
+                            <select id="vouch-target-promo" class="w-full px-2 py-1 text-xs border rounded-lg bg-white font-medium">
+                                <option value="Semua">Semua</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -2140,9 +2148,32 @@
             }).join('');
         }
 
+        window.populateVoucherTargetDropdowns = function(selected = {}) {
+            const categories = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
+            const brands = ['Semua', ...new Set((products || []).map(p => p.brand).filter(Boolean))];
+            const families = ['Semua', ...new Set((products || []).map(p => p.family).filter(Boolean))];
+            const promos = ['Semua', ...new Set((products || []).map(p => p.promo).filter(Boolean))];
+
+            const catSel = document.getElementById('vouch-target-category');
+            const brandSel = document.getElementById('vouch-target-brand');
+            const familySel = document.getElementById('vouch-target-family');
+            const promoSel = document.getElementById('vouch-target-promo');
+
+            if (catSel) catSel.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            if (brandSel) brandSel.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+            if (familySel) familySel.innerHTML = families.map(f => `<option value="${f}">${f}</option>`).join('');
+            if (promoSel) promoSel.innerHTML = promos.map(pr => `<option value="${pr}">${pr}</option>`).join('');
+
+            if (catSel && selected.category) catSel.value = selected.category;
+            if (brandSel && selected.brand) brandSel.value = selected.brand;
+            if (familySel && selected.family) familySel.value = selected.family;
+            if (promoSel && selected.promo) promoSel.value = selected.promo;
+        };
+
         window.openVoucherModal = function(id = null) {
             document.getElementById('voucher-modal-title').innerText = id ? "Edit Pengaturan Promo" : "Tambah Pengaturan Promo / Diskon";
             document.getElementById('vouch-id').value = id || "";
+            let selectedCriteria = {};
             if (id) {
                 const v = vouchers.find(item => item.id === id);
                 if (v) {
@@ -2154,18 +2185,17 @@
                     document.getElementById('vouch-max-discount').value = v.max_discount || 0;
                     document.getElementById('vouch-buy-qty').value = v.buy_qty || 2;
                     document.getElementById('vouch-get-qty').value = v.get_qty || 1;
-                    document.getElementById('vouch-target-category').value = v.target_category || "Semua";
-                    document.getElementById('vouch-target-brand').value = v.target_brand || "Semua";
-                    document.getElementById('vouch-target-family').value = v.target_family || "Semua";
-                    document.getElementById('vouch-target-promo').value = v.target_promo || "Semua";
                     document.getElementById('vouch-min-purchase').value = v.min_purchase || 0;
                     document.getElementById('vouch-min-purchase-scope').value = v.min_purchase_scope || "total";
                     document.getElementById('vouch-valid-until').value = v.valid_until || "";
                     document.getElementById('vouch-usage-limit').value = v.usage_limit || 0;
+                    selectedCriteria = { category: v.target_category, brand: v.target_brand, family: v.target_family, promo: v.target_promo };
                 }
             } else {
-                document.getElementById('vouch-promo-type').value = "voucher"; document.getElementById('vouch-code').value = ""; document.getElementById('vouch-title').value = ""; document.getElementById('vouch-type').value = "fixed"; document.getElementById('vouch-value').value = 0; document.getElementById('vouch-max-discount').value = 0; document.getElementById('vouch-buy-qty').value = 2; document.getElementById('vouch-get-qty').value = 1; document.getElementById('vouch-target-category').value = "Semua"; document.getElementById('vouch-target-brand').value = "Semua"; document.getElementById('vouch-target-family').value = "Semua"; document.getElementById('vouch-target-promo').value = "Semua"; document.getElementById('vouch-min-purchase').value = 0; document.getElementById('vouch-min-purchase-scope').value = "total"; document.getElementById('vouch-valid-until').value = ""; document.getElementById('vouch-usage-limit').value = 0;
+                document.getElementById('vouch-promo-type').value = "voucher"; document.getElementById('vouch-code').value = ""; document.getElementById('vouch-title').value = ""; document.getElementById('vouch-type').value = "fixed"; document.getElementById('vouch-value').value = 0; document.getElementById('vouch-max-discount').value = 0; document.getElementById('vouch-buy-qty').value = 2; document.getElementById('vouch-get-qty').value = 1; document.getElementById('vouch-min-purchase').value = 0; document.getElementById('vouch-min-purchase-scope').value = "total"; document.getElementById('vouch-valid-until').value = ""; document.getElementById('vouch-usage-limit').value = 0;
+                selectedCriteria = { category: 'Semua', brand: 'Semua', family: 'Semua', promo: 'Semua' };
             }
+            window.populateVoucherTargetDropdowns(selectedCriteria);
             toggleVoucherTypeUI();
             document.getElementById('voucher-modal')?.classList.remove('hidden');
         };
