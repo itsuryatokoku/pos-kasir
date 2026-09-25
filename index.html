@@ -1611,9 +1611,11 @@
 
                     if (matchCat && matchBrand && matchFamily && matchPromo) {
                         if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
+                            const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
+                            const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
                             badges.push({ 
                                 type: 'bogo', 
-                                text: `BOGO: Beli ${v.buy_qty} Gratis ${v.get_qty}`, 
+                                text: `BOGO: Beli ${buyQ} Gratis ${getQ}`, 
                                 icon: 'fa-gift', 
                                 bg: 'bg-amber-500' 
                             });
@@ -1731,8 +1733,8 @@
             }
 
             if (voucher.promo_type === 'bogo' || voucher.benefit_type === 'bogo') {
-                const buyQ = Number(voucher.buy_qty) || 2;
-                const getQ = Number(voucher.get_qty) || 1;
+                const buyQ = (voucher.buy_qty !== undefined && voucher.buy_qty !== null) ? Number(voucher.buy_qty) : 2;
+                const getQ = (voucher.get_qty !== undefined && voucher.get_qty !== null) ? Number(voucher.get_qty) : 1;
                 const reqQty = buyQ + getQ;
                 const totalMatchingQty = matchingItems.reduce((s, i) => s + i.qty, 0);
                 if (totalMatchingQty < reqQty) return false;
@@ -1839,8 +1841,8 @@
                         const matchPromo = !v.target_promo || v.target_promo === 'Semua' || (item.promo || '').toLowerCase() === (v.target_promo || '').toLowerCase();
 
                         const isMatch = matchCat && matchBrand && matchFamily && matchPromo;
-                        const buyQ = Number(v.buy_qty) || 2;
-                        const getQ = Number(v.get_qty) || 1;
+                        const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
+                        const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
                         const setQty = buyQ + getQ;
 
                         if (isMatch && item.qty >= setQty) {
@@ -1910,8 +1912,8 @@
                 } else if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
                     cart.forEach(item => {
                         const matchCat = v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
-                        const buyQ = Number(v.buy_qty) || 2;
-                        const getQ = Number(v.get_qty) || 1;
+                        const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
+                        const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
                         const setQty = buyQ + getQ;
 
                         if (matchCat && item.qty >= setQty) {
@@ -1972,9 +1974,12 @@
                 select.appendChild(opt);
             } else {
                 eligibleVouchers.forEach(v => {
+                    const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
+                    const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
+                    const labelStr = (v.promo_type === 'bogo' || v.benefit_type === 'bogo') ? `Beli ${buyQ} Gratis ${getQ}` : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'));
                     const opt = document.createElement('option');
                     opt.value = v.id;
-                    opt.textContent = `${v.code} - ${v.title} (${v.promo_type === 'bogo' ? 'BOGO' : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'))})`;
+                    opt.textContent = `${v.code} - ${v.title} (${labelStr})`;
                     select.appendChild(opt);
                 });
             }
@@ -2273,11 +2278,14 @@
                 if (v.promo_type === 'voucher') pTypeLabel = 'Diskon Voucher';
                 if (v.promo_type === 'bogo') pTypeLabel = 'BOGO';
 
+                const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
+                const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
+
                 return `<tr class="border-b border-slate-100 hover:bg-slate-50">
                     <td class="p-3"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${v.promo_type === 'voucher' ? 'bg-indigo-100 text-indigo-700' : (v.promo_type === 'bogo' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700')}">${pTypeLabel}</span></td>
                     <td class="p-3 font-mono font-bold">${v.code} <div class="text-[10px] text-slate-500 font-sans font-normal">${v.title}</div></td>
                     <td class="p-3 text-slate-500">${v.target_category || 'Semua'} / ${v.target_brand || 'Semua'}</td>
-                    <td class="p-3 font-bold text-emerald-600">${v.promo_type === 'bogo' ? `Beli ${v.buy_qty} Gratis ${v.get_qty}` : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'))}</td>
+                    <td class="p-3 font-bold text-emerald-600">${(v.promo_type === 'bogo' || v.benefit_type === 'bogo') ? `Beli ${buyQ} Gratis ${getQ}` : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'))}</td>
                     <td class="p-3 text-center text-xs">Rp ${Number(v.min_purchase || 0).toLocaleString('id-ID')}</td>
                     <td class="p-3 text-center"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${v.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100'}">${v.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
                     <td class="p-3 text-center">
