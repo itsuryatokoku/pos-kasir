@@ -152,7 +152,7 @@
                         </div>
                     </div>
 
-                    <div id="product-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 p-1 min-h-0"></div>
+                    <div id="product-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 p-1 min-h-0 content-start items-start"></div>
                 </section>
 
                 <!-- Cart Section -->
@@ -563,31 +563,55 @@
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 lg:col-span-2">
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-2">
-                        <div>
-                            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-users-gear text-emerald-600"></i> Manajemen User Kasir & Hak Akses Peran
-                            </h3>
-                            <p class="text-[11px] text-slate-500">Tambah akun kasir baru, atur PIN login 4 digit, dan kelola izin akses halaman.</p>
-                        </div>
-                        <button onclick="window.openUserModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-plus"></i> Tambah User / Kasir
-                        </button>
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-credit-card text-emerald-600"></i> Pengaturan Metode Pembayaran, Rekening Bank & QRIS
+                        </h3>
+                        <span class="text-[11px] text-slate-500 font-medium">Tampil di Modal Kasir saat memilih Transfer/QRIS</span>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
-                                    <th class="p-2.5">Username</th>
-                                    <th class="p-2.5">Nama Lengkap</th>
-                                    <th class="p-2.5">Peran (Role)</th>
-                                    <th class="p-2.5 text-center">PIN Security</th>
-                                    <th class="p-2.5">Izin Hak Akses Menu</th>
-                                    <th class="p-2.5 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-tbody" class="divide-y divide-slate-100"></tbody>
-                        </table>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Transfer Bank Details -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                            <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-building-columns text-blue-600"></i> Informasi Transfer Bank
+                            </span>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Bank</label>
+                                    <input type="text" id="setting-bank-name" placeholder="BCA / Mandiri / BRI" value="BCA" class="w-full px-2.5 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nomor Rekening</label>
+                                    <input type="text" id="setting-bank-account-no" placeholder="1234567890" value="1234567890" class="w-full px-2.5 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono font-bold">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Pemilik Rekening (a.n.)</label>
+                                <input type="text" id="setting-bank-account-name" placeholder="a.n. Toko / Nama Pemilik" value="a.n. MY KSR Store" class="w-full px-2.5 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <!-- QRIS Details -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                            <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-qrcode text-indigo-600"></i> Informasi QRIS / e-Wallet
+                            </span>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Merchant QRIS</label>
+                                <input type="text" id="setting-qris-merchant" placeholder="NMK / Merchant MY KSR" value="MY KSR Store Official" class="w-full px-2.5 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">URL Gambar QRIS (Opsional)</label>
+                                <input type="text" id="setting-qris-image-url" placeholder="https://domain.com/qris.jpg" class="w-full px-2.5 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-1">
+                        <button onclick="window.saveStoreSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Pembayaran
+                        </button>
                     </div>
                 </div>
 
@@ -1016,24 +1040,29 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Metode Pembayaran</label>
-                    <select id="pay-method" class="w-full px-3 py-2 text-xs border rounded-xl font-bold bg-white focus:ring-2 focus:ring-blue-500">
+                    <select id="pay-method" onchange="window.onPaymentMethodChange()" class="w-full px-3 py-2 text-xs border rounded-xl font-bold bg-white focus:ring-2 focus:ring-blue-500">
                         <option value="Tunai">Tunai / Cash</option>
                         <option value="QRIS">QRIS / e-Wallet</option>
                         <option value="Transfer">Transfer Bank</option>
                         <option value="Debit/Kredit">Kartu Debit / Kredit</option>
                     </select>
                 </div>
-                <div>
+
+                <!-- Dynamic Info Box for Transfer / QRIS / Debit -->
+                <div id="pay-method-info-box" class="hidden p-3 rounded-xl border text-xs space-y-2"></div>
+
+                <div id="pay-cash-section">
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Uang Diterima (Rp)</label>
                     <input type="number" id="pay-cash-amount" oninput="window.calculateChange()" placeholder="0" class="w-full px-3 py-2 text-sm font-bold border rounded-xl focus:ring-2 focus:ring-blue-500">
+                    <div class="grid grid-cols-4 gap-1.5 mt-2">
+                        <button onclick="window.setQuickCash('pas')" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">Uang Pas</button>
+                        <button onclick="window.setQuickCash(20000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">20k</button>
+                        <button onclick="window.setQuickCash(50000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">50k</button>
+                        <button onclick="window.setQuickCash(100000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">100k</button>
+                    </div>
                 </div>
-                <div class="grid grid-cols-4 gap-1.5">
-                    <button onclick="window.setQuickCash('pas')" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">Uang Pas</button>
-                    <button onclick="window.setQuickCash(20000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">20k</button>
-                    <button onclick="window.setQuickCash(50000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">50k</button>
-                    <button onclick="window.setQuickCash(100000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">100k</button>
-                </div>
-                <div class="flex justify-between items-center pt-2 border-t text-xs">
+
+                <div id="pay-change-row" class="flex justify-between items-center pt-2 border-t text-xs">
                     <span class="font-semibold text-slate-600">Kembalian:</span>
                     <span id="pay-change-amount" class="font-extrabold text-emerald-600 text-sm">Rp 0</span>
                 </div>
@@ -1377,22 +1406,580 @@
             }
         };
 
+        window.renderCategoryPills = function() {
+            const container = document.getElementById('category-pills');
+            if (!container) return;
+            const categories = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat === selectedCategory;
+                const cls = isActive ? 'bg-blue-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold';
+                return '<button onclick="window.filterCategory(\'' + cat + '\')" class="px-3 py-1 rounded-xl text-xs transition shrink-0 ' + cls + '">' + cat + '</button>';
+            }).join('');
+        };
+
+        window.filterCategory = function(cat) {
+            selectedCategory = cat;
+            window.renderCategoryPills();
+            window.renderProductGrid();
+        };
+
+        window.handleSearch = function(e) {
+            window.renderProductGrid();
+        };
+
+        window.renderProductGrid = function() {
+            const grid = document.getElementById('product-grid');
+            if (!grid) return;
+
+            window.renderCategoryPills();
+
+            const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+            const filtered = (products || []).filter(p => {
+                const matchCategory = selectedCategory === 'Semua' || p.category === selectedCategory;
+                const matchSearch = !searchVal || 
+                    (p.name || '').toLowerCase().includes(searchVal) || 
+                    (p.sku || '').toLowerCase().includes(searchVal) || 
+                    (p.barcode || '').toLowerCase().includes(searchVal);
+                return matchCategory && matchSearch;
+            });
+
+            const countEl = document.getElementById('product-count');
+            if (countEl) countEl.innerText = filtered.length + ' Produk';
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 text-xs font-semibold">Tidak ada produk ditemukan</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const bogoPromo = (vouchers || []).find(v => v.is_active && (v.promo_type === 'bogo' || v.benefit_type === 'bogo') &&
+                    (v.target_category === 'Semua' || v.target_category === p.category) &&
+                    (v.target_brand === 'Semua' || v.target_brand === p.brand) &&
+                    (v.target_family === 'Semua' || v.target_family === p.family) &&
+                    (v.target_promo === 'Semua' || v.target_promo === p.promo)
+                );
+
+                let bogoBadgeHtml = '';
+                if (bogoPromo) {
+                    const buyQ = bogoPromo.buy_qty || 1;
+                    const getQ = bogoPromo.get_qty || 1;
+                    bogoBadgeHtml = '<span class="bg-amber-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-sm">🎁 BOGO: Beli ' + buyQ + ' Gratis ' + getQ + '</span>';
+                }
+
+                const autoPromo = (vouchers || []).find(v => v.is_active && v.promo_type === 'automatic' &&
+                    (v.target_category === 'Semua' || v.target_category === p.category) &&
+                    (v.target_brand === 'Semua' || v.target_brand === p.brand) &&
+                    (v.target_family === 'Semua' || v.target_family === p.family) &&
+                    (v.target_promo === 'Semua' || v.target_promo === p.promo)
+                );
+
+                let discAmount = 0;
+                let discountBadgeHtml = '';
+                if (autoPromo) {
+                    if (autoPromo.type === 'percentage') {
+                        discAmount = Math.round((p.selling_price * autoPromo.value) / 100);
+                        discountBadgeHtml = '<span class="bg-red-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-sm">🏷️ Diskon ' + autoPromo.value + '%</span>';
+                    } else {
+                        discAmount = autoPromo.value;
+                        discountBadgeHtml = '<span class="bg-red-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-sm">🏷️ Potongan Rp ' + Number(discAmount).toLocaleString('id-ID') + '</span>';
+                    }
+                } else if (p.promo && p.promo !== 'Standard') {
+                    discountBadgeHtml = '<span class="bg-blue-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-sm">🏷️ ' + p.promo + '</span>';
+                }
+
+                const effectivePrice = Math.max(0, p.selling_price - discAmount);
+                const priceHtml = discAmount > 0 
+                    ? '<div><span class="text-[10px] text-slate-400 line-through">Rp ' + Number(p.selling_price).toLocaleString('id-ID') + '</span> <span class="text-sm font-black text-blue-600">Rp ' + Number(effectivePrice).toLocaleString('id-ID') + '</span></div>'
+                    : '<div class="text-sm font-black text-blue-600">Rp ' + Number(p.selling_price).toLocaleString('id-ID') + '</div>';
+
+                const isOutOfStock = p.stock <= 0;
+                const stockBadge = isOutOfStock 
+                    ? '<span class="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">Stok Habis</span>'
+                    : '<span class="text-[10px] font-semibold text-slate-500">Stok: ' + p.stock + '</span>';
+
+                const cardClick = isOutOfStock ? '' : 'onclick="window.addToCart(\'' + p.id + '\')"';
+            const cardCursor = isOutOfStock 
+                ? 'opacity-60 cursor-not-allowed' 
+                : 'cursor-pointer hover:border-blue-500 hover:shadow-md active:scale-[0.98]';
+
+            return '<div ' + cardClick + ' class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm transition flex flex-col justify-between space-y-2 relative h-fit ' + cardCursor + '">' +
+                '<div class="space-y-1">' +
+                    '<div class="flex flex-wrap gap-1 items-center">' + bogoBadgeHtml + discountBadgeHtml + '</div>' +
+                    '<h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-snug">' + p.name + '</h3>' +
+                    '<div class="text-[10px] text-slate-400 font-mono">' + (p.sku || '-') + (p.brand ? ' • ' + p.brand : '') + '</div>' +
+                '</div>' +
+                '<div class="pt-2 border-t border-slate-100 flex items-center justify-between">' +
+                    '<div class="w-full flex items-center justify-between">' + priceHtml + stockBadge + '</div>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    };
+
+        window.addToCart = function(productId) {
+            const prod = (products || []).find(p => p.id === productId);
+            if (!prod) return;
+
+            if (prod.stock <= 0) {
+                window.showNotification("Stok produk habis!", "warning");
+                return;
+            }
+
+            const cartItem = cart.find(i => i.id === productId);
+            if (cartItem) {
+                if (cartItem.qty + 1 > prod.stock) {
+                    window.showNotification("Jumlah melebihi stok yang tersedia!", "warning");
+                    return;
+                }
+                cartItem.qty += 1;
+            } else {
+                cart.push({
+                    id: prod.id,
+                    sku: prod.sku,
+                    barcode: prod.barcode,
+                    name: prod.name,
+                    price: prod.selling_price,
+                    originalPrice: prod.selling_price,
+                    stock: prod.stock,
+                    qty: 1,
+                    category: prod.category,
+                    brand: prod.brand,
+                    family: prod.family,
+                    promo: prod.promo
+                });
+            }
+
+            window.renderCartItems();
+            window.renderCartVoucherDropdown();
+            window.calculateCartTotals();
+            window.showNotification(prod.name + " ditambahkan ke keranjang", "success");
+        };
+
+        window.updateCartQty = function(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            const newQty = item.qty + delta;
+            if (newQty <= 0) {
+                window.removeFromCart(productId);
+                return;
+            }
+
+            if (newQty > item.stock) {
+                window.showNotification("Kuantitas melebihi stok!", "warning");
+                return;
+            }
+
+            item.qty = newQty;
+            window.renderCartItems();
+            window.renderCartVoucherDropdown();
+            window.calculateCartTotals();
+        };
+
+        window.removeFromCart = function(productId) {
+            cart = cart.filter(i => i.id !== productId);
+            window.renderCartItems();
+            window.renderCartVoucherDropdown();
+            window.calculateCartTotals();
+        };
+
+        window.clearCart = function() {
+            cart = [];
+            appliedVouchers = [];
+            window.renderCartItems();
+            window.renderCartVoucherDropdown();
+            window.renderAppliedVouchersUI();
+            window.calculateCartTotals();
+        };
+
+        window.isVoucherEligible = function(v, cartItems) {
+            if (!v || v.is_active === false) return false;
+
+            if (v.valid_until) {
+                const today = new Date().setHours(0,0,0,0);
+                const validDate = new Date(v.valid_until).setHours(0,0,0,0);
+                if (validDate < today) return false;
+            }
+
+            const matchingItems = (cartItems || []).filter(item => {
+                const matchCat = !v.target_category || v.target_category === 'Semua' || item.category === v.target_category;
+                const matchBrand = !v.target_brand || v.target_brand === 'Semua' || item.brand === v.target_brand;
+                const matchFam = !v.target_family || v.target_family === 'Semua' || item.family === v.target_family;
+                const matchPromo = !v.target_promo || v.target_promo === 'Semua' || item.promo === v.target_promo;
+                return matchCat && matchBrand && matchFam && matchPromo;
+            });
+
+            if (matchingItems.length === 0 && (v.target_category !== 'Semua' || v.target_brand !== 'Semua' || v.target_family !== 'Semua' || v.target_promo !== 'Semua')) {
+                return false;
+            }
+
+            const totalSubtotal = (cartItems || []).reduce((s, i) => s + (i.price * i.qty), 0);
+            const matchingSubtotal = matchingItems.reduce((s, i) => s + (i.price * i.qty), 0);
+            const matchingQty = matchingItems.reduce((s, i) => s + i.qty, 0);
+
+            const minPurchase = Number(v.min_purchase) || 0;
+            if (minPurchase > 0) {
+                const checkAmount = v.min_purchase_scope === 'total' ? totalSubtotal : matchingSubtotal;
+                if (checkAmount < minPurchase) return false;
+            }
+
+            if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
+                const buyQty = Number(v.buy_qty) || 1;
+                if (matchingQty < buyQty) return false;
+            }
+
+            return true;
+        };
+
+        window.renderCartVoucherDropdown = function() {
+            const select = document.getElementById('cart-voucher-dropdown');
+            const badge = document.getElementById('cart-voucher-count-badge');
+            if (!select) return;
+
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Pilih Voucher / Promo --</option>';
+
+            const eligible = (vouchers || []).filter(v => 
+                (v.promo_type === 'voucher' || v.promo_type === 'bogo') && window.isVoucherEligible(v, cart)
+            );
+
+            if (badge) {
+                badge.innerText = eligible.length + ' tersedia';
+                badge.className = eligible.length > 0 
+                    ? 'bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-[9px] font-bold' 
+                    : 'bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full text-[9px] font-medium';
+            }
+
+            eligible.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.code;
+                const benefitStr = (v.promo_type === 'bogo' || v.benefit_type === 'bogo')
+                    ? 'Beli ' + (v.buy_qty || 1) + ' Gratis ' + (v.get_qty || 1)
+                    : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'));
+                opt.textContent = v.code + ' - ' + v.title + ' (' + benefitStr + ')';
+                select.appendChild(opt);
+            });
+
+            if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+                select.value = currentVal;
+            }
+        };
+
+        window.applyDropdownVoucher = function(selectEl) {
+            const code = selectEl.value;
+            if (!code) return;
+
+            const voucher = (vouchers || []).find(v => v.code === code);
+            if (!voucher) return;
+
+            if (appliedVouchers.some(v => v.code === code)) {
+                window.showNotification("Voucher sudah digunakan!", "warning");
+                selectEl.value = "";
+                return;
+            }
+
+            if (!window.isVoucherEligible(voucher, cart)) {
+                window.showNotification("Keranjang belum memenuhi syarat voucher ini!", "warning");
+                selectEl.value = "";
+                return;
+            }
+
+            appliedVouchers.push(voucher);
+            selectEl.value = "";
+            window.renderAppliedVouchersUI();
+            window.renderCartItems();
+            window.calculateCartTotals();
+            window.showNotification("Voucher " + voucher.code + " berhasil dipasang!", "success");
+        };
+
+        window.removeVoucher = function(code) {
+            appliedVouchers = appliedVouchers.filter(v => v.code !== code);
+            window.renderAppliedVouchersUI();
+            window.renderCartItems();
+            window.calculateCartTotals();
+            window.showNotification("Voucher dilepas", "info");
+        };
+
+        window.renderAppliedVouchersUI = function() {
+            const container = document.getElementById('applied-vouchers-container');
+            if (!container) return;
+
+            if (appliedVouchers.length === 0) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            container.classList.remove('hidden');
+            container.innerHTML = appliedVouchers.map(v => {
+                const label = (v.promo_type === 'bogo' || v.benefit_type === 'bogo')
+                    ? '🎁 BOGO: Beli ' + (v.buy_qty || 1) + ' Gratis ' + (v.get_qty || 1)
+                    : '🎟️ ' + v.code + ' (' + (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID')) + ')';
+                return '<div class="flex items-center justify-between bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-xl text-xs">' +
+                    '<span class="font-bold text-indigo-800 text-[11px]">' + label + '</span>' +
+                    '<button onclick="window.removeVoucher(\'' + v.code + '\')" class="text-slate-400 hover:text-red-500 font-bold ml-2 text-xs"><i class="fa-solid fa-xmark"></i></button>' +
+                '</div>';
+            }).join('');
+        };
+
+        window.renderCartItems = function() {
+            const container = document.getElementById('cart-items');
+            if (!container) return;
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="h-full flex flex-col items-center justify-center text-slate-300 p-6 text-center space-y-2">' +
+                    '<i class="fa-solid fa-basket-shopping text-4xl"></i>' +
+                    '<p class="text-xs font-semibold text-slate-400">Keranjang Belanja Kosong</p>' +
+                '</div>';
+                return;
+            }
+
+            container.innerHTML = cart.map(item => {
+                const autoPromo = (vouchers || []).find(v => v.is_active && v.promo_type === 'automatic' &&
+                    (v.target_category === 'Semua' || v.target_category === item.category) &&
+                    (v.target_brand === 'Semua' || v.target_brand === item.brand) &&
+                    (v.target_family === 'Semua' || v.target_family === item.family) &&
+                    (v.target_promo === 'Semua' || v.target_promo === item.promo)
+                );
+
+                let autoDiscPerItem = 0;
+                let autoBadgeHtml = '';
+                if (autoPromo) {
+                    autoDiscPerItem = autoPromo.type === 'percentage' 
+                        ? Math.round((item.originalPrice * autoPromo.value) / 100) 
+                        : autoPromo.value;
+                    autoBadgeHtml = '<span class="bg-red-100 text-red-700 font-bold text-[9px] px-1.5 py-0.5 rounded">🏷️ Diskon Otomatis -Rp ' + Number(autoDiscPerItem * item.qty).toLocaleString('id-ID') + '</span>';
+                }
+
+                item.autoDiscount = autoDiscPerItem;
+                item.price = Math.max(0, item.originalPrice - autoDiscPerItem);
+
+                const bogoApplied = appliedVouchers.find(v => (v.promo_type === 'bogo' || v.benefit_type === 'bogo') &&
+                    (v.target_category === 'Semua' || v.target_category === item.category) &&
+                    (v.target_brand === 'Semua' || v.target_brand === item.brand) &&
+                    (v.target_family === 'Semua' || v.target_family === item.family) &&
+                    (v.target_promo === 'Semua' || v.target_promo === item.promo)
+                );
+
+                let bogoBadgeHtml = '';
+                let bogoSavings = 0;
+                if (bogoApplied) {
+                    const buyQ = Number(bogoApplied.buy_qty) || 1;
+                    const getQ = Number(bogoApplied.get_qty || 1);
+                    const sets = Math.floor(item.qty / (buyQ + getQ));
+                    const freeQty = sets * getQ;
+                    if (freeQty > 0) {
+                        bogoSavings = freeQty * item.price;
+                        bogoBadgeHtml = '<span class="bg-amber-100 text-amber-800 font-bold text-[9px] px-2 py-0.5 rounded-full border border-amber-200">🎁 BOGO: Beli ' + buyQ + ' Gratis ' + getQ + ' (Gratis ' + freeQty + 'x)</span>';
+                    } else {
+                        bogoBadgeHtml = '<span class="bg-amber-50 text-amber-700 font-bold text-[9px] px-2 py-0.5 rounded-full">🎁 BOGO: Beli ' + buyQ + ' Gratis ' + getQ + '</span>';
+                    }
+                }
+
+                const itemSubtotal = (item.price * item.qty) - bogoSavings;
+
+                return '<div class="py-2.5 flex justify-between items-start gap-2 border-b border-slate-100">' +
+                    '<div class="flex-1 min-w-0 space-y-1">' +
+                        '<h4 class="font-bold text-xs text-slate-800 truncate">' + item.name + '</h4>' +
+                        '<div class="text-[10px] text-slate-400 font-mono">Rp ' + Number(item.price).toLocaleString('id-ID') + ' / pcs</div>' +
+                        '<div class="flex flex-wrap gap-1">' + autoBadgeHtml + bogoBadgeHtml + '</div>' +
+                    '</div>' +
+                    '<div class="flex flex-col items-end gap-1 shrink-0">' +
+                        '<div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">' +
+                            '<button onclick="window.updateCartQty(\'' + item.id + '\', -1)" class="w-5 h-5 bg-white hover:bg-slate-200 rounded font-black text-slate-700 text-xs flex items-center justify-center transition">-</button>' +
+                            '<span class="w-6 text-center font-bold text-xs">' + item.qty + '</span>' +
+                            '<button onclick="window.updateCartQty(\'' + item.id + '\', 1)" class="w-5 h-5 bg-white hover:bg-slate-200 rounded font-black text-slate-700 text-xs flex items-center justify-center transition">+</button>' +
+                        '</div>' +
+                        '<span class="font-extrabold text-xs text-slate-900">Rp ' + Number(itemSubtotal).toLocaleString('id-ID') + '</span>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        };
+
+        window.calculateCartTotals = function() {
+            const grossSubtotal = cart.reduce((s, i) => s + ((i.originalPrice || i.price) * i.qty), 0);
+            const autoDiscountTotal = cart.reduce((s, i) => s + ((i.autoDiscount || 0) * i.qty), 0);
+            const netSubtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+
+            const discountType = document.getElementById('cart-discount-type')?.value || 'percentage';
+            const discountInput = Number(document.getElementById('cart-discount-input')?.value) || 0;
+            let manualDiscount = discountType === 'percentage' 
+                ? Math.round((netSubtotal * discountInput) / 100) 
+                : discountInput;
+            manualDiscount = Math.min(netSubtotal, manualDiscount);
+
+            const selectedCustId = document.getElementById('cart-customer-select')?.value;
+            const customer = (customers || []).find(c => c.id === selectedCustId || c.member_number === selectedCustId);
+            let vipDiscount = (customer && customer.type === 'VIP') 
+                ? Math.round((netSubtotal - manualDiscount) * 0.05) 
+                : 0;
+
+            let voucherDiscountTotal = 0;
+            appliedVouchers.forEach(v => {
+                if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
+                    const buyQ = Number(v.buy_qty) || 1;
+                    const getQ = Number(v.get_qty) || 1;
+                    const matchingItems = cart.filter(item => 
+                        (v.target_category === 'Semua' || item.category === v.target_category) &&
+                        (v.target_brand === 'Semua' || item.brand === v.target_brand) &&
+                        (v.target_family === 'Semua' || item.family === v.target_family) &&
+                        (v.target_promo === 'Semua' || item.promo === v.target_promo)
+                    );
+                    matchingItems.forEach(item => {
+                        const sets = Math.floor(item.qty / (buyQ + getQ));
+                        voucherDiscountTotal += sets * getQ * item.price;
+                    });
+                } else if (v.benefit_type === 'discount') {
+                    let disc = v.type === 'percentage' ? Math.round((netSubtotal * v.value) / 100) : v.value;
+                    if (v.max_discount && v.max_discount > 0) disc = Math.min(disc, v.max_discount);
+                    voucherDiscountTotal += disc;
+                }
+            });
+
+            const grandTotal = Math.max(0, netSubtotal - manualDiscount - vipDiscount - voucherDiscountTotal);
+
+            const subEl = document.getElementById('cart-subtotal');
+            if (subEl) subEl.innerText = 'Rp ' + Number(grossSubtotal).toLocaleString('id-ID');
+
+            const rowAuto = document.getElementById('row-automatic-discount');
+            const autoAmtEl = document.getElementById('cart-automatic-discount-amount');
+            if (rowAuto && autoAmtEl) {
+                if (autoDiscountTotal > 0) {
+                    rowAuto.classList.remove('hidden');
+                    autoAmtEl.innerText = '- Rp ' + Number(autoDiscountTotal).toLocaleString('id-ID');
+                } else {
+                    rowAuto.classList.add('hidden');
+                }
+            }
+
+            const rowManual = document.getElementById('row-manual-discount');
+            const manualAmtEl = document.getElementById('cart-manual-discount-amount');
+            if (rowManual && manualAmtEl) {
+                if (manualDiscount > 0) {
+                    rowManual.classList.remove('hidden');
+                    manualAmtEl.innerText = '- Rp ' + Number(manualDiscount).toLocaleString('id-ID');
+                } else {
+                    rowManual.classList.add('hidden');
+                }
+            }
+
+            const rowVip = document.getElementById('row-vip-discount');
+            const vipAmtEl = document.getElementById('cart-vip-discount-amount');
+            if (rowVip && vipAmtEl) {
+                if (vipDiscount > 0) {
+                    rowVip.classList.remove('hidden');
+                    vipAmtEl.innerText = '- Rp ' + Number(vipDiscount).toLocaleString('id-ID');
+                } else {
+                    rowVip.classList.add('hidden');
+                }
+            }
+
+            const rowVouch = document.getElementById('row-voucher-discount');
+            const vouchAmtEl = document.getElementById('cart-voucher-discount-amount');
+            const vouchLabelEl = document.getElementById('cart-voucher-code-label');
+            if (rowVouch && vouchAmtEl) {
+                if (voucherDiscountTotal > 0) {
+                    rowVouch.classList.remove('hidden');
+                    vouchAmtEl.innerText = '- Rp ' + Number(voucherDiscountTotal).toLocaleString('id-ID');
+                    if (vouchLabelEl) vouchLabelEl.innerText = appliedVouchers.map(v => v.code).join(', ');
+                } else {
+                    rowVouch.classList.add('hidden');
+                }
+            }
+
+            const grandEl = document.getElementById('cart-grand-total');
+            if (grandEl) grandEl.innerText = 'Rp ' + Number(grandTotal).toLocaleString('id-ID');
+
+            const mobCount = document.getElementById('mob-cart-count');
+            if (mobCount) mobCount.innerText = cart.reduce((s, i) => s + i.qty, 0);
+
+            const btnCheckout = document.getElementById('btn-checkout');
+            if (btnCheckout) btnCheckout.disabled = cart.length === 0;
+        };
+
+        window.saveSupabaseSettings = async function() {
+            const rawUrl = document.getElementById('setting-supabase-url')?.value.trim() || '';
+            const rawKey = document.getElementById('setting-supabase-key')?.value.trim() || '';
+
+            if (!rawUrl || !rawKey) {
+                window.showNotification("URL dan Anon Key Supabase tidak boleh kosong!", "warning");
+                return;
+            }
+
+            const cleanUrl = window.sanitizeSupabaseUrl(rawUrl);
+            localStorage.setItem('pos_supa_url', cleanUrl);
+            localStorage.setItem('pos_supa_key', rawKey);
+
+            window.initSupabaseClient();
+
+            if (!supabaseClient) {
+                window.showNotification("Gagal membuat koneksi Supabase. Periksa format URL & Key.", "error");
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.from('products').select('id').limit(1);
+                if (error) {
+                    console.error("Supabase connection error:", error);
+                    window.showNotification("Koneksi Supabase Gagal: " + error.message, "error");
+                } else {
+                    window.showNotification("Berhasil terhubung ke Supabase Cloud!", "success");
+                    window.syncWithSupabase();
+                }
+            } catch (err) {
+                window.showNotification("Gagal terhubung ke Cloud: " + err.message, "error");
+            }
+        };
+
+        window.generateMobileConnectLink = function() {
+            const url = localStorage.getItem('pos_supa_url') || DEFAULT_SUPA_URL;
+            const key = localStorage.getItem('pos_supa_key') || DEFAULT_SUPA_KEY;
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const fullLink = baseUrl + '?supa_url=' + encodeURIComponent(url) + '&supa_key=' + encodeURIComponent(key);
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(fullLink);
+                window.showNotification("Link koneksi HP berhasil disalin ke clipboard!", "success");
+            } else {
+                prompt("Salin link ini dan buka di browser HP Anda:", fullLink);
+            }
+        };
+
         window.syncWithSupabase = async function() {
             if (!supabaseClient) {
                 window.initSupabaseClient();
-                if (!supabaseClient) return;
+                if (!supabaseClient) {
+                    window.showNotification("Supabase client belum terkonfigurasi.", "warning");
+                    return;
+                }
             }
             const syncIcon = document.getElementById('sync-icon');
             syncIcon?.classList.add('fa-spin');
+
+            let syncErrors = [];
+
             try {
-                const { data: cp } = await supabaseClient.from('products').select('*');
-                if (cp && cp.length > 0) products = cp;
-                const { data: cc } = await supabaseClient.from('customers').select('*');
-                if (cc && cc.length > 0) customers = cc;
-                const { data: cv } = await supabaseClient.from('vouchers').select('*');
-                if (cv && cv.length > 0) vouchers = cv;
-                const { data: ct } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
-                if (ct && ct.length > 0) transactions = ct;
+                // 1. Sync Products
+                const { data: cp, error: errP } = await supabaseClient.from('products').select('*');
+                if (errP) syncErrors.push("Produk: " + errP.message);
+                else if (cp && cp.length > 0) products = cp;
+
+                // 2. Sync Customers
+                const { data: cc, error: errC } = await supabaseClient.from('customers').select('*');
+                if (errC) syncErrors.push("Pelanggan: " + errC.message);
+                else if (cc && cc.length > 0) customers = cc;
+
+                // 3. Sync Vouchers
+                const { data: cv, error: errV } = await supabaseClient.from('vouchers').select('*');
+                if (errV) syncErrors.push("Voucher: " + errV.message);
+                else if (cv && cv.length > 0) vouchers = cv;
+
+                // 4. Sync Transactions
+                const { data: ct, error: errT } = await supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
+                if (errT) syncErrors.push("Transaksi: " + errT.message);
+                else if (ct && ct.length > 0) transactions = ct;
+
+                // 5. Sync Users & Settings
                 await window.fetchUsersFromSupabase();
                 await window.fetchStoreSettingsFromSupabase();
 
@@ -1404,9 +1991,16 @@
                 window.renderHistoryTable();
                 window.filterCartCustomerDropdown('');
                 window.renderCartVoucherDropdown();
-                window.showNotification("Sinkronisasi Cloud Supabase Berhasil!", "success");
+
+                if (syncErrors.length > 0) {
+                    console.warn("Sinkronisasi Parsial / Warning:", syncErrors);
+                    window.showNotification("Warning Cloud: " + syncErrors[0], "warning");
+                } else {
+                    window.showNotification("Sinkronisasi Cloud Supabase Berhasil!", "success");
+                }
             } catch (err) {
-                window.showNotification("Gagal sinkronisasi data Cloud.", "error");
+                console.error("Gagal sync cloud:", err);
+                window.showNotification("Gagal sinkronisasi data Cloud: " + err.message, "error");
             } finally {
                 syncIcon?.classList.remove('fa-spin');
             }
@@ -1422,6 +2016,129 @@
                 }
             } catch (e) {}
             window.renderUsersTable();
+        };
+
+        window.renderUsersTable = function() {
+            if (typeof window.populateLoginDropdown === 'function') {
+                window.populateLoginDropdown();
+            }
+            const tbody = document.getElementById('users-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = (userAccounts || []).map(u => {
+                const roleBadge = u.role === 'admin' 
+                    ? '<span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-bold text-[10px]">Owner / Admin</span>' 
+                    : '<span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-bold text-[10px]">Kasir Staff</span>';
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3 font-mono font-bold">' + u.username + '</td>' +
+                    '<td class="p-3 font-bold">' + u.name + '</td>' +
+                    '<td class="p-3">' + roleBadge + '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="window.openUserModal(\'' + u.id + '\')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button onclick="window.deleteUser(\'' + u.id + '\')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+        };
+
+        window.openUserModal = function(id = null) {
+            const titleEl = document.getElementById('user-modal-title');
+            if (titleEl) titleEl.innerText = id ? "Edit Akun User" : "Tambah Akun User / Kasir";
+            const idInput = document.getElementById('user-id');
+            if (idInput) idInput.value = id || "";
+
+            if (id) {
+                const u = userAccounts.find(item => item.id === id);
+                if (u) {
+                    if (document.getElementById('user-username')) document.getElementById('user-username').value = u.username || "";
+                    if (document.getElementById('user-pin')) document.getElementById('user-pin').value = u.pin || "";
+                    if (document.getElementById('user-fullname')) document.getElementById('user-fullname').value = u.name || "";
+                    if (document.getElementById('user-role')) document.getElementById('user-role').value = u.role || "cashier";
+                    const perms = u.permissions || {};
+                    if (document.getElementById('perm-products')) document.getElementById('perm-products').checked = !!perms.products;
+                    if (document.getElementById('perm-customers')) document.getElementById('perm-customers').checked = !!perms.customers;
+                    if (document.getElementById('perm-vouchers')) document.getElementById('perm-vouchers').checked = !!perms.vouchers;
+                    if (document.getElementById('perm-history')) document.getElementById('perm-history').checked = !!perms.history;
+                }
+            } else {
+                if (document.getElementById('user-username')) document.getElementById('user-username').value = "";
+                if (document.getElementById('user-pin')) document.getElementById('user-pin').value = "";
+                if (document.getElementById('user-fullname')) document.getElementById('user-fullname').value = "";
+                if (document.getElementById('user-role')) document.getElementById('user-role').value = "cashier";
+                if (document.getElementById('perm-products')) document.getElementById('perm-products').checked = false;
+                if (document.getElementById('perm-customers')) document.getElementById('perm-customers').checked = false;
+                if (document.getElementById('perm-vouchers')) document.getElementById('perm-vouchers').checked = false;
+                if (document.getElementById('perm-history')) document.getElementById('perm-history').checked = false;
+            }
+            window.toggleUserPermissionsUI();
+            document.getElementById('user-modal')?.classList.remove('hidden');
+        };
+
+        window.closeUserModal = function() {
+            document.getElementById('user-modal')?.classList.add('hidden');
+        };
+
+        window.toggleUserPermissionsUI = function() {
+            const role = document.getElementById('user-role')?.value;
+            const permGroup = document.getElementById('user-permissions-group');
+            if (!permGroup) return;
+            if (role === 'admin') {
+                permGroup.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                permGroup.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        };
+
+        window.handleUserSubmit = async function(e) {
+            e.preventDefault();
+            const idVal = document.getElementById('user-id')?.value;
+            const id = idVal ? idVal : window.generateUUID();
+            const role = document.getElementById('user-role')?.value || 'cashier';
+            
+            const userData = {
+                id: id,
+                username: document.getElementById('user-username')?.value.trim() || 'user' + Date.now().toString().slice(-4),
+                pin: document.getElementById('user-pin')?.value.trim() || '0000',
+                name: document.getElementById('user-fullname')?.value.trim() || 'Kasir',
+                role: role,
+                permissions: role === 'admin' ? { products: true, customers: true, vouchers: true, history: true } : {
+                    products: !!document.getElementById('perm-products')?.checked,
+                    customers: !!document.getElementById('perm-customers')?.checked,
+                    vouchers: !!document.getElementById('perm-vouchers')?.checked,
+                    history: !!document.getElementById('perm-history')?.checked
+                }
+            };
+
+            const idx = userAccounts.findIndex(u => u.id === id || u.username === userData.username);
+            if (idx >= 0) {
+                userAccounts[idx] = { ...userAccounts[idx], ...userData };
+            } else {
+                userAccounts.push(userData);
+            }
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('users').upsert([userData]);
+                } catch (err) {}
+            }
+
+            window.saveLocalStorageData();
+            window.renderUsersTable();
+            window.closeUserModal();
+            window.showNotification("Akun user berhasil disimpan!", "success");
+        };
+
+        window.deleteUser = async function(id) {
+            if (userAccounts.length <= 1) {
+                window.showNotification("Tidak bisa menghapus satu-satunya akun terdaftar!", "warning");
+                return;
+            }
+            userAccounts = userAccounts.filter(u => u.id !== id);
+            if (supabaseClient) {
+                try { await supabaseClient.from('users').delete().eq('id', id); } catch (e) {}
+            }
+            window.saveLocalStorageData();
+            window.renderUsersTable();
+            window.showNotification("Akun user berhasil dihapus", "info");
         };
 
         window.fetchStoreSettingsFromSupabase = async function() {
@@ -1454,123 +2171,18 @@
             document.getElementById('setting-show-address-receipt').checked = settings.show_address_receipt !== false;
             document.getElementById('setting-show-points-receipt').checked = settings.show_points_receipt !== false;
 
+            // Payment method settings
+            if (document.getElementById('setting-bank-name')) document.getElementById('setting-bank-name').value = settings.bank_name || 'BCA';
+            if (document.getElementById('setting-bank-account-no')) document.getElementById('setting-bank-account-no').value = settings.bank_account_no || '';
+            if (document.getElementById('setting-bank-account-name')) document.getElementById('setting-bank-account-name').value = settings.bank_account_name || '';
+            if (document.getElementById('setting-qris-merchant')) document.getElementById('setting-qris-merchant').value = settings.qris_merchant || '';
+            if (document.getElementById('setting-qris-image-url')) document.getElementById('setting-qris-image-url').value = settings.qris_image_url || '';
+
             document.getElementById('header-store-name').innerText = settings.store_name || 'MY KSR';
             document.getElementById('header-store-sub').innerText = settings.store_sub || '';
             document.getElementById('rec-store-name').innerText = settings.store_name || 'MY KSR';
             document.getElementById('rec-store-sub').innerText = settings.store_sub || '';
             document.getElementById('rec-footer-text').innerText = settings.receipt_footer || 'Terima kasih!';
-        };
-
-        window.renderUsersTable = function() {
-            const tbody = document.getElementById('users-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = (userAccounts || []).map(u => {
-                const perms = u.permissions || {};
-                const permLabels = [];
-                if (perms.products) permLabels.push('Produk');
-                if (perms.customers) permLabels.push('Pelanggan');
-                if (perms.vouchers) permLabels.push('Voucher');
-                if (perms.history) permLabels.push('Laporan');
-
-                let permHTML = '';
-                if (u.role === 'admin') {
-                    permHTML = '<span class="text-emerald-600 font-bold text-[10px]">Akses Penuh</span>';
-                } else if (permLabels.length > 0) {
-                    permHTML = permLabels.map(l => '<span class="inline-block bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-semibold mr-1">' + l + '</span>').join('');
-                } else {
-                    permHTML = '<span class="text-slate-400 text-[10px]">Hanya Kasir (POS)</span>';
-                }
-
-                const deleteBtn = u.username !== 'admin' ? '<button onclick="window.deleteUser(\'' + u.id + '\')" class="text-red-500 hover:text-red-700 p-1 ml-1"><i class="fa-solid fa-trash"></i></button>' : '';
-
-                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
-                    '<td class="p-2.5 font-mono font-bold text-blue-600">' + u.username + '</td>' +
-                    '<td class="p-2.5 font-bold text-slate-800">' + u.name + '</td>' +
-                    '<td class="p-2.5"><span class="px-2 py-0.5 rounded font-bold text-[10px] ' + (u.role === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700') + '">' + (u.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff') + '</span></td>' +
-                    '<td class="p-2.5 text-center font-mono font-bold tracking-widest text-slate-600">••••</td>' +
-                    '<td class="p-2.5">' + permHTML + '</td>' +
-                    '<td class="p-2.5 text-center">' +
-                        '<button onclick="window.openUserModal(\'' + u.id + '\')" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>' +
-                        deleteBtn +
-                    '</td>' +
-                '</tr>';
-            }).join('');
-        };
-
-        window.openUserModal = function(id = null) {
-            document.getElementById('user-modal-title').innerText = id ? "Edit Akun User / Kasir" : "Tambah Akun User / Kasir";
-            document.getElementById('user-id').value = id || "";
-            if (id) {
-                const u = (userAccounts || []).find(acc => acc.id === id);
-                if (u) {
-                    document.getElementById('user-username').value = u.username || "";
-                    document.getElementById('user-pin').value = u.pin || "";
-                    document.getElementById('user-fullname').value = u.name || "";
-                    document.getElementById('user-role').value = u.role || "cashier";
-                    const perms = u.permissions || {};
-                    document.getElementById('perm-products').checked = !!perms.products;
-                    document.getElementById('perm-customers').checked = !!perms.customers;
-                    document.getElementById('perm-vouchers').checked = !!perms.vouchers;
-                    document.getElementById('perm-history').checked = !!perms.history;
-                }
-            } else {
-                document.getElementById('user-username').value = "";
-                document.getElementById('user-pin').value = "0000";
-                document.getElementById('user-fullname').value = "";
-                document.getElementById('user-role').value = "cashier";
-                document.getElementById('perm-products').checked = false;
-                document.getElementById('perm-customers').checked = false;
-                document.getElementById('perm-vouchers').checked = false;
-                document.getElementById('perm-history').checked = false;
-            }
-            window.toggleUserPermissionsUI();
-            document.getElementById('user-modal')?.classList.remove('hidden');
-        };
-
-        window.closeUserModal = function() { document.getElementById('user-modal')?.classList.add('hidden'); };
-
-        window.toggleUserPermissionsUI = function() {
-            const role = document.getElementById('user-role')?.value;
-            const permGroup = document.getElementById('user-permissions-group');
-            if (role === 'admin') permGroup?.classList.add('opacity-50', 'pointer-events-none');
-            else permGroup?.classList.remove('opacity-50', 'pointer-events-none');
-        };
-
-        window.handleUserSubmit = async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('user-id').value || window.generateUUID();
-            const username = document.getElementById('user-username').value.trim();
-            const pin = document.getElementById('user-pin').value.trim();
-            const name = document.getElementById('user-fullname').value.trim();
-            const role = document.getElementById('user-role').value;
-            const permissions = {
-                products: role === 'admin' ? true : document.getElementById('perm-products').checked,
-                customers: role === 'admin' ? true : document.getElementById('perm-customers').checked,
-                vouchers: role === 'admin' ? true : document.getElementById('perm-vouchers').checked,
-                history: role === 'admin' ? true : document.getElementById('perm-history').checked
-            };
-            const userRecord = { id, username, pin, name, role, permissions };
-            const idx = userAccounts.findIndex(u => u.id === id || u.username === username);
-            if (idx >= 0) userAccounts[idx] = userRecord;
-            else userAccounts.push(userRecord);
-
-            if (supabaseClient) {
-                try { await supabaseClient.from('users').upsert([userRecord]); } catch (e) {}
-            }
-            window.saveLocalStorageData();
-            window.renderUsersTable();
-            window.closeUserModal();
-            window.showNotification("Akun " + username + " disimpan!", "success");
-        };
-
-        window.deleteUser = async function(id) {
-            const u = userAccounts.find(acc => acc.id === id);
-            if (u && u.username === 'admin') { window.showNotification("Admin utama tidak dapat dihapus!", "error"); return; }
-            userAccounts = userAccounts.filter(acc => acc.id !== id);
-            if (supabaseClient) { try { await supabaseClient.from('users').delete().eq('id', id); } catch (e) {} }
-            window.saveLocalStorageData();
-            window.renderUsersTable();
-            window.showNotification("User dihapus", "info");
         };
 
         window.saveStoreSettings = async function() {
@@ -1586,6 +2198,11 @@
                 receipt_tax_rate: Number(document.getElementById('setting-receipt-tax-rate').value) || 0,
                 show_address_receipt: document.getElementById('setting-show-address-receipt').checked,
                 show_points_receipt: document.getElementById('setting-show-points-receipt').checked,
+                bank_name: document.getElementById('setting-bank-name')?.value.trim() || 'BCA',
+                bank_account_no: document.getElementById('setting-bank-account-no')?.value.trim() || '',
+                bank_account_name: document.getElementById('setting-bank-account-name')?.value.trim() || '',
+                qris_merchant: document.getElementById('setting-qris-merchant')?.value.trim() || '',
+                qris_image_url: document.getElementById('setting-qris-image-url')?.value.trim() || '',
                 updated_at: new Date().toISOString()
             };
             localStorage.setItem('pos_store_settings', JSON.stringify(settings));
@@ -1593,502 +2210,87 @@
             if (supabaseClient) {
                 try { await supabaseClient.from('store_settings').upsert([settings]); } catch (e) {}
             }
-            window.showNotification("Profil toko berhasil disimpan ke Cloud!", "success");
+            window.showNotification("Pengaturan toko & pembayaran berhasil disimpan!", "success");
         };
 
-        window.saveReceiptSettings = function() { window.saveStoreSettings(); };
+        window.onPaymentMethodChange = function() {
+            const method = document.getElementById('pay-method')?.value || 'Tunai';
+            const cashSec = document.getElementById('pay-cash-section');
+            const changeRow = document.getElementById('pay-change-row');
+            const infoBox = document.getElementById('pay-method-info-box');
+            if (!infoBox) return;
 
-        window.saveSupabaseSettings = function() {
-            const url = window.sanitizeSupabaseUrl(document.getElementById('setting-supabase-url').value);
-            const key = document.getElementById('setting-supabase-key').value.trim();
-            localStorage.setItem('pos_supa_url', url);
-            localStorage.setItem('pos_supa_key', key);
-            window.initSupabaseClient();
-            window.syncWithSupabase();
-        };
+            let settings = {};
+            try {
+                const s = localStorage.getItem('pos_store_settings');
+                if (s) settings = JSON.parse(s);
+            } catch (e) {}
 
-        window.generateMobileConnectLink = function() {
-            const url = window.sanitizeSupabaseUrl(document.getElementById('setting-supabase-url').value);
-            const key = document.getElementById('setting-supabase-key').value.trim();
-            if (!url || !key) { window.showNotification("Isi URL & Key Supabase terlebih dahulu!", "warning"); return; }
-            const link = window.location.origin + window.location.pathname + '?supa_url=' + encodeURIComponent(url) + '&supa_key=' + encodeURIComponent(key);
-            if (navigator.clipboard) { navigator.clipboard.writeText(link); window.showNotification("Link koneksi HP disalin ke Clipboard!", "success"); }
-            else prompt("Salin Link Koneksi HP:", link);
-        };
+            const bankName = settings.bank_name || 'BCA';
+            const accountNo = settings.bank_account_no || '-';
+            const accountName = settings.bank_account_name || '-';
+            const qrisMerchant = settings.qris_merchant || 'MY KSR Store';
+            const qrisImg = settings.qris_image_url || '';
 
-        window.renderProductGrid = function() {
-            const grid = document.getElementById('product-grid');
-            if (!grid) return;
-            const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-            const filtered = (products || []).filter(p => {
-                const matchCat = selectedCategory === 'Semua' || (p.category || '') === selectedCategory;
-                const matchQuery = !query || (p.name || '').toLowerCase().includes(query) || (p.sku || '').toLowerCase().includes(query) || (p.barcode || '').toLowerCase().includes(query);
-                return matchCat && matchQuery;
-            });
-            const countEl = document.getElementById('product-count');
-            if (countEl) countEl.innerText = filtered.length + ' Produk';
-            window.renderCategoryPills();
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 space-y-2"><i class="fa-solid fa-box-open text-4xl"></i><p class="text-xs">Produk tidak ditemukan</p></div>';
-                return;
-            }
-            grid.innerHTML = filtered.map(p => {
-                const stock = Number(p.stock) || 0;
-                let originalPrice = Number(p.selling_price) || 0;
-                let displayPrice = originalPrice;
-
-                const badges = [];
-
-                if (p.promo && p.promo !== 'Standard') {
-                    if (p.promo.includes('Potongan')) {
-                        const match = p.promo.match(/(\d+[\d\.]*)/);
-                        if (match) {
-                            const dVal = Number(match[1].replace(/\./g, '')) || 0;
-                            displayPrice = Math.max(0, displayPrice - dVal);
-                        }
-                    }
-                    badges.push({ type: 'discount', text: p.promo, icon: 'fa-tag', bg: 'bg-red-600' });
-                }
-
-                (vouchers || []).filter(v => v.is_active).forEach(v => {
-                    const matchCat = !v.target_category || v.target_category === 'Semua' || (p.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
-                    const matchBrand = !v.target_brand || v.target_brand === 'Semua' || (p.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase();
-                    const matchFamily = !v.target_family || v.target_family === 'Semua' || (p.family || '').toLowerCase() === (v.target_family || '').toLowerCase();
-                    const matchPromo = !v.target_promo || v.target_promo === 'Semua' || (p.promo || '').toLowerCase() === (v.target_promo || '').toLowerCase();
-
-                    if (matchCat && matchBrand && matchFamily && matchPromo) {
-                        if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
-                            const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
-                            const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
-                            badges.push({ 
-                                type: 'bogo', 
-                                text: 'BOGO: Beli ' + buyQ + ' Gratis ' + getQ, 
-                                icon: 'fa-gift', 
-                                bg: 'bg-amber-500' 
-                            });
-                        } else if (v.promo_type === 'automatic') {
-                            let dVal = v.type === 'percentage' ? Math.round((originalPrice * v.value) / 100) : v.value;
-                            if (v.max_discount && dVal > v.max_discount) dVal = v.max_discount;
-                            displayPrice = Math.max(0, originalPrice - dVal);
-                            
-                            const label = v.type === 'percentage' ? ('Diskon ' + v.value + '%') : ('Potongan Rp ' + Number(v.value).toLocaleString('id-ID'));
-                            if (!badges.some(b => b.text === label || b.text === p.promo)) {
-                                badges.push({ type: 'discount', text: label, icon: 'fa-tag', bg: 'bg-red-600' });
-                            }
-                        }
-                    }
-                });
-
-                const uniqueBadges = Array.from(new Map(badges.map(b => [b.text, b])).values());
-                const hasDiscount = displayPrice < originalPrice;
-
-                let badgesHTML = '';
-                if (uniqueBadges.length > 0) {
-                    badgesHTML = '<div class="absolute top-0 right-0 flex flex-col items-end gap-0.5 z-10 max-w-[80%]">' +
-                        uniqueBadges.map((b, idx) => {
-                            const cornerClass = idx === 0 ? 'rounded-tr-2xl rounded-bl-xl' : 'rounded-l-lg';
-                            return '<span class="' + b.bg + ' text-white text-[9px] font-black px-2 py-0.5 ' + cornerClass + ' shadow-sm truncate w-fit max-w-full">' +
-                                '<i class="fa-solid ' + b.icon + ' mr-1"></i>' + b.text +
-                            '</span>';
-                        }).join('') +
-                    '</div>';
-                }
-
-                const priceStrikethrough = hasDiscount ? '<span class="text-[9px] text-slate-400 line-through">Rp ' + originalPrice.toLocaleString('id-ID') + '</span>' : '';
-                const stockBadgeClass = stock > 10 ? 'bg-emerald-50 text-emerald-700' : (stock > 0 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600');
-
-                return '<div onclick="window.addToCart(\'' + p.id + '\')" class="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer relative group min-h-[175px]">' +
-                    badgesHTML +
-                    '<div class="space-y-1 pt-2 pr-2">' +
-                        '<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md inline-block max-w-full truncate">' + (p.category || 'Umum') + '</span>' +
-                        '<h3 class="font-extrabold text-xs text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition">' + p.name + '</h3>' +
-                        '<p class="text-[10px] font-mono text-slate-400 truncate">' + (p.barcode || p.sku || '-') + '</p>' +
-                    '</div>' +
-                    '<div class="pt-2 border-t border-slate-100 flex items-end justify-between mt-2 gap-1 shrink-0">' +
-                        '<div>' +
-                            '<span class="text-xs sm:text-sm font-black text-blue-600 truncate block">Rp ' + displayPrice.toLocaleString('id-ID') + '</span>' +
-                            priceStrikethrough +
-                        '</div>' +
-                        '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ' + stockBadgeClass + '">Stok: ' + stock + '</span>' +
-                    '</div>' +
+            if (method === 'Tunai') {
+                cashSec?.classList.remove('hidden');
+                changeRow?.classList.remove('hidden');
+                infoBox.classList.add('hidden');
+            } else if (method === 'Transfer') {
+                cashSec?.classList.add('hidden');
+                changeRow?.classList.add('hidden');
+                infoBox.classList.remove('hidden');
+                infoBox.className = "bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs space-y-2 text-blue-900";
+                infoBox.innerHTML = '<div class="font-bold flex items-center justify-between text-blue-900">' +
+                    '<span class="flex items-center gap-1.5"><i class="fa-solid fa-building-columns text-blue-600"></i> Transfer Bank ' + bankName + '</span>' +
+                    '<button onclick="window.copyBankNo(\'' + accountNo + '\')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition"><i class="fa-solid fa-copy mr-1"></i>Salin No. Rek</button>' +
+                '</div>' +
+                '<div class="font-mono text-sm font-black tracking-wider text-slate-800 bg-white p-2 rounded-lg border border-blue-100 text-center">' + accountNo + '</div>' +
+                '<div class="text-[11px] text-blue-700 text-center font-semibold">' + accountName + '</div>';
+                
+                // Auto-fill exact cash amount for non-cash methods
+                const total = Number(document.getElementById('pay-modal-total')?.innerText.replace(/[^0-9]/g, '')) || 0;
+                document.getElementById('pay-cash-amount').value = total;
+            } else if (method === 'QRIS') {
+                cashSec?.classList.add('hidden');
+                changeRow?.classList.add('hidden');
+                infoBox.classList.remove('hidden');
+                infoBox.className = "bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs space-y-2 text-indigo-900 text-center";
+                
+                let qrDisplay = '<div class="w-28 h-28 mx-auto bg-white p-2 rounded-xl border border-indigo-200 shadow-sm flex items-center justify-center text-center text-[10px] text-slate-400 font-bold">' +
+                    '<div class="space-y-1"><i class="fa-solid fa-qrcode text-3xl text-indigo-500"></i><p>Scan QRIS</p></div>' +
                 '</div>';
-            }).join('');
-        };
 
-        window.renderCategoryPills = function() {
-            const container = document.getElementById('category-pills');
-            if (!container) return;
-            const categories = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
-            container.innerHTML = categories.map(cat => {
-                const activeClass = cat === selectedCategory ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
-                return '<button onclick="window.filterByCategory(\'' + cat + '\')" class="px-3 py-1 rounded-xl font-bold transition shrink-0 text-xs ' + activeClass + '">' + cat + '</button>';
-            }).join('');
-        };
-
-        window.filterByCategory = function(cat) { selectedCategory = cat; window.renderProductGrid(); };
-        window.handleSearch = function(e) { window.renderProductGrid(); };
-
-        window.updateCartQty = function(id, delta) {
-            const item = cart.find(i => i.id === id);
-            if (!item) return;
-            const prod = (products || []).find(p => p.id === id);
-            const maxStock = prod ? (Number(prod.stock) || 0) : 999999;
-            
-            const newQty = item.qty + delta;
-            if (newQty <= 0) {
-                window.removeFromCart(id);
-                return;
-            }
-            if (newQty > maxStock) {
-                window.showNotification("Stok tidak mencukupi!", "warning");
-                return;
-            }
-            item.qty = newQty;
-            window.renderCartItems();
-            window.calculateCartTotals();
-        };
-
-        window.removeFromCart = function(id) {
-            cart = cart.filter(i => i.id !== id);
-            window.renderCartItems();
-            window.calculateCartTotals();
-            window.showNotification("Item dihapus dari keranjang", "info");
-        };
-
-        window.clearCart = function() {
-            cart = [];
-            appliedVouchers = [];
-            const discInput = document.getElementById('cart-discount-input');
-            if (discInput) discInput.value = 0;
-            window.renderAppliedVouchersUI();
-            window.renderCartItems();
-            window.calculateCartTotals();
-        };
-
-        window.isVoucherEligible = function(voucher, cartItems) {
-            if (!voucher || !voucher.is_active || !cartItems || cartItems.length === 0) return false;
-
-            if (voucher.valid_until) {
-                const today = new Date().toISOString().split('T')[0];
-                if (today > voucher.valid_until) return false;
-            }
-
-            if (voucher.usage_limit && voucher.usage_limit > 0 && (voucher.times_used || 0) >= voucher.usage_limit) {
-                return false;
-            }
-
-            const matchingItems = cartItems.filter(item => {
-                const matchCat = !voucher.target_category || voucher.target_category === 'Semua' || (item.category || '').toLowerCase() === voucher.target_category.toLowerCase();
-                const matchBrand = !voucher.target_brand || voucher.target_brand === 'Semua' || (item.brand || '').toLowerCase() === voucher.target_brand.toLowerCase();
-                const matchFamily = !voucher.target_family || voucher.target_family === 'Semua' || (item.family || '').toLowerCase() === voucher.target_family.toLowerCase();
-                const matchPromo = !voucher.target_promo || voucher.target_promo === 'Semua' || (item.promo || '').toLowerCase() === voucher.target_promo.toLowerCase();
-                return matchCat && matchBrand && matchFamily && matchPromo;
-            });
-
-            if (matchingItems.length === 0 && (voucher.min_purchase_scope === 'criteria' || voucher.promo_type === 'bogo')) {
-                return false;
-            }
-
-            if (voucher.promo_type === 'bogo' || voucher.benefit_type === 'bogo') {
-                const buyQ = (voucher.buy_qty !== undefined && voucher.buy_qty !== null) ? Number(voucher.buy_qty) : 2;
-                const getQ = (voucher.get_qty !== undefined && voucher.get_qty !== null) ? Number(voucher.get_qty) : 1;
-                const reqQty = buyQ + getQ;
-                const totalMatchingQty = matchingItems.reduce((s, i) => s + i.qty, 0);
-                if (totalMatchingQty < reqQty) return false;
-            }
-
-            const minP = Number(voucher.min_purchase) || 0;
-            if (minP > 0) {
-                if (voucher.min_purchase_scope === 'total') {
-                    const cartTotal = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
-                    if (cartTotal < minP) return false;
-                } else {
-                    const matchingTotal = matchingItems.reduce((s, i) => s + (i.price * i.qty), 0);
-                    if (matchingTotal < minP) return false;
+                if (qrisImg) {
+                    qrDisplay = '<img src="' + qrisImg + '" alt="QRIS Barcode" class="w-32 h-32 mx-auto rounded-xl border border-indigo-200 shadow-sm object-contain bg-white p-1" onerror="this.onerror=null; this.src=\'https://placehold.co/150x150/ffffff/4f46e5?text=QRIS\';"/>';
                 }
-            }
 
-            return true;
-        };
+                infoBox.innerHTML = '<div class="font-bold text-indigo-900 flex items-center justify-center gap-1.5"><i class="fa-solid fa-qrcode text-indigo-600"></i> Merchant: ' + qrisMerchant + '</div>' +
+                qrDisplay +
+                '<p class="text-[10px] text-indigo-700 font-semibold">Tunjukkan QRIS ke pelanggan untuk discan via e-Wallet/M-Banking.</p>';
 
-        window.addToCart = function(prodId) {
-            const product = products.find(p => p.id === prodId);
-            if (!product) return;
-            if ((Number(product.stock) || 0) <= 0) { window.showNotification("Stok produk habis!", "warning"); return; }
-            
-            let price = Number(product.selling_price) || 0;
-            let autoDisc = 0;
-            let promoDesc = '';
-
-            if (product.promo && product.promo !== 'Standard' && product.promo.includes('Potongan')) {
-                const match = product.promo.match(/(\d+[\d\.]*)/);
-                if (match) {
-                    autoDisc = Number(match[1].replace(/\./g, '')) || 0;
-                    promoDesc = product.promo;
-                }
+                const total = Number(document.getElementById('pay-modal-total')?.innerText.replace(/[^0-9]/g, '')) || 0;
+                document.getElementById('pay-cash-amount').value = total;
             } else {
-                const autoV = (vouchers || []).find(v => v.is_active && v.promo_type === 'automatic' && (
-                    (v.target_category === 'Semua' || (product.category || '').toLowerCase() === (v.target_category || '').toLowerCase()) &&
-                    (v.target_brand === 'Semua' || (product.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase())
-                ));
-                if (autoV) {
-                    let dVal = autoV.type === 'percentage' ? Math.round((price * autoV.value) / 100) : autoV.value;
-                    if (autoV.max_discount && dVal > autoV.max_discount) dVal = autoV.max_discount;
-                    autoDisc = dVal;
-                    promoDesc = autoV.title;
-                }
+                cashSec?.classList.add('hidden');
+                changeRow?.classList.add('hidden');
+                infoBox.classList.remove('hidden');
+                infoBox.className = "bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1 text-slate-700 text-center";
+                infoBox.innerHTML = '<div class="font-bold text-slate-800"><i class="fa-solid fa-credit-card text-emerald-600 mr-1"></i> Kartu Debit / Kredit</div>' +
+                '<p class="text-[11px] text-slate-500">Gesek/Tap kartu pada mesin EDC toko, lalu selesaikan transaksi.</p>';
+
+                const total = Number(document.getElementById('pay-modal-total')?.innerText.replace(/[^0-9]/g, '')) || 0;
+                document.getElementById('pay-cash-amount').value = total;
             }
+        };
 
-            const netPrice = Math.max(0, price - autoDisc);
-
-            const existing = cart.find(item => item.id === prodId);
-            if (existing) {
-                if (existing.qty + 1 > product.stock) { window.showNotification("Stok tidak mencukupi!", "warning"); return; }
-                existing.qty += 1;
+        window.copyBankNo = function(no) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(no);
+                window.showNotification("Nomor Rekening " + no + " disalin!", "success");
             } else {
-                cart.push({ 
-                    id: product.id, 
-                    name: product.name, 
-                    originalPrice: price,
-                    price: netPrice, 
-                    autoDiscount: autoDisc,
-                    promoDesc: promoDesc,
-                    qty: 1, 
-                    category: product.category, 
-                    brand: product.brand, 
-                    family: product.family, 
-                    promo: product.promo 
-                });
+                prompt("Salin No. Rekening:", no);
             }
-            window.renderCartItems();
-            window.calculateCartTotals();
-            window.showNotification("+ " + product.name, "success");
-        };
-
-        window.renderCartItems = function() {
-            const container = document.getElementById('cart-items');
-            const mobCount = document.getElementById('mob-cart-count');
-            const totalQty = cart.reduce((s, i) => s + i.qty, 0);
-            if (mobCount) mobCount.innerText = totalQty;
-            if (!container) return;
-
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="py-12 text-center text-slate-400 space-y-1"><i class="fa-solid fa-cart-flatbed text-3xl"></i><p class="text-xs">Keranjang belanja kosong</p></div>';
-                return;
-            }
-
-            const activeBogoPromos = [
-                ...(appliedVouchers || []),
-                ...(vouchers || []).filter(v => v.is_active && v.promo_type === 'automatic' && (v.benefit_type === 'bogo' || v.promo_type === 'bogo'))
-            ];
-
-            container.innerHTML = cart.map(item => {
-                let bogoDiscountForItem = 0;
-                let bogoBadgeHTML = '';
-
-                const uniqueBogoPromos = Array.from(new Map(activeBogoPromos.map(v => [v.id, v])).values());
-
-                uniqueBogoPromos.forEach(v => {
-                    if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
-                        const matchCat = !v.target_category || v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
-                        const matchBrand = !v.target_brand || v.target_brand === 'Semua' || (item.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase();
-                        const matchFamily = !v.target_family || v.target_family === 'Semua' || (item.family || '').toLowerCase() === (v.target_family || '').toLowerCase();
-                        const matchPromo = !v.target_promo || v.target_promo === 'Semua' || (item.promo || '').toLowerCase() === (v.target_promo || '').toLowerCase();
-
-                        const isMatch = matchCat && matchBrand && matchFamily && matchPromo;
-                        const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
-                        const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
-                        const setQty = buyQ + getQ;
-
-                        if (isMatch && item.qty >= setQty) {
-                            const freeSets = Math.floor(item.qty / setQty);
-                            const freeQty = freeSets * getQ;
-                            const itemDiscVal = freeQty * item.price;
-                            bogoDiscountForItem += itemDiscVal;
-
-                            bogoBadgeHTML += '<div class="text-[10px] text-amber-700 font-semibold bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded flex items-center gap-1 w-fit mt-0.5">' +
-                                '<i class="fa-solid fa-gift text-amber-500"></i> <span>BOGO: Beli ' + buyQ + ' Gratis ' + getQ + ' (' + freeQty + 'x Gratis -Rp ' + itemDiscVal.toLocaleString('id-ID') + ')</span>' +
-                            '</div>';
-                        }
-                    }
-                });
-
-                const lineGrossTotal = (item.originalPrice || item.price) * item.qty;
-                const totalItemDisc = (item.autoDiscount || 0) * item.qty;
-                const lineNetTotal = Math.max(0, (item.price * item.qty) - bogoDiscountForItem);
-
-                let promoBadgeHTML = '';
-                if (item.promoDesc) {
-                    const discText = totalItemDisc > 0 ? ' (-Rp ' + totalItemDisc.toLocaleString('id-ID') + ')' : '';
-                    promoBadgeHTML = '<div class="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded flex items-center gap-1 w-fit"><i class="fa-solid fa-tag"></i> <span>' + item.promoDesc + discText + '</span></div>';
-                }
-
-                const lineGrossDisplay = (totalItemDisc > 0 || bogoDiscountForItem > 0) ? '<div class="text-[9px] text-slate-400 line-through">Rp ' + lineGrossTotal.toLocaleString('id-ID') + '</div>' : '';
-
-                return '<div class="py-2.5 flex flex-col gap-1 border-b border-slate-100 text-xs">' +
-                    '<div class="flex items-center justify-between gap-2">' +
-                        '<div class="flex-1 min-w-0">' +
-                            '<h4 class="font-bold text-slate-800 truncate">' + item.name + '</h4>' +
-                            '<div class="text-[10px] text-slate-500">Rp ' + item.price.toLocaleString('id-ID') + ' x ' + item.qty + '</div>' +
-                        '</div>' +
-                        '<div class="flex items-center gap-1.5 shrink-0">' +
-                            '<button onclick="window.updateCartQty(\'' + item.id + '\', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">-</button>' +
-                            '<span class="w-6 text-center font-extrabold">' + item.qty + '</span>' +
-                            '<button onclick="window.updateCartQty(\'' + item.id + '\', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">+</button>' +
-                        '</div>' +
-                        '<div class="text-right min-w-[85px]">' +
-                            '<div class="font-black text-slate-900 text-xs sm:text-sm">Rp ' + lineNetTotal.toLocaleString('id-ID') + '</div>' +
-                            lineGrossDisplay +
-                        '</div>' +
-                        '<button onclick="window.removeFromCart(\'' + item.id + '\')" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-xmark"></i></button>' +
-                    '</div>' +
-                    promoBadgeHTML +
-                    bogoBadgeHTML +
-                '</div>';
-            }).join('');
-        };
-
-        window.calculateCartTotals = function() {
-            const grossSubtotal = cart.reduce((sum, item) => sum + ((item.originalPrice || item.price) * item.qty), 0);
-            const automaticDiscount = cart.reduce((sum, item) => sum + ((item.autoDiscount || 0) * item.qty), 0);
-            const netSubtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            const discountType = document.getElementById('cart-discount-type')?.value || 'percentage';
-            const discountInput = Number(document.getElementById('cart-discount-input')?.value) || 0;
-            let manualDiscount = discountType === 'percentage' ? Math.round(netSubtotal * discountInput / 100) : discountInput;
-
-            const selectedCustId = document.getElementById('cart-customer-select')?.value;
-            const customer = customers.find(c => c.id === selectedCustId || c.member_number === selectedCustId);
-            let vipDiscount = 0;
-            if (customer && customer.type === 'VIP') {
-                vipDiscount = Math.round((netSubtotal - manualDiscount) * 0.05);
-            }
-
-            appliedVouchers = appliedVouchers.filter(v => window.isVoucherEligible(v, cart));
-            window.renderAppliedVouchersUI();
-            window.renderCartVoucherDropdown();
-
-            let voucherDiscount = 0;
-            appliedVouchers.forEach(v => {
-                if (v.benefit_type === 'discount') {
-                    let dAmount = v.type === 'percentage' ? Math.round((netSubtotal * v.value) / 100) : v.value;
-                    if (v.max_discount && dAmount > v.max_discount) dAmount = v.max_discount;
-                    voucherDiscount += dAmount;
-                } else if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
-                    cart.forEach(item => {
-                        const matchCat = v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
-                        const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
-                        const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
-                        const setQty = buyQ + getQ;
-
-                        if (matchCat && item.qty >= setQty) {
-                            const freeSets = Math.floor(item.qty / setQty);
-                            voucherDiscount += freeSets * getQ * item.price;
-                        }
-                    });
-                }
-            });
-
-            const totalDiscount = manualDiscount + vipDiscount + voucherDiscount;
-            const grandTotal = Math.max(0, netSubtotal - totalDiscount);
-
-            document.getElementById('cart-subtotal').innerText = 'Rp ' + grossSubtotal.toLocaleString('id-ID');
-            document.getElementById('cart-grand-total').innerText = 'Rp ' + grandTotal.toLocaleString('id-ID');
-            document.getElementById('btn-checkout').disabled = cart.length === 0;
-
-            const toggleRow = (id, amt, amountId) => {
-                const row = document.getElementById(id);
-                if (amt > 0) {
-                    row?.classList.remove('hidden');
-                    if (amountId) document.getElementById(amountId).innerText = '- Rp ' + amt.toLocaleString('id-ID');
-                } else {
-                    row?.classList.add('hidden');
-                }
-            };
-            toggleRow('row-automatic-discount', automaticDiscount, 'cart-automatic-discount-amount');
-            toggleRow('row-manual-discount', manualDiscount, 'cart-manual-discount-amount');
-            toggleRow('row-vip-discount', vipDiscount, 'cart-vip-discount-amount');
-            toggleRow('row-voucher-discount', voucherDiscount, 'cart-voucher-discount-amount');
-            if (voucherDiscount > 0) {
-                document.getElementById('cart-voucher-code-label').innerText = window.formatVoucherCodes(appliedVouchers.map(v => v.code));
-            }
-        };
-
-        window.renderCartVoucherDropdown = function() {
-            const select = document.getElementById('cart-voucher-dropdown');
-            const countBadge = document.getElementById('cart-voucher-count-badge');
-            if (!select) return;
-            const currentVal = select.value;
-            select.innerHTML = '<option value="">-- Pilih Voucher / Promo yang Memenuhi Syarat --</option>';
-
-            const eligibleVouchers = (vouchers || []).filter(v => v.is_active && (v.promo_type === 'voucher' || v.promo_type === 'bogo') && window.isVoucherEligible(v, cart) && !appliedVouchers.some(av => av.id === v.id));
-
-            if (countBadge) {
-                countBadge.innerText = eligibleVouchers.length + ' tersedia';
-                if (eligibleVouchers.length > 0) {
-                    countBadge.className = "bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full text-[9px] font-bold";
-                } else {
-                    countBadge.className = "bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full text-[9px] font-medium";
-                }
-            }
-
-            if (eligibleVouchers.length === 0) {
-                const opt = document.createElement('option');
-                opt.disabled = true;
-                opt.textContent = '-- Belum ada voucher bersyarat yang memenuhi syarat --';
-                select.appendChild(opt);
-            } else {
-                eligibleVouchers.forEach(v => {
-                    const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
-                    const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
-                    const labelStr = (v.promo_type === 'bogo' || v.benefit_type === 'bogo') ? ('Beli ' + buyQ + ' Gratis ' + getQ) : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'));
-                    const opt = document.createElement('option');
-                    opt.value = v.id;
-                    opt.textContent = v.code + ' - ' + v.title + ' (' + labelStr + ')';
-                    select.appendChild(opt);
-                });
-            }
-
-            if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
-                select.value = currentVal;
-            }
-        };
-
-        window.applyDropdownVoucher = function(selectEl) {
-            const vId = selectEl.value;
-            if (!vId) return;
-            const voucher = vouchers.find(v => v.id === vId);
-            if (!voucher) return;
-            if (appliedVouchers.some(v => v.id === vId)) { window.showNotification("Voucher sudah terpasang!", "warning"); selectEl.value = ""; return; }
-
-            appliedVouchers.push(voucher);
-            window.renderAppliedVouchersUI();
-            window.renderCartItems();
-            window.calculateCartTotals();
-            selectEl.value = "";
-            window.showNotification("Voucher " + voucher.code + " dipasang!", "success");
-        };
-
-        window.renderAppliedVouchersUI = function() {
-            const container = document.getElementById('applied-vouchers-container');
-            if (!container) return;
-            if (appliedVouchers.length === 0) { container.classList.add('hidden'); return; }
-            container.classList.remove('hidden');
-            container.innerHTML = appliedVouchers.map(v => {
-                const labelStr = v.promo_type === 'bogo' ? 'BOGO' : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value);
-                return '<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-1.5 flex justify-between items-center text-xs">' +
-                    '<span class="font-bold text-indigo-900">' + v.code + ' (' + labelStr + ')</span>' +
-                    '<button onclick="window.removeVoucher(\'' + v.id + '\')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>' +
-                '</div>';
-            }).join('');
-        };
-
-        window.removeVoucher = function(id) { 
-            appliedVouchers = appliedVouchers.filter(v => v.id !== id); 
-            window.renderAppliedVouchersUI(); 
-            window.renderCartItems();
-            window.calculateCartTotals(); 
         };
 
         window.openPaymentModal = function() {
@@ -2097,6 +2299,8 @@
             document.getElementById('pay-modal-total').innerText = document.getElementById('cart-grand-total').innerText;
             document.getElementById('pay-cash-amount').value = '';
             document.getElementById('pay-change-amount').innerText = 'Rp 0';
+            document.getElementById('pay-method').value = 'Tunai';
+            window.onPaymentMethodChange();
             document.getElementById('payment-modal')?.classList.remove('hidden');
         };
 
