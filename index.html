@@ -56,12 +56,12 @@
 
     <header class="bg-slate-900 text-white px-3 sm:px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
         <div class="flex items-center space-x-2 sm:space-x-3">
-            <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shadow-lg shadow-blue-500/35 tracking-widest cursor-pointer shrink-0" onclick="openStoreModal()" title="Pengaturan Toko">
+            <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black p-2 rounded-xl text-sm flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shadow-lg shadow-blue-500/35 tracking-widest cursor-pointer shrink-0" onclick="window.openStoreModal()" title="Pengaturan Toko">
                 POS
             </div>
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5 truncate">
-                    <h1 id="header-store-name" class="font-extrabold text-sm sm:text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition truncate" onclick="openStoreModal()">MY KSR</h1>
+                    <h1 id="header-store-name" class="font-extrabold text-sm sm:text-base tracking-wide leading-tight text-white cursor-pointer hover:text-blue-300 transition truncate" onclick="window.openStoreModal()">MY KSR</h1>
                     <span class="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold px-1.5 py-0.5 rounded-md border border-blue-400/30 shrink-0">v12.8</span>
                 </div>
                 <p id="header-store-sub" class="text-[10px] sm:text-[11px] text-slate-400 truncate">Sistem Kasir Cloud & Multi-Criteria Promo</p>
@@ -98,14 +98,14 @@
         <div class="flex items-center space-x-1.5 sm:space-x-3">
             <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
                 <i class="fa-solid fa-store text-amber-400 ml-1.5 mr-1 text-xs"></i>
-                <select id="branch-select" onchange="changeBranch()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
+                <select id="branch-select" onchange="window.changeBranch()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
                     <option value="Pusat Utama" class="bg-slate-800 text-white">Cabang: Pusat</option>
                     <option value="Cabang Susukanlebak" class="bg-slate-800 text-white">Cabang: Susukanlebak</option>
                     <option value="Cabang Cirebon" class="bg-slate-800 text-white">Cabang: Cirebon</option>
                 </select>
             </div>
 
-            <button onclick="checkCloudStatusOrPrompt()" id="cloud-status-badge" title="Status Koneksi Database Cloud Supabase" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2 py-1 rounded-xl text-[10px] sm:text-xs font-bold transition">
+            <button onclick="window.checkCloudStatusOrPrompt()" id="cloud-status-badge" title="Status Koneksi Database Cloud Supabase" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2 py-1 rounded-xl text-[10px] sm:text-xs font-bold transition">
                 <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span id="cloud-status-text" class="text-emerald-300">Cloud Online</span>
             </button>
@@ -116,17 +116,17 @@
                     <span id="user-display-name" class="font-bold text-white text-[11px] leading-tight">Admin</span>
                     <span id="user-display-role" class="text-[9px] text-blue-300 font-semibold uppercase">Owner/Admin</span>
                 </div>
-                <button onclick="openLoginModal()" title="Ganti Akun / Logout" class="ml-1 text-slate-400 hover:text-red-400 transition p-1">
+                <button onclick="window.openLoginModal()" title="Ganti Akun / Logout" class="ml-1 text-slate-400 hover:text-red-400 transition p-1">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
 
-            <button onclick="connectBluetoothPrinter()" id="bt-printer-btn" title="Koneksi Printer Bluetooth Thermal" class="hidden sm:flex items-center gap-1.5 bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
+            <button onclick="window.connectBluetoothPrinter()" id="bt-printer-btn" title="Koneksi Printer Bluetooth Thermal" class="hidden sm:flex items-center gap-1.5 bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
                 <i class="fa-solid fa-print"></i>
                 <span class="hidden xl:inline" id="bt-printer-status">BT Printer</span>
             </button>
 
-            <button onclick="syncWithSupabase()" id="sync-btn" title="Sinkronkan Data dengan Supabase Cloud" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
+            <button onclick="window.syncWithSupabase()" id="sync-btn" title="Sinkronkan Data dengan Supabase Cloud" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
                 <i class="fa-solid fa-rotate" id="sync-icon"></i>
                 <span class="hidden lg:inline">Sync</span>
             </button>
@@ -147,10 +147,10 @@
         <!-- POS VIEW -->
         <div id="view-pos" class="view-page flex-1 flex flex-col w-full h-full overflow-hidden min-h-0">
             <div class="md:hidden bg-slate-800 text-white px-3 py-2 flex gap-2 text-xs shrink-0 border-b border-slate-700">
-                <button onclick="switchMobilePosTab('catalog')" id="mob-tab-catalog" class="flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5">
+                <button onclick="window.switchMobilePosTab('catalog')" id="mob-tab-catalog" class="flex-1 py-2 font-bold bg-blue-600 rounded-xl text-center transition text-white shadow flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-boxes-stacked"></i> Katalog Produk
                 </button>
-                <button onclick="switchMobilePosTab('cart')" id="mob-tab-cart" class="flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5">
+                <button onclick="window.switchMobilePosTab('cart')" id="mob-tab-cart" class="flex-1 py-2 font-semibold bg-slate-700 rounded-xl text-center transition text-slate-300 flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-cart-shopping"></i> Keranjang (<span id="mob-cart-count">0</span>)
                 </button>
             </div>
@@ -160,9 +160,9 @@
                     <div class="flex gap-2 shrink-0">
                         <div class="relative flex-1">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="search-input" onkeyup="handleSearch(event)" placeholder="Cari nama produk, SKU, barcode (Tekan Enter)..." class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <input type="text" id="search-input" onkeyup="window.handleSearch(event)" placeholder="Cari nama produk, SKU, barcode (Tekan Enter)..." class="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                         </div>
-                        <button onclick="openCameraScanner()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0">
+                        <button onclick="window.openCameraScanner()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0">
                             <i class="fa-solid fa-camera"></i>
                             <span class="hidden sm:inline">SCAN</span>
                         </button>
@@ -186,7 +186,7 @@
                             <i class="fa-solid fa-cart-shopping text-blue-400"></i>
                             <h2 class="font-bold text-sm">Keranjang Belanja</h2>
                         </div>
-                        <button onclick="clearCart()" class="text-xs text-red-300 hover:text-red-100 flex items-center gap-1 bg-red-900/40 px-2 py-1 rounded-lg border border-red-700/50">
+                        <button onclick="window.clearCart()" class="text-xs text-red-300 hover:text-red-100 flex items-center gap-1 bg-red-900/40 px-2 py-1 rounded-lg border border-red-700/50">
                             <i class="fa-solid fa-trash text-[10px]"></i> Kosongkan
                         </button>
                     </div>
@@ -209,9 +209,10 @@
                         <div class="space-y-1">
                             <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
                                 <span><i class="fa-solid fa-ticket text-indigo-500 mr-1"></i> Voucher & Promo (Memenuhi Syarat)</span>
+                                <span id="cart-voucher-count-badge" class="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full text-[9px] font-medium">0 tersedia</span>
                             </div>
                             <div class="flex gap-1.5">
-                                <select id="cart-voucher-dropdown" onchange="applyDropdownVoucher(this)" class="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <select id="cart-voucher-dropdown" onchange="window.applyDropdownVoucher(this)" class="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     <option value="">-- Pilih Voucher / Promo --</option>
                                 </select>
                             </div>
@@ -228,22 +229,22 @@
 
                     <div class="p-3 bg-slate-100 border-t border-slate-200 space-y-2 shadow-lg shrink-0">
                         <div class="flex justify-between text-xs text-slate-600">
-                            <span>Subtotal Sebelum Diskon</span>
+                            <span>Subtotal Belanja</span>
                             <span id="cart-subtotal" class="font-bold text-slate-800">Rp 0</span>
                         </div>
                         <div id="row-automatic-discount" class="hidden flex justify-between text-xs text-slate-600">
-                            <span class="text-slate-500">└ Diskon Otomatis Kategori / Produk</span>
+                            <span class="text-slate-500">└ Diskon Otomatis Produk / Kategori</span>
                             <span id="cart-automatic-discount-amount" class="font-semibold text-red-600">- Rp 0</span>
                         </div>
                         <div class="flex justify-between text-xs text-slate-600 items-center">
                             <div class="flex items-center gap-1.5">
                                 <span>Diskon Manual</span>
-                                <select id="cart-discount-type" onchange="calculateCartTotals()" class="bg-white border border-slate-300 rounded text-[10px] px-1 py-0.5 font-bold focus:outline-none">
+                                <select id="cart-discount-type" onchange="window.calculateCartTotals()" class="bg-white border border-slate-300 rounded text-[10px] px-1 py-0.5 font-bold focus:outline-none">
                                     <option value="percentage">%</option>
                                     <option value="fixed">Rp</option>
                                 </select>
                             </div>
-                            <input type="number" id="cart-discount-input" value="0" min="0" onchange="calculateCartTotals()" onkeyup="calculateCartTotals()" class="w-24 text-right text-xs py-0.5 px-1 bg-white border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <input type="number" id="cart-discount-input" value="0" min="0" onchange="window.calculateCartTotals()" onkeyup="window.calculateCartTotals()" class="w-24 text-right text-xs py-0.5 px-1 bg-white border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
                         <div id="row-manual-discount" class="hidden flex justify-between text-xs text-slate-600">
                             <span class="pl-2 text-[11px] text-slate-500">└ Potongan Manual</span>
@@ -261,7 +262,7 @@
                             <span class="text-sm font-extrabold text-slate-900">Total Akhir</span>
                             <span id="cart-grand-total" class="text-xl font-black text-blue-600">Rp 0</span>
                         </div>
-                        <button id="btn-checkout" onclick="openPaymentModal()" disabled class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 sm:py-3 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                        <button id="btn-checkout" onclick="window.openPaymentModal()" disabled class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 sm:py-3 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
                             <i class="fa-solid fa-money-bill-wave"></i>
                             <span>PROSES PEMBAYARAN</span>
                         </button>
@@ -278,11 +279,11 @@
                     <p class="text-xs text-slate-500">Kelola katalog barang beserta barcode lengkap, brand, family, dan label promo.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="openBarcodeSheetModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow transition">
+                    <button onclick="window.openBarcodeSheetModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow transition">
                         <i class="fa-solid fa-barcode"></i>
                         <span>Cetak Label Barcode</span>
                     </button>
-                    <button onclick="openProductModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                    <button onclick="window.openProductModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
                         <i class="fa-solid fa-plus"></i>
                         <span>Tambah Produk</span>
                     </button>
@@ -291,10 +292,10 @@
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-3 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row gap-2 justify-between">
-                    <input type="text" id="admin-search-input" onkeyup="renderAdminProductsTable()" placeholder="Cari nama, SKU, barcode, brand..." class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="admin-search-input" onkeyup="window.renderAdminProductsTable()" placeholder="Cari nama, SKU, barcode, brand..." class="w-full sm:w-72 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <div class="flex items-center gap-2 text-xs">
                         <span class="text-slate-500 font-semibold">Filter Kategori:</span>
-                        <select id="admin-category-filter" onchange="renderAdminProductsTable()" class="px-2 py-1.5 border border-slate-300 bg-white rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                        <select id="admin-category-filter" onchange="window.renderAdminProductsTable()" class="px-2 py-1.5 border border-slate-300 bg-white rounded-lg focus:ring-2 focus:ring-blue-500"></select>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -325,7 +326,7 @@
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member</h2>
                     <p class="text-xs text-slate-500">Kelola database pelanggan, status member VIP, alamat, dan poin loyalty.</p>
                 </div>
-                <button onclick="openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                <button onclick="window.openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
                     <i class="fa-solid fa-user-plus"></i>
                     <span>Tambah Member Baru</span>
                 </button>
@@ -333,7 +334,7 @@
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-3 border-b border-slate-100 bg-slate-50">
-                    <input type="text" id="customer-search-input" onkeyup="renderCustomersTable()" placeholder="Cari nama, nomor HP, atau No. Member..." class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    <input type="text" id="customer-search-input" onkeyup="window.renderCustomersTable()" placeholder="Cari nama, nomor HP, atau No. Member..." class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
@@ -359,10 +360,10 @@
         <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Diskon & Voucher Promo Lengkap</h2>
-                    <p class="text-xs text-slate-500">Atur 3 Jenis Promo: 1. Diskon Otomatis, 2. Diskon Voucher Bersyarat, & 3. BOGO (Buy X Get Y).</p>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen 3 Jenis Diskon & Voucher Promo</h2>
+                    <p class="text-xs text-slate-500">Atur: 1. Diskon Otomatis, 2. Diskon Voucher Bersyarat, & 3. BOGO (Buy X Get Y).</p>
                 </div>
-                <button onclick="openVoucherModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                <button onclick="window.openVoucherModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
                     <i class="fa-solid fa-plus"></i>
                     <span>Tambah Promo / Voucher</span>
                 </button>
@@ -370,7 +371,7 @@
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-3 border-b border-slate-100 bg-slate-50">
-                    <input type="text" id="voucher-search-input" onkeyup="renderVouchersTable()" placeholder="Cari judul promo, kode, atau jenis..." class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                    <input type="text" id="voucher-search-input" onkeyup="window.renderVouchersTable()" placeholder="Cari judul promo, kode, atau jenis..." class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
@@ -398,7 +399,7 @@
                     <h2 class="text-lg font-bold text-slate-800">Laporan Penjualan & Analytics</h2>
                     <p class="text-xs text-slate-500">Ringkasan grafik omset, riwayat nota transaksi, dan unduh laporan Excel CSV.</p>
                 </div>
-                <button onclick="exportTransactionsCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                <button onclick="window.exportTransactionsCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
                     <i class="fa-solid fa-file-excel"></i>
                     <span>Ekspor CSV</span>
                 </button>
@@ -479,7 +480,7 @@
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Alamat Lengkap Toko</label>
                         <textarea id="setting-store-address" rows="2" placeholder="Jl. Raya Utama No. 123, Cirebon" class="w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                     </div>
-                    <button onclick="saveStoreSettings()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
+                    <button onclick="window.saveStoreSettings()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Profil Toko
                     </button>
                 </div>
@@ -517,7 +518,7 @@
                             <span>Tampilkan Info Sisa Poin Member di Footer Struk</span>
                         </label>
                     </div>
-                    <button onclick="saveReceiptSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
+                    <button onclick="window.saveReceiptSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Struk
                     </button>
                 </div>
@@ -530,7 +531,7 @@
                             </h3>
                             <p class="text-[11px] text-slate-500">Tambah akun kasir baru, atur PIN login 4 digit, dan kelola izin akses halaman.</p>
                         </div>
-                        <button onclick="openUserModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow transition flex items-center gap-1.5">
+                        <button onclick="window.openUserModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow transition flex items-center gap-1.5">
                             <i class="fa-solid fa-user-plus"></i> Tambah User / Kasir
                         </button>
                     </div>
@@ -566,10 +567,10 @@
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2 pt-1">
-                        <button onclick="saveSupabaseSettings()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition">
+                        <button onclick="window.saveSupabaseSettings()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition">
                             Simpan & Hubungkan Cloud
                         </button>
-                        <button onclick="generateMobileConnectLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
+                        <button onclick="window.generateMobileConnectLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-mobile-screen-button"></i>
                             <span>Kirim Koneksi ke HP</span>
                         </button>
@@ -585,9 +586,9 @@
         <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 id="product-modal-title" class="font-bold text-slate-800 text-base">Tambah Produk Baru</h3>
-                <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closeProductModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="handleProductSubmit(event)" class="space-y-3">
+            <form onsubmit="window.handleProductSubmit(event)" class="space-y-3">
                 <input type="hidden" id="prod-id">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -636,7 +637,7 @@
                     </div>
                 </div>
                 <div class="pt-2 flex justify-end gap-2 border-t">
-                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="button" onclick="window.closeProductModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
                     <button type="submit" class="px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">Simpan Produk</button>
                 </div>
             </form>
@@ -648,9 +649,9 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 id="customer-modal-title" class="font-bold text-slate-800 text-base">Tambah Member Baru</h3>
-                <button onclick="closeCustomerModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closeCustomerModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="handleCustomerSubmit(event)" class="space-y-3">
+            <form onsubmit="window.handleCustomerSubmit(event)" class="space-y-3">
                 <input type="hidden" id="cust-id">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -684,7 +685,7 @@
                     <textarea id="cust-address" rows="2" placeholder="Jl. Pemuda No. 12" class="w-full px-3 py-2 text-xs border rounded-xl"></textarea>
                 </div>
                 <div class="pt-2 flex justify-end gap-2 border-t">
-                    <button type="button" onclick="closeCustomerModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="button" onclick="window.closeCustomerModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
                     <button type="submit" class="px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">Simpan Member</button>
                 </div>
             </form>
@@ -696,15 +697,15 @@
         <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 id="voucher-modal-title" class="font-bold text-slate-800 text-base">Tambah Pengaturan Promo / Diskon</h3>
-                <button onclick="closeVoucherModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closeVoucherModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="handleVoucherSubmit(event)" class="space-y-3">
+            <form onsubmit="window.handleVoucherSubmit(event)" class="space-y-3">
                 <input type="hidden" id="vouch-id">
                 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Jenis Promo *</label>
-                    <select id="vouch-promo-type" onchange="toggleVoucherTypeUI()" class="w-full px-3 py-2 text-xs border rounded-xl bg-white font-bold text-indigo-700">
-                        <option value="automatic">1. Diskon Otomatis (Langsung Potong ke Produk/Kategori)</option>
+                    <select id="vouch-promo-type" onchange="window.toggleVoucherTypeUI()" class="w-full px-3 py-2 text-xs border rounded-xl bg-white font-bold text-indigo-700">
+                        <option value="automatic">1. Diskon Otomatis (Langsung Potong Harga di Produk/Kategori)</option>
                         <option value="voucher">2. Diskon Voucher Bersyarat (Dipilih via Dropdown Kasir)</option>
                         <option value="bogo">3. BOGO (Buy X Get Y Free)</option>
                     </select>
@@ -757,9 +758,9 @@
                     </div>
                 </div>
 
-                <!-- Target Kriteria dengan Pilihan Dropdown dari Database -->
+                <!-- Target Kriteria dengan Pilihan Dropdown dari Database Produk -->
                 <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
-                    <span class="text-xs font-bold text-slate-700 block">Kriteria Target Produk (Pilih dari Database atau "Semua")</span>
+                    <span class="text-xs font-bold text-slate-700 block">Kriteria Target Produk (Pilih dari Database)</span>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div>
                             <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Kategori</label>
@@ -815,7 +816,7 @@
                 </div>
 
                 <div class="pt-2 flex justify-end gap-2 border-t">
-                    <button type="button" onclick="closeVoucherModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="button" onclick="window.closeVoucherModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
                     <button type="submit" class="px-4 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow transition">Simpan Pengaturan Promo</button>
                 </div>
             </form>
@@ -829,11 +830,11 @@
                 <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
                     <i class="fa-solid fa-camera text-blue-600"></i> Scan Barcode Kamera
                 </h3>
-                <button onclick="closeCameraScanner()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closeCameraScanner()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="reader" class="w-full rounded-xl overflow-hidden bg-slate-900 min-h-[220px]"></div>
             <p class="text-[11px] text-slate-500 text-center">Arahkan kamera ke kode barcode barang untuk memasukkannya ke keranjang.</p>
-            <button onclick="closeCameraScanner()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-xs transition">
+            <button onclick="window.closeCameraScanner()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-xs transition">
                 Tutup Kamera
             </button>
         </div>
@@ -844,9 +845,9 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="user-modal-title" class="font-bold text-slate-800 text-base">Tambah Akun User / Kasir</h3>
-                <button onclick="closeUserModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closeUserModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="handleUserSubmit(event)" class="space-y-3">
+            <form onsubmit="window.handleUserSubmit(event)" class="space-y-3">
                 <input type="hidden" id="user-id">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -864,7 +865,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Peran (Role Sistem)</label>
-                    <select id="user-role" onchange="toggleUserPermissionsUI()" class="w-full px-3 py-2 text-xs border rounded-xl bg-white font-bold text-slate-800">
+                    <select id="user-role" onchange="window.toggleUserPermissionsUI()" class="w-full px-3 py-2 text-xs border rounded-xl bg-white font-bold text-slate-800">
                         <option value="cashier">Kasir Staff (Terbatas)</option>
                         <option value="admin">Owner / Admin Utama (Akses Penuh)</option>
                     </select>
@@ -879,7 +880,7 @@
                     </div>
                 </div>
                 <div class="pt-2 flex justify-end gap-2 border-t">
-                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="button" onclick="window.closeUserModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
                     <button type="submit" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow transition">Simpan Akun User</button>
                 </div>
             </form>
@@ -891,7 +892,7 @@
         <div class="bg-white rounded-2xl max-w-2xl w-full p-5 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
                 <h3 class="font-bold text-slate-800 text-base flex items-center gap-2"><i class="fa-solid fa-barcode text-indigo-600"></i> Cetak Label Barcode (3 Kolom)</h3>
-                <button onclick="closeBarcodeSheetModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closeBarcodeSheetModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0 bg-slate-50 p-3 rounded-xl border">
                 <div>
@@ -903,7 +904,7 @@
                     <input type="number" id="barcode-label-qty" min="1" max="60" value="9" class="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white font-bold">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="generateBarcodeSheetPreview()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded-lg text-xs shadow transition">Generate Label</button>
+                    <button onclick="window.generateBarcodeSheetPreview()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded-lg text-xs shadow transition">Generate Label</button>
                 </div>
             </div>
             <div class="flex-1 overflow-y-auto custom-scrollbar border rounded-xl p-4 bg-white min-h-0">
@@ -912,7 +913,7 @@
                 </div>
             </div>
             <div class="pt-2 flex justify-end gap-2 border-t shrink-0">
-                <button type="button" onclick="closeBarcodeSheetModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Tutup</button>
+                <button type="button" onclick="window.closeBarcodeSheetModal()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Tutup</button>
                 <button type="button" onclick="window.print()" class="px-4 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow transition flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Cetak Lembar Barcode</button>
             </div>
         </div>
@@ -955,10 +956,10 @@
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="handleThermalPrintAction()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-print"></i> Print Thermal</button>
-                <button onclick="sendWhatsAppReceipt()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"><i class="fa-brands fa-whatsapp"></i> Kirim WA</button>
+                <button onclick="window.handleThermalPrintAction()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-print"></i> Print Thermal</button>
+                <button onclick="window.sendWhatsAppReceipt()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"><i class="fa-brands fa-whatsapp"></i> Kirim WA</button>
             </div>
-            <button onclick="closeReceiptModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-xs transition">Tutup Nota</button>
+            <button onclick="window.closeReceiptModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-xs transition">Tutup Nota</button>
         </div>
     </div>
 
@@ -967,7 +968,7 @@
         <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
                 <h3 class="font-bold text-slate-800 text-sm">Proses Pembayaran</h3>
-                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closePaymentModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="bg-slate-50 p-3 rounded-xl text-center border">
                 <span class="text-xs text-slate-500 font-medium">Total Yang Harus Dibayar</span>
@@ -985,20 +986,20 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Uang Diterima (Rp)</label>
-                    <input type="number" id="pay-cash-amount" oninput="calculateChange()" placeholder="0" class="w-full px-3 py-2 text-sm font-bold border rounded-xl focus:ring-2 focus:ring-blue-500">
+                    <input type="number" id="pay-cash-amount" oninput="window.calculateChange()" placeholder="0" class="w-full px-3 py-2 text-sm font-bold border rounded-xl focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="grid grid-cols-4 gap-1.5">
-                    <button onclick="setQuickCash('pas')" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">Uang Pas</button>
-                    <button onclick="setQuickCash(20000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">20k</button>
-                    <button onclick="setQuickCash(50000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">50k</button>
-                    <button onclick="setQuickCash(100000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">100k</button>
+                    <button onclick="window.setQuickCash('pas')" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">Uang Pas</button>
+                    <button onclick="window.setQuickCash(20000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">20k</button>
+                    <button onclick="window.setQuickCash(50000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">50k</button>
+                    <button onclick="window.setQuickCash(100000)" class="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">100k</button>
                 </div>
                 <div class="flex justify-between items-center pt-2 border-t text-xs">
                     <span class="font-semibold text-slate-600">Kembalian:</span>
                     <span id="pay-change-amount" class="font-extrabold text-emerald-600 text-sm">Rp 0</span>
                 </div>
             </div>
-            <button onclick="processTransaction()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
+            <button onclick="window.processTransaction()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
                 <i class="fa-solid fa-check"></i> Selesaikan Transaksi
             </button>
         </div>
@@ -1015,7 +1016,7 @@
                 <h3 class="font-black text-xl text-slate-800 tracking-tight">Otentikasi Kasir & Admin</h3>
                 <p class="text-xs text-slate-500 mt-1">Pilih Akun & Masukkan PIN Keamanan</p>
             </div>
-            <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-left">
+            <form onsubmit="window.handleLoginSubmit(event)" class="space-y-4 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Pilih Akun / Peran</label>
                     <select id="login-username" class="w-full px-3 py-2.5 text-xs font-bold border border-slate-300 rounded-xl bg-slate-50"></select>
@@ -1026,18 +1027,18 @@
                 </div>
                 <div id="login-error-msg" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs p-2.5 rounded-xl font-semibold text-center">PIN atau Akun tidak valid!</div>
                 <div class="grid grid-cols-3 gap-1.5 pt-1">
-                    <button type="button" onclick="appendPin('1')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">1</button>
-                    <button type="button" onclick="appendPin('2')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">2</button>
-                    <button type="button" onclick="appendPin('3')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">3</button>
-                    <button type="button" onclick="appendPin('4')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">4</button>
-                    <button type="button" onclick="appendPin('5')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">5</button>
-                    <button type="button" onclick="appendPin('6')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">6</button>
-                    <button type="button" onclick="appendPin('7')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">7</button>
-                    <button type="button" onclick="appendPin('8')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">8</button>
-                    <button type="button" onclick="appendPin('9')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">9</button>
-                    <button type="button" onclick="clearPin()" class="py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl text-xs">Hapus</button>
-                    <button type="button" onclick="appendPin('0')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">0</button>
-                    <button type="button" onclick="deletePin()" class="py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl text-xs"><i class="fa-solid fa-backspace"></i></button>
+                    <button type="button" onclick="window.appendPin('1')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">1</button>
+                    <button type="button" onclick="window.appendPin('2')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">2</button>
+                    <button type="button" onclick="window.appendPin('3')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">3</button>
+                    <button type="button" onclick="window.appendPin('4')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">4</button>
+                    <button type="button" onclick="window.appendPin('5')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">5</button>
+                    <button type="button" onclick="window.appendPin('6')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">6</button>
+                    <button type="button" onclick="window.appendPin('7')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">7</button>
+                    <button type="button" onclick="window.appendPin('8')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">8</button>
+                    <button type="button" onclick="window.appendPin('9')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">9</button>
+                    <button type="button" onclick="window.clearPin()" class="py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl text-xs">Hapus</button>
+                    <button type="button" onclick="window.appendPin('0')" class="py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-800 text-base">0</button>
+                    <button type="button" onclick="window.deletePin()" class="py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl text-xs"><i class="fa-solid fa-backspace"></i></button>
                 </div>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition active:scale-[0.99] flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
                     <i class="fa-solid fa-right-to-bracket"></i>
@@ -1205,7 +1206,7 @@
             }
         };
 
-        function onSelectCustomerForCart() {
+        window.onSelectCustomerForCart = function() {
             const select = document.getElementById('cart-customer-select');
             if (!select) return;
             const selectedVal = select.value;
@@ -1227,7 +1228,7 @@
                         <div class="font-bold text-blue-900">${customer.name} <span class="text-[10px] bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded font-semibold ml-1">${customer.type || 'Regular'}</span></div>
                         <div class="text-[10px] text-blue-600 font-mono">${customer.member_number || '-'} • ${customer.phone || '-'} • <strong class="text-emerald-600">${customer.points || 0} Pts</strong></div>
                     </div>
-                    <button onclick="clearSelectedCartCustomer()" class="text-slate-400 hover:text-red-500 font-bold px-1.5 py-0.5 text-xs" title="Lepas Member"><i class="fa-solid fa-xmark"></i></button>`;
+                    <button onclick="window.clearSelectedCartCustomer()" class="text-slate-400 hover:text-red-500 font-bold px-1.5 py-0.5 text-xs" title="Lepas Member"><i class="fa-solid fa-xmark"></i></button>`;
                 }
                 if (birthdayBanner && customer.birth_date) {
                     const today = new Date();
@@ -1242,17 +1243,15 @@
                 }
             }
             if (typeof window.calculateCartTotals === 'function') window.calculateCartTotals();
-        }
-        window.onSelectCustomerForCart = onSelectCustomerForCart;
+        };
 
-        function clearSelectedCartCustomer() {
+        window.clearSelectedCartCustomer = function() {
             const select = document.getElementById('cart-customer-select');
             if (select) select.value = 'Pelanggan Umum';
-            onSelectCustomerForCart();
-        }
-        window.clearSelectedCartCustomer = clearSelectedCartCustomer;
+            window.onSelectCustomerForCart();
+        };
 
-        function filterCartCustomerDropdown(query) {
+        window.filterCartCustomerDropdown = function(query) {
             const select = document.getElementById('cart-customer-select');
             if (!select) return;
             const q = (query || '').toLowerCase().trim();
@@ -1269,10 +1268,9 @@
             if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
                 select.value = currentVal;
             }
-        }
-        window.filterCartCustomerDropdown = filterCartCustomerDropdown;
+        };
 
-        function initCharts() {
+        window.initCharts = function() {
             if (typeof Chart === 'undefined') return;
             const salesCanvas = document.getElementById('salesChart');
             const paymentCanvas = document.getElementById('paymentChart');
@@ -1293,10 +1291,9 @@
                     data: { labels: ['Tunai', 'QRIS', 'Transfer', 'Debit/Kredit'], datasets: [{ data: [0,0,0,0], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ec4899'] }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } } }
                 });
-                updateCharts();
+                window.updateCharts();
             } catch (e) {}
-        }
-        window.initCharts = initCharts;
+        };
 
         window.updateCharts = function() {
             if (!salesChartInstance || !paymentChartInstance) return;
@@ -1361,13 +1358,13 @@
                 await window.fetchStoreSettingsFromSupabase();
 
                 window.saveLocalStorageData();
-                renderProductGrid();
-                renderAdminProductsTable();
-                renderCustomersTable();
-                renderVouchersTable();
-                renderHistoryTable();
+                window.renderProductGrid();
+                window.renderAdminProductsTable();
+                window.renderCustomersTable();
+                window.renderVouchersTable();
+                window.renderHistoryTable();
                 window.filterCartCustomerDropdown('');
-                renderCartVoucherDropdown();
+                window.renderCartVoucherDropdown();
                 window.showNotification("Sinkronisasi Cloud Supabase Berhasil!", "success");
             } catch (err) {
                 window.showNotification("Gagal sinkronisasi data Cloud.", "error");
@@ -1377,7 +1374,7 @@
         };
 
         window.fetchUsersFromSupabase = async function() {
-            if (!supabaseClient) { renderUsersTable(); return; }
+            if (!supabaseClient) { window.renderUsersTable(); return; }
             try {
                 const { data } = await supabaseClient.from('users').select('*');
                 if (data && data.length > 0) {
@@ -1385,7 +1382,7 @@
                     localStorage.setItem('pos_users', JSON.stringify(userAccounts));
                 }
             } catch (e) {}
-            renderUsersTable();
+            window.renderUsersTable();
         };
 
         window.fetchStoreSettingsFromSupabase = async function() {
@@ -1402,10 +1399,10 @@
                     if (local) settings = JSON.parse(local);
                 } catch (e) {}
             }
-            applyStoreSettingsToUI(settings);
+            window.applyStoreSettingsToUI(settings);
         };
 
-        function applyStoreSettingsToUI(settings) {
+        window.applyStoreSettingsToUI = function(settings) {
             if (!settings) return;
             document.getElementById('setting-store-name').value = settings.store_name || 'MY KSR';
             document.getElementById('setting-store-sub').value = settings.store_sub || '';
@@ -1423,7 +1420,7 @@
             document.getElementById('rec-store-name').innerText = settings.store_name || 'MY KSR';
             document.getElementById('rec-store-sub').innerText = settings.store_sub || '';
             document.getElementById('rec-footer-text').innerText = settings.receipt_footer || 'Terima kasih!';
-        }
+        };
 
         window.renderUsersTable = function() {
             const tbody = document.getElementById('users-tbody');
@@ -1443,8 +1440,8 @@
                     <td class="p-2.5 text-center font-mono font-bold tracking-widest text-slate-600">••••</td>
                     <td class="p-2.5">${u.role === 'admin' ? '<span class="text-emerald-600 font-bold text-[10px]">Akses Penuh</span>' : (permLabels.length > 0 ? permLabels.map(l => `<span class="inline-block bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-semibold mr-1">${l}</span>`).join('') : '<span class="text-slate-400 text-[10px]">Hanya Kasir (POS)</span>')}</td>
                     <td class="p-2.5 text-center">
-                        <button onclick="openUserModal('${u.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                        ${u.username !== 'admin' ? `<button onclick="deleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-1 ml-1"><i class="fa-solid fa-trash"></i></button>` : ''}
+                        <button onclick="window.openUserModal('${u.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${u.username !== 'admin' ? `<button onclick="window.deleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-1 ml-1"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </td>
                 </tr>`;
             }).join('');
@@ -1476,7 +1473,7 @@
                 document.getElementById('perm-vouchers').checked = false;
                 document.getElementById('perm-history').checked = false;
             }
-            toggleUserPermissionsUI();
+            window.toggleUserPermissionsUI();
             document.getElementById('user-modal')?.classList.remove('hidden');
         };
 
@@ -1511,8 +1508,8 @@
                 try { await supabaseClient.from('users').upsert([userRecord]); } catch (e) {}
             }
             window.saveLocalStorageData();
-            renderUsersTable();
-            closeUserModal();
+            window.renderUsersTable();
+            window.closeUserModal();
             window.showNotification(`Akun ${username} disimpan!`, "success");
         };
 
@@ -1522,7 +1519,7 @@
             userAccounts = userAccounts.filter(acc => acc.id !== id);
             if (supabaseClient) { try { await supabaseClient.from('users').delete().eq('id', id); } catch (e) {} }
             window.saveLocalStorageData();
-            renderUsersTable();
+            window.renderUsersTable();
             window.showNotification("User dihapus", "info");
         };
 
@@ -1542,7 +1539,7 @@
                 updated_at: new Date().toISOString()
             };
             localStorage.setItem('pos_store_settings', JSON.stringify(settings));
-            applyStoreSettingsToUI(settings);
+            window.applyStoreSettingsToUI(settings);
             if (supabaseClient) {
                 try { await supabaseClient.from('store_settings').upsert([settings]); } catch (e) {}
             }
@@ -1569,7 +1566,7 @@
             else prompt("Salin Link Koneksi HP:", link);
         };
 
-        function renderProductGrid() {
+        window.renderProductGrid = function() {
             const grid = document.getElementById('product-grid');
             if (!grid) return;
             const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
@@ -1580,7 +1577,7 @@
             });
             const countEl = document.getElementById('product-count');
             if (countEl) countEl.innerText = `${filtered.length} Produk`;
-            renderCategoryPills();
+            window.renderCategoryPills();
 
             if (filtered.length === 0) {
                 grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 space-y-2"><i class="fa-solid fa-box-open text-4xl"></i><p class="text-xs">Produk tidak ditemukan</p></div>`;
@@ -1588,62 +1585,228 @@
             }
             grid.innerHTML = filtered.map(p => {
                 const stock = Number(p.stock) || 0;
-                const price = Number(p.selling_price) || 0;
-                
-                let promoBadgeText = p.promo && p.promo !== 'Standard' ? p.promo : '';
-                if (!promoBadgeText) {
-                    const autoV = (vouchers || []).find(v => v.is_active && v.promo_type === 'automatic' && (
-                        (v.target_category === 'Semua' || (p.category || '').toLowerCase() === (v.target_category || '').toLowerCase()) &&
-                        (v.target_brand === 'Semua' || (p.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase())
-                    ));
-                    if (autoV) {
-                        promoBadgeText = autoV.benefit_type === 'discount' ? (autoV.type === 'percentage' ? `${autoV.value}% OFF` : `Rp ${Number(autoV.value).toLocaleString('id-ID')} OFF`) : autoV.title;
-                    }
-                }
-                const hasPromo = Boolean(promoBadgeText);
+                let originalPrice = Number(p.selling_price) || 0;
+                let displayPrice = originalPrice;
 
-                return `<div onclick="addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer relative group min-h-[165px]">
-                    ${hasPromo ? `<span class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded-tr-2xl rounded-bl-xl shadow-sm z-10 max-w-[70%] truncate uppercase"><i class="fa-solid fa-tag mr-1"></i>${promoBadgeText}</span>` : ''}
-                    <div class="space-y-1 pt-2.5 pr-14">
+                const badges = [];
+
+                // 1. Check Product's own promo string (Diskon Otomatis dari Tag Produk)
+                if (p.promo && p.promo !== 'Standard') {
+                    if (p.promo.includes('Potongan')) {
+                        const match = p.promo.match(/(\d+[\d\.]*)/);
+                        if (match) {
+                            const dVal = Number(match[1].replace(/\./g, '')) || 0;
+                            displayPrice = Math.max(0, displayPrice - dVal);
+                        }
+                    }
+                    badges.push({ type: 'discount', text: p.promo, icon: 'fa-tag', bg: 'bg-red-600' });
+                }
+
+                // 2. Check active promos matching this product (HANYA BOGO & DISKON OTOMATIS)
+                (vouchers || []).filter(v => v.is_active).forEach(v => {
+                    const matchCat = !v.target_category || v.target_category === 'Semua' || (p.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
+                    const matchBrand = !v.target_brand || v.target_brand === 'Semua' || (p.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase();
+                    const matchFamily = !v.target_family || v.target_family === 'Semua' || (p.family || '').toLowerCase() === (v.target_family || '').toLowerCase();
+                    const matchPromo = !v.target_promo || v.target_promo === 'Semua' || (p.promo || '').toLowerCase() === (v.target_promo || '').toLowerCase();
+
+                    if (matchCat && matchBrand && matchFamily && matchPromo) {
+                        if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
+                            badges.push({ 
+                                type: 'bogo', 
+                                text: `BOGO: Beli ${v.buy_qty} Gratis ${v.get_qty}`, 
+                                icon: 'fa-gift', 
+                                bg: 'bg-amber-500' 
+                            });
+                        } else if (v.promo_type === 'automatic') {
+                            let dVal = v.type === 'percentage' ? Math.round((originalPrice * v.value) / 100) : v.value;
+                            if (v.max_discount && dVal > v.max_discount) dVal = v.max_discount;
+                            displayPrice = Math.max(0, originalPrice - dVal);
+                            
+                            const label = v.type === 'percentage' ? `Diskon ${v.value}%` : `Potongan Rp ${Number(v.value).toLocaleString('id-ID')}`;
+                            if (!badges.some(b => b.text === label || b.text === p.promo)) {
+                                badges.push({ type: 'discount', text: label, icon: 'fa-tag', bg: 'bg-red-600' });
+                            }
+                        }
+                    }
+                });
+
+                const uniqueBadges = Array.from(new Map(badges.map(b => [b.text, b])).values());
+                const hasDiscount = displayPrice < originalPrice;
+
+                return `<div onclick="window.addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer relative group min-h-[175px]">
+                    ${uniqueBadges.length > 0 ? `
+                        <div class="absolute top-0 right-0 flex flex-col items-end gap-0.5 z-10 max-w-[80%]">
+                            ${uniqueBadges.map((b, idx) => `
+                                <span class="${b.bg} text-white text-[9px] font-black px-2 py-0.5 ${idx === 0 ? 'rounded-tr-2xl rounded-bl-xl' : 'rounded-l-lg'} shadow-sm truncate w-fit max-w-full">
+                                    <i class="fa-solid ${b.icon} mr-1"></i>${b.text}
+                                </span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="space-y-1 pt-2 pr-2">
                         <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md inline-block max-w-full truncate">${p.category || 'Umum'}</span>
                         <h3 class="font-extrabold text-xs text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition">${p.name}</h3>
                         <p class="text-[10px] font-mono text-slate-400 truncate">${p.barcode || p.sku || '-'}</p>
                     </div>
                     <div class="pt-2 border-t border-slate-100 flex items-end justify-between mt-2 gap-1 shrink-0">
-                        <span class="text-xs sm:text-sm font-black text-blue-600 truncate">Rp ${price.toLocaleString('id-ID')}</span>
+                        <div>
+                            <span class="text-xs sm:text-sm font-black text-blue-600 truncate block">Rp ${displayPrice.toLocaleString('id-ID')}</span>
+                            ${hasDiscount ? `<span class="text-[9px] text-slate-400 line-through">Rp ${originalPrice.toLocaleString('id-ID')}</span>` : ''}
+                        </div>
                         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${stock > 10 ? 'bg-emerald-50 text-emerald-700' : (stock > 0 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600')}">Stok: ${stock}</span>
                     </div>
                 </div>`;
             }).join('');
-        }
+        };
 
-        function renderCategoryPills() {
+        window.renderCategoryPills = function() {
             const container = document.getElementById('category-pills');
             if (!container) return;
             const categories = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
-            container.innerHTML = categories.map(cat => `<button onclick="filterByCategory('${cat}')" class="px-3 py-1 rounded-xl font-bold transition shrink-0 text-xs ${cat === selectedCategory ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${cat}</button>`).join('');
-        }
+            container.innerHTML = categories.map(cat => `<button onclick="window.filterByCategory('${cat}')" class="px-3 py-1 rounded-xl font-bold transition shrink-0 text-xs ${cat === selectedCategory ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${cat}</button>`).join('');
+        };
 
-        function filterByCategory(cat) { selectedCategory = cat; renderProductGrid(); }
-        function handleSearch(e) { renderProductGrid(); }
+        window.filterByCategory = function(cat) { selectedCategory = cat; window.renderProductGrid(); };
+        window.handleSearch = function(e) { window.renderProductGrid(); };
 
-        function addToCart(prodId) {
+        window.updateCartQty = function(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            const prod = (products || []).find(p => p.id === id);
+            const maxStock = prod ? (Number(prod.stock) || 0) : 999999;
+            
+            const newQty = item.qty + delta;
+            if (newQty <= 0) {
+                window.removeFromCart(id);
+                return;
+            }
+            if (newQty > maxStock) {
+                window.showNotification("Stok tidak mencukupi!", "warning");
+                return;
+            }
+            item.qty = newQty;
+            window.renderCartItems();
+            window.calculateCartTotals();
+        };
+
+        window.removeFromCart = function(id) {
+            cart = cart.filter(i => i.id !== id);
+            window.renderCartItems();
+            window.calculateCartTotals();
+            window.showNotification("Item dihapus dari keranjang", "info");
+        };
+
+        window.clearCart = function() {
+            cart = [];
+            appliedVouchers = [];
+            const discInput = document.getElementById('cart-discount-input');
+            if (discInput) discInput.value = 0;
+            window.renderAppliedVouchersUI();
+            window.renderCartItems();
+            window.calculateCartTotals();
+        };
+
+        window.isVoucherEligible = function(voucher, cartItems) {
+            if (!voucher || !voucher.is_active || !cartItems || cartItems.length === 0) return false;
+
+            if (voucher.valid_until) {
+                const today = new Date().toISOString().split('T')[0];
+                if (today > voucher.valid_until) return false;
+            }
+
+            if (voucher.usage_limit && voucher.usage_limit > 0 && (voucher.times_used || 0) >= voucher.usage_limit) {
+                return false;
+            }
+
+            const matchingItems = cartItems.filter(item => {
+                const matchCat = !voucher.target_category || voucher.target_category === 'Semua' || (item.category || '').toLowerCase() === voucher.target_category.toLowerCase();
+                const matchBrand = !voucher.target_brand || voucher.target_brand === 'Semua' || (item.brand || '').toLowerCase() === voucher.target_brand.toLowerCase();
+                const matchFamily = !voucher.target_family || voucher.target_family === 'Semua' || (item.family || '').toLowerCase() === voucher.target_family.toLowerCase();
+                const matchPromo = !voucher.target_promo || voucher.target_promo === 'Semua' || (item.promo || '').toLowerCase() === voucher.target_promo.toLowerCase();
+                return matchCat && matchBrand && matchFamily && matchPromo;
+            });
+
+            if (matchingItems.length === 0 && (voucher.min_purchase_scope === 'criteria' || voucher.promo_type === 'bogo')) {
+                return false;
+            }
+
+            if (voucher.promo_type === 'bogo' || voucher.benefit_type === 'bogo') {
+                const buyQ = Number(voucher.buy_qty) || 2;
+                const getQ = Number(voucher.get_qty) || 1;
+                const reqQty = buyQ + getQ;
+                const totalMatchingQty = matchingItems.reduce((s, i) => s + i.qty, 0);
+                if (totalMatchingQty < reqQty) return false;
+            }
+
+            const minP = Number(voucher.min_purchase) || 0;
+            if (minP > 0) {
+                if (voucher.min_purchase_scope === 'total') {
+                    const cartTotal = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
+                    if (cartTotal < minP) return false;
+                } else {
+                    const matchingTotal = matchingItems.reduce((s, i) => s + (i.price * i.qty), 0);
+                    if (matchingTotal < minP) return false;
+                }
+            }
+
+            return true;
+        };
+
+        window.addToCart = function(prodId) {
             const product = products.find(p => p.id === prodId);
             if (!product) return;
             if ((Number(product.stock) || 0) <= 0) { window.showNotification("Stok produk habis!", "warning"); return; }
+            
+            let price = Number(product.selling_price) || 0;
+            let autoDisc = 0;
+            let promoDesc = '';
+
+            if (product.promo && product.promo !== 'Standard' && product.promo.includes('Potongan')) {
+                const match = product.promo.match(/(\d+[\d\.]*)/);
+                if (match) {
+                    autoDisc = Number(match[1].replace(/\./g, '')) || 0;
+                    promoDesc = product.promo;
+                }
+            } else {
+                const autoV = (vouchers || []).find(v => v.is_active && v.promo_type === 'automatic' && (
+                    (v.target_category === 'Semua' || (product.category || '').toLowerCase() === (v.target_category || '').toLowerCase()) &&
+                    (v.target_brand === 'Semua' || (product.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase())
+                ));
+                if (autoV) {
+                    let dVal = autoV.type === 'percentage' ? Math.round((price * autoV.value) / 100) : autoV.value;
+                    if (autoV.max_discount && dVal > autoV.max_discount) dVal = autoV.max_discount;
+                    autoDisc = dVal;
+                    promoDesc = autoV.title;
+                }
+            }
+
+            const netPrice = Math.max(0, price - autoDisc);
+
             const existing = cart.find(item => item.id === prodId);
             if (existing) {
                 if (existing.qty + 1 > product.stock) { window.showNotification("Stok tidak mencukupi!", "warning"); return; }
                 existing.qty += 1;
             } else {
-                cart.push({ id: product.id, name: product.name, price: Number(product.selling_price) || 0, qty: 1, category: product.category, brand: product.brand, family: product.family, promo: product.promo });
+                cart.push({ 
+                    id: product.id, 
+                    name: product.name, 
+                    originalPrice: price,
+                    price: netPrice, 
+                    autoDiscount: autoDisc,
+                    promoDesc: promoDesc,
+                    qty: 1, 
+                    category: product.category, 
+                    brand: product.brand, 
+                    family: product.family, 
+                    promo: product.promo 
+                });
             }
-            renderCartItems();
-            calculateCartTotals();
+            window.renderCartItems();
+            window.calculateCartTotals();
             window.showNotification(`+ ${product.name}`, "success");
-        }
+        };
 
-        function renderCartItems() {
+        window.renderCartItems = function() {
             const container = document.getElementById('cart-items');
             const mobCount = document.getElementById('mob-cart-count');
             const totalQty = cart.reduce((s, i) => s + i.qty, 0);
@@ -1655,28 +1818,45 @@
                 return;
             }
 
-            container.innerHTML = cart.map(item => {
-                const sub = item.price * item.qty;
-                let itemDiscAmount = 0;
-                let promoDesc = '';
+            // Kombinasi voucher terpasang dan promo BOGO otomatis yang aktif
+            const activeBogoPromos = [
+                ...(appliedVouchers || []),
+                ...(vouchers || []).filter(v => v.is_active && v.promo_type === 'automatic' && (v.benefit_type === 'bogo' || v.promo_type === 'bogo'))
+            ];
 
-                if (item.promo && item.promo !== 'Standard') {
-                    promoDesc = item.promo;
-                    if (item.promo.includes('Potongan')) {
-                        const match = item.promo.match(/(\d+[\d\.]*)/);
-                        if (match) itemDiscAmount = (Number(match[1].replace(/\./g, '')) || 0) * item.qty;
+            container.innerHTML = cart.map(item => {
+                let bogoDiscountForItem = 0;
+                let bogoBadgeHTML = '';
+
+                // Deduplikasi promo BOGO berdasarkan ID
+                const uniqueBogoPromos = Array.from(new Map(activeBogoPromos.map(v => [v.id, v])).values());
+
+                uniqueBogoPromos.forEach(v => {
+                    if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
+                        const matchCat = !v.target_category || v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
+                        const matchBrand = !v.target_brand || v.target_brand === 'Semua' || (item.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase();
+                        const matchFamily = !v.target_family || v.target_family === 'Semua' || (item.family || '').toLowerCase() === (v.target_family || '').toLowerCase();
+                        const matchPromo = !v.target_promo || v.target_promo === 'Semua' || (item.promo || '').toLowerCase() === (v.target_promo || '').toLowerCase();
+
+                        const isMatch = matchCat && matchBrand && matchFamily && matchPromo;
+                        const buyQ = Number(v.buy_qty) || 2;
+                        const getQ = Number(v.get_qty) || 1;
+                        const setQty = buyQ + getQ;
+
+                        if (isMatch && item.qty >= setQty) {
+                            const freeSets = Math.floor(item.qty / setQty);
+                            const freeQty = freeSets * getQ;
+                            const itemDiscVal = freeQty * item.price;
+                            bogoDiscountForItem += itemDiscVal;
+
+                            bogoBadgeHTML += `<div class="text-[10px] text-amber-700 font-semibold bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded flex items-center gap-1 w-fit mt-0.5"><i class="fa-solid fa-gift text-amber-500"></i> <span>BOGO: Beli ${buyQ} Gratis ${getQ} (${freeQty}x Gratis -Rp ${itemDiscVal.toLocaleString('id-ID')})</span></div>`;
+                        }
                     }
-                } else {
-                    const autoV = (vouchers || []).find(v => v.is_active && v.promo_type === 'automatic' && isVoucherEligible(v, cart) && (
-                        (v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase())
-                    ));
-                    if (autoV) {
-                        promoDesc = autoV.title;
-                        let dAmount = autoV.type === 'percentage' ? Math.round((item.price * item.qty * autoV.value) / 100) : autoV.value * item.qty;
-                        if (autoV.max_discount && dAmount > autoV.max_discount) dAmount = autoV.max_discount;
-                        itemDiscAmount += dAmount;
-                    }
-                }
+                });
+
+                const lineGrossTotal = (item.originalPrice || item.price) * item.qty;
+                const totalItemDisc = (item.autoDiscount || 0) * item.qty;
+                const lineNetTotal = Math.max(0, (item.price * item.qty) - bogoDiscountForItem);
 
                 return `<div class="py-2.5 flex flex-col gap-1 border-b border-slate-100 text-xs">
                     <div class="flex items-center justify-between gap-2">
@@ -1685,128 +1865,67 @@
                             <div class="text-[10px] text-slate-500">Rp ${item.price.toLocaleString('id-ID')} x ${item.qty}</div>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">-</button>
+                            <button onclick="window.updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">-</button>
                             <span class="w-6 text-center font-extrabold">${item.qty}</span>
-                            <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">+</button>
+                            <button onclick="window.updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">+</button>
                         </div>
-                        <div class="text-right min-w-[75px]">
-                            <div class="font-extrabold text-slate-800">Rp ${(sub - itemDiscAmount).toLocaleString('id-ID')}</div>
-                            ${itemDiscAmount > 0 ? `<div class="text-[9px] text-slate-400 line-through">Rp ${sub.toLocaleString('id-ID')}</div>` : ''}
+                        <div class="text-right min-w-[85px]">
+                            <div class="font-black text-slate-900 text-xs sm:text-sm">Rp ${lineNetTotal.toLocaleString('id-ID')}</div>
+                            ${(totalItemDisc > 0 || bogoDiscountForItem > 0) ? `<div class="text-[9px] text-slate-400 line-through">Rp ${lineGrossTotal.toLocaleString('id-ID')}</div>` : ''}
                         </div>
-                        <button onclick="removeFromCart('${item.id}')" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-xmark"></i></button>
+                        <button onclick="window.removeFromCart('${item.id}')" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    ${promoDesc ? `<div class="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded flex items-center gap-1 w-fit"><i class="fa-solid fa-tag"></i> <span>${promoDesc} ${itemDiscAmount > 0 ? `(-Rp ${itemDiscAmount.toLocaleString('id-ID')})` : ''}</span></div>` : ''}
+                    ${item.promoDesc ? `<div class="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded flex items-center gap-1 w-fit"><i class="fa-solid fa-tag"></i> <span>${item.promoDesc} ${totalItemDisc > 0 ? `(-Rp ${totalItemDisc.toLocaleString('id-ID')})` : ''}</span></div>` : ''}
+                    ${bogoBadgeHTML}
                 </div>`;
             }).join('');
-        }
+        };
 
-        function updateCartQty(id, delta) {
-            const item = cart.find(i => i.id === id);
-            if (!item) return;
-            const prod = products.find(p => p.id === id);
-            const newQty = item.qty + delta;
-            if (newQty <= 0) { removeFromCart(id); return; }
-            if (prod && newQty > prod.stock) { window.showNotification("Stok tidak mencukupi!", "warning"); return; }
-            item.qty = newQty;
-            renderCartItems();
-            calculateCartTotals();
-        }
-
-        function removeFromCart(id) { cart = cart.filter(i => i.id !== id); renderCartItems(); calculateCartTotals(); }
-        function clearCart() { cart = []; appliedVouchers = []; renderCartItems(); calculateCartTotals(); }
-
-        function isVoucherEligible(v, currentCart) {
-            if (!currentCart || currentCart.length === 0) return false;
-            let subtotal = currentCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            let scopeAmount = subtotal;
-            if (v.min_purchase_scope === 'criteria') {
-                scopeAmount = currentCart.filter(item => {
-                    const matchCat = v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
-                    const matchBrand = v.target_brand === 'Semua' || (item.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase();
-                    const matchFamily = v.target_family === 'Semua' || (item.family || '').toLowerCase() === (v.target_family || '').toLowerCase();
-                    const matchPromo = v.target_promo === 'Semua' || (item.promo || '').toLowerCase() === (v.target_promo || '').toLowerCase();
-                    return matchCat && matchBrand && matchFamily && matchPromo;
-                }).reduce((s, i) => s + (i.price * i.qty), 0);
-            }
-            if (v.min_purchase && scopeAmount < v.min_purchase) return false;
-
-            if (v.target_category !== 'Semua' || v.target_brand !== 'Semua' || v.target_family !== 'Semua' || v.target_promo !== 'Semua') {
-                const hasMatchingItem = currentCart.some(item => {
-                    const matchCat = v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
-                    const matchBrand = v.target_brand === 'Semua' || (item.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase();
-                    const matchFamily = v.target_family === 'Semua' || (item.family || '').toLowerCase() === (v.target_family || '').toLowerCase();
-                    const matchPromo = v.target_promo === 'Semua' || (item.promo || '').toLowerCase() === (v.target_promo || '').toLowerCase();
-                    return matchCat && matchBrand && matchFamily && matchPromo;
-                });
-                if (!hasMatchingItem) return false;
-            }
-
-            if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
-                const hasEligibleQty = currentCart.some(item => {
-                    const matchCat = v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
-                    return matchCat && item.qty >= ((v.buy_qty || 1) + (v.get_qty || 1));
-                });
-                if (!hasEligibleQty) return false;
-            }
-
-            return true;
-        }
-
-        function calculateCartTotals() {
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            
-            let automaticDiscount = 0;
-            (vouchers || []).filter(v => v.is_active && v.promo_type === 'automatic' && isVoucherEligible(v, cart)).forEach(v => {
-                if (v.benefit_type === 'discount') {
-                    let dAmount = v.type === 'percentage' ? Math.round((subtotal * v.value) / 100) : v.value;
-                    if (v.max_discount && dAmount > v.max_discount) dAmount = v.max_discount;
-                    automaticDiscount += dAmount;
-                }
-            });
-
-            cart.forEach(item => {
-                if (item.promo && item.promo.includes('Potongan')) {
-                    const match = item.promo.match(/(\d+[\d\.]*)/);
-                    if (match) automaticDiscount += (Number(match[1].replace(/\./g, '')) || 0) * item.qty;
-                }
-            });
+        window.calculateCartTotals = function() {
+            const grossSubtotal = cart.reduce((sum, item) => sum + ((item.originalPrice || item.price) * item.qty), 0);
+            const automaticDiscount = cart.reduce((sum, item) => sum + ((item.autoDiscount || 0) * item.qty), 0);
+            const netSubtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
             const discountType = document.getElementById('cart-discount-type')?.value || 'percentage';
             const discountInput = Number(document.getElementById('cart-discount-input')?.value) || 0;
-            let manualDiscount = discountType === 'percentage' ? Math.round((subtotal - automaticDiscount ? (subtotal - automaticDiscount) : subtotal) * discountInput / 100) : discountInput;
+            let manualDiscount = discountType === 'percentage' ? Math.round(netSubtotal * discountInput / 100) : discountInput;
 
             const selectedCustId = document.getElementById('cart-customer-select')?.value;
             const customer = customers.find(c => c.id === selectedCustId || c.member_number === selectedCustId);
             let vipDiscount = 0;
             if (customer && customer.type === 'VIP') {
-                vipDiscount = Math.round((subtotal - automaticDiscount - manualDiscount) * 0.05);
+                vipDiscount = Math.round((netSubtotal - manualDiscount) * 0.05);
             }
 
-            appliedVouchers = appliedVouchers.filter(v => isVoucherEligible(v, cart));
-            renderAppliedVouchersUI();
-            renderCartVoucherDropdown();
+            appliedVouchers = appliedVouchers.filter(v => window.isVoucherEligible(v, cart));
+            window.renderAppliedVouchersUI();
+            window.renderCartVoucherDropdown();
 
             let voucherDiscount = 0;
             appliedVouchers.forEach(v => {
                 if (v.benefit_type === 'discount') {
-                    let dAmount = v.type === 'percentage' ? Math.round((subtotal * v.value) / 100) : v.value;
+                    let dAmount = v.type === 'percentage' ? Math.round((netSubtotal * v.value) / 100) : v.value;
                     if (v.max_discount && dAmount > v.max_discount) dAmount = v.max_discount;
                     voucherDiscount += dAmount;
                 } else if (v.promo_type === 'bogo' || v.benefit_type === 'bogo') {
                     cart.forEach(item => {
-                        const matchCat = v.target_category === 'Semua' || item.category === v.target_category;
-                        if (matchCat && item.qty >= ((v.buy_qty || 2) + (v.get_qty || 1))) {
-                            const freeSets = Math.floor(item.qty / ((v.buy_qty || 2) + (v.get_qty || 1)));
-                            voucherDiscount += freeSets * (v.get_qty || 1) * item.price;
+                        const matchCat = v.target_category === 'Semua' || (item.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
+                        const buyQ = Number(v.buy_qty) || 2;
+                        const getQ = Number(v.get_qty) || 1;
+                        const setQty = buyQ + getQ;
+
+                        if (matchCat && item.qty >= setQty) {
+                            const freeSets = Math.floor(item.qty / setQty);
+                            voucherDiscount += freeSets * getQ * item.price;
                         }
                     });
                 }
             });
 
-            const totalDiscount = automaticDiscount + manualDiscount + vipDiscount + voucherDiscount;
-            const grandTotal = Math.max(0, subtotal - totalDiscount);
+            const totalDiscount = manualDiscount + vipDiscount + voucherDiscount;
+            const grandTotal = Math.max(0, netSubtotal - totalDiscount);
 
-            document.getElementById('cart-subtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('cart-subtotal').innerText = `Rp ${grossSubtotal.toLocaleString('id-ID')}`;
             document.getElementById('cart-grand-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
             document.getElementById('btn-checkout').disabled = cart.length === 0;
 
@@ -1826,15 +1945,25 @@
             if (voucherDiscount > 0) {
                 document.getElementById('cart-voucher-code-label').innerText = window.formatVoucherCodes(appliedVouchers.map(v => v.code));
             }
-        }
+        };
 
-        function renderCartVoucherDropdown() {
+        window.renderCartVoucherDropdown = function() {
             const select = document.getElementById('cart-voucher-dropdown');
+            const countBadge = document.getElementById('cart-voucher-count-badge');
             if (!select) return;
             const currentVal = select.value;
             select.innerHTML = '<option value="">-- Pilih Voucher / Promo yang Memenuhi Syarat --</option>';
 
-            const eligibleVouchers = (vouchers || []).filter(v => v.is_active && (v.promo_type === 'voucher' || v.promo_type === 'bogo') && isVoucherEligible(v, cart));
+            const eligibleVouchers = (vouchers || []).filter(v => v.is_active && (v.promo_type === 'voucher' || v.promo_type === 'bogo') && window.isVoucherEligible(v, cart) && !appliedVouchers.some(av => av.id === v.id));
+
+            if (countBadge) {
+                countBadge.innerText = `${eligibleVouchers.length} tersedia`;
+                if (eligibleVouchers.length > 0) {
+                    countBadge.className = "bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full text-[9px] font-bold";
+                } else {
+                    countBadge.className = "bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full text-[9px] font-medium";
+                }
+            }
 
             if (eligibleVouchers.length === 0) {
                 const opt = document.createElement('option');
@@ -1853,9 +1982,9 @@
             if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
                 select.value = currentVal;
             }
-        }
+        };
 
-        function applyDropdownVoucher(selectEl) {
+        window.applyDropdownVoucher = function(selectEl) {
             const vId = selectEl.value;
             if (!vId) return;
             const voucher = vouchers.find(v => v.id === vId);
@@ -1863,76 +1992,87 @@
             if (appliedVouchers.some(v => v.id === vId)) { window.showNotification("Voucher sudah terpasang!", "warning"); selectEl.value = ""; return; }
 
             appliedVouchers.push(voucher);
-            renderAppliedVouchersUI();
-            calculateCartTotals();
+            window.renderAppliedVouchersUI();
+            window.renderCartItems();
+            window.calculateCartTotals();
             selectEl.value = "";
             window.showNotification(`Voucher ${voucher.code} dipasang!`, "success");
-        }
+        };
 
-        function renderAppliedVouchersUI() {
+        window.renderAppliedVouchersUI = function() {
             const container = document.getElementById('applied-vouchers-container');
             if (!container) return;
             if (appliedVouchers.length === 0) { container.classList.add('hidden'); return; }
             container.classList.remove('hidden');
             container.innerHTML = appliedVouchers.map(v => `<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-1.5 flex justify-between items-center text-xs">
                 <span class="font-bold text-indigo-900">${v.code} (${v.promo_type === 'bogo' ? 'BOGO' : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value)})</span>
-                <button onclick="removeVoucher('${v.id}')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.removeVoucher('${v.id}')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>
             </div>`).join('');
-        }
+        };
 
-        function removeVoucher(id) { appliedVouchers = appliedVouchers.filter(v => v.id !== id); renderAppliedVouchersUI(); calculateCartTotals(); }
+        window.removeVoucher = function(id) { 
+            appliedVouchers = appliedVouchers.filter(v => v.id !== id); 
+            window.renderAppliedVouchersUI(); 
+            window.renderCartItems();
+            window.calculateCartTotals(); 
+        };
 
-        function openPaymentModal() {
+        window.renderAppliedVouchersUI = function() {
+            const container = document.getElementById('applied-vouchers-container');
+            if (!container) return;
+            if (appliedVouchers.length === 0) { container.classList.add('hidden'); return; }
+            container.classList.remove('hidden');
+            container.innerHTML = appliedVouchers.map(v => `<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-1.5 flex justify-between items-center text-xs">
+                <span class="font-bold text-indigo-900">${v.code} (${v.promo_type === 'bogo' ? 'BOGO' : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value)})</span>
+                <button onclick="window.removeVoucher('${v.id}')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>`).join('');
+        };
+
+        window.removeVoucher = function(id) { appliedVouchers = appliedVouchers.filter(v => v.id !== id); window.renderAppliedVouchersUI(); window.calculateCartTotals(); };
+
+        window.openPaymentModal = function() {
             if (cart.length === 0) return;
-            calculateCartTotals();
+            window.calculateCartTotals();
             document.getElementById('pay-modal-total').innerText = document.getElementById('cart-grand-total').innerText;
             document.getElementById('pay-cash-amount').value = '';
             document.getElementById('pay-change-amount').innerText = 'Rp 0';
             document.getElementById('payment-modal')?.classList.remove('hidden');
-        }
+        };
 
-        function closePaymentModal() { document.getElementById('payment-modal')?.classList.add('hidden'); }
+        window.closePaymentModal = function() { document.getElementById('payment-modal')?.classList.add('hidden'); };
 
-        function setQuickCash(val) {
+        window.setQuickCash = function(val) {
             const total = Number(document.getElementById('pay-modal-total').innerText.replace(/[^0-9]/g, '')) || 0;
             document.getElementById('pay-cash-amount').value = val === 'pas' ? total : val;
-            calculateChange();
-        }
+            window.calculateChange();
+        };
 
-        function calculateChange() {
+        window.calculateChange = function() {
             const total = Number(document.getElementById('pay-modal-total').innerText.replace(/[^0-9]/g, '')) || 0;
             const cash = Number(document.getElementById('pay-cash-amount').value) || 0;
             document.getElementById('pay-change-amount').innerText = `Rp ${Math.max(0, cash - total).toLocaleString('id-ID')}`;
-        }
+        };
 
-        async function processTransaction() {
+        window.processTransaction = async function() {
             const total = Number(document.getElementById('pay-modal-total').innerText.replace(/[^0-9]/g, '')) || 0;
             const cash = Number(document.getElementById('pay-cash-amount').value) || 0;
             const method = document.getElementById('pay-method').value;
             if (cash < total && method === 'Tunai') { window.showNotification("Uang tunai kurang!", "warning"); return; }
 
-            const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-            let automaticDiscount = 0;
-            (vouchers || []).filter(v => v.is_active && v.promo_type === 'automatic' && isVoucherEligible(v, cart)).forEach(v => {
-                if (v.benefit_type === 'discount') automaticDiscount += v.type === 'percentage' ? Math.round((subtotal * v.value) / 100) : v.value;
-            });
-            cart.forEach(i => {
-                if (i.promo && i.promo.includes('Potongan')) {
-                    const match = i.promo.match(/(\d+[\d\.]*)/);
-                    if (match) automaticDiscount += (Number(match[1].replace(/\./g, '')) || 0) * i.qty;
-                }
-            });
+            const grossSubtotal = cart.reduce((s, i) => s + ((i.originalPrice || i.price) * i.qty), 0);
+            const automaticDiscount = cart.reduce((s, i) => s + ((i.autoDiscount || 0) * i.qty), 0);
+            const netSubtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
 
             const discountType = document.getElementById('cart-discount-type')?.value || 'percentage';
             const discountInput = Number(document.getElementById('cart-discount-input')?.value) || 0;
-            let manualDiscount = discountType === 'percentage' ? Math.round((subtotal - automaticDiscount) * discountInput / 100) : discountInput;
+            let manualDiscount = discountType === 'percentage' ? Math.round(netSubtotal * discountInput / 100) : discountInput;
 
             const selectedCustId = document.getElementById('cart-customer-select')?.value;
             const customer = customers.find(c => c.id === selectedCustId || c.member_number === selectedCustId);
-            let vipDiscount = customer && customer.type === 'VIP' ? Math.round((subtotal - automaticDiscount - manualDiscount) * 0.05) : 0;
+            let vipDiscount = customer && customer.type === 'VIP' ? Math.round((netSubtotal - manualDiscount) * 0.05) : 0;
             let voucherDiscount = 0;
             appliedVouchers.forEach(v => {
-                if (v.benefit_type === 'discount') voucherDiscount += v.type === 'percentage' ? Math.round((subtotal * v.value) / 100) : v.value;
+                if (v.benefit_type === 'discount') voucherDiscount += v.type === 'percentage' ? Math.round((netSubtotal * v.value) / 100) : v.value;
             });
 
             const totalDiscount = automaticDiscount + manualDiscount + vipDiscount + voucherDiscount;
@@ -1940,7 +2080,7 @@
             const txId = 'TRX-' + Date.now().toString().slice(-6);
 
             const txRecord = {
-                id: txId, items: [...cart], subtotal, category_discount: automaticDiscount, manual_discount: manualDiscount, vip_discount: vipDiscount, voucher_discount: voucherDiscount, voucher_codes: appliedVouchers.map(v => v.code), discount: totalDiscount, total, cash_paid: cash, change, payment_method: method, cashier_name: activeUser?.name || 'Admin', customer_name: customer?.name || 'Pelanggan Umum', customer_id: customer?.id || null, created_at: new Date().toISOString()
+                id: txId, items: [...cart], subtotal: grossSubtotal, category_discount: automaticDiscount, manual_discount: manualDiscount, vip_discount: vipDiscount, voucher_discount: voucherDiscount, voucher_codes: appliedVouchers.map(v => v.code), discount: totalDiscount, total, cash_paid: cash, change, payment_method: method, cashier_name: activeUser?.name || 'Admin', customer_name: customer?.name || 'Pelanggan Umum', customer_id: customer?.id || null, created_at: new Date().toISOString()
             };
 
             transactions.unshift(txRecord);
@@ -1965,17 +2105,17 @@
             }
 
             window.saveLocalStorageData();
-            renderProductGrid();
-            renderAdminProductsTable();
-            renderCustomersTable();
-            renderHistoryTable();
-            closePaymentModal();
-            clearCart();
-            showReceipt(txRecord);
+            window.renderProductGrid();
+            window.renderAdminProductsTable();
+            window.renderCustomersTable();
+            window.renderHistoryTable();
+            window.closePaymentModal();
+            window.clearCart();
+            window.showReceipt(txRecord);
             window.showNotification("Transaksi Berhasil!", "success");
-        }
+        };
 
-        function showReceipt(tx) {
+        window.showReceipt = function(tx) {
             document.getElementById('rec-id').innerText = tx.id;
             document.getElementById('rec-date').innerText = new Date(tx.created_at).toLocaleString('id-ID');
             document.getElementById('rec-cashier').innerText = tx.cashier_name || 'Admin';
@@ -1987,17 +2127,17 @@
             document.getElementById('rec-paid').innerText = `Rp ${(tx.cash_paid || 0).toLocaleString('id-ID')}`;
             document.getElementById('rec-change').innerText = `Rp ${(tx.change || 0).toLocaleString('id-ID')}`;
             document.getElementById('receipt-modal')?.classList.remove('hidden');
-        }
+        };
 
-        function closeReceiptModal() { document.getElementById('receipt-modal')?.classList.add('hidden'); }
-        window.viewTransactionReceipt = function(id) { const tx = transactions.find(t => t.id === id); if (tx) showReceipt(tx); };
+        window.closeReceiptModal = function() { document.getElementById('receipt-modal')?.classList.add('hidden'); };
+        window.viewTransactionReceipt = function(id) { const tx = transactions.find(t => t.id === id); if (tx) window.showReceipt(tx); };
 
-        function handleThermalPrintAction() { window.print(); }
-        function sendWhatsAppReceipt() {
+        window.handleThermalPrintAction = function() { window.print(); };
+        window.sendWhatsAppReceipt = function() {
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Terima kasih telah berbelanja di MY KSR!")}`, '_blank');
-        }
+        };
 
-        function renderAdminProductsTable() {
+        window.renderAdminProductsTable = function() {
             const tbody = document.getElementById('admin-products-tbody');
             if (!tbody) return;
             const filterCat = document.getElementById('admin-category-filter');
@@ -2018,11 +2158,11 @@
                 <td class="p-3 text-right font-extrabold text-blue-600">Rp ${(Number(p.selling_price) || 0).toLocaleString('id-ID')}</td>
                 <td class="p-3 text-center font-bold">${p.stock}</td>
                 <td class="p-3 text-center">
-                    <button onclick="openProductModal('${p.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="deleteProduct('${p.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
+                    <button onclick="window.openProductModal('${p.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="window.deleteProduct('${p.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>`).join('');
-        }
+        };
 
         window.openProductModal = function(id = null) {
             document.getElementById('product-modal-title').innerText = id ? "Edit Produk" : "Tambah Produk Baru";
@@ -2057,16 +2197,16 @@
             const idx = products.findIndex(p => p.id === id);
             if (idx >= 0) products[idx] = prodData; else products.unshift(prodData);
             if (supabaseClient) { try { await supabaseClient.from('products').upsert([prodData]); } catch (e) {} }
-            window.saveLocalStorageData(); renderProductGrid(); renderAdminProductsTable(); closeProductModal(); window.showNotification("Produk disimpan!", "success");
+            window.saveLocalStorageData(); window.renderProductGrid(); window.renderAdminProductsTable(); window.closeProductModal(); window.showNotification("Produk disimpan!", "success");
         };
 
         window.deleteProduct = async function(id) {
             products = products.filter(p => p.id !== id);
             if (supabaseClient) { try { await supabaseClient.from('products').delete().eq('id', id); } catch (e) {} }
-            window.saveLocalStorageData(); renderProductGrid(); renderAdminProductsTable(); window.showNotification("Produk dihapus", "info");
+            window.saveLocalStorageData(); window.renderProductGrid(); window.renderAdminProductsTable(); window.showNotification("Produk dihapus", "info");
         };
 
-        function renderCustomersTable() {
+        window.renderCustomersTable = function() {
             const tbody = document.getElementById('customers-tbody');
             if (!tbody) return;
             const q = (document.getElementById('customer-search-input')?.value || '').toLowerCase();
@@ -2080,11 +2220,11 @@
                 <td class="p-3 text-right font-bold text-emerald-600">${c.points || 0} Pts</td>
                 <td class="p-3 text-right font-extrabold">Rp ${(Number(c.total_tx) || 0).toLocaleString('id-ID')}</td>
                 <td class="p-3 text-center">
-                    <button onclick="openCustomerModal('${c.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="deleteCustomer('${c.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
+                    <button onclick="window.openCustomerModal('${c.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="window.deleteCustomer('${c.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>`).join('');
-        }
+        };
 
         window.openCustomerModal = function(id = null) {
             document.getElementById('customer-modal-title').innerText = id ? "Edit Member" : "Tambah Member Baru";
@@ -2114,16 +2254,16 @@
             const idx = customers.findIndex(c => c.id === id);
             if (idx >= 0) customers[idx] = { ...customers[idx], ...custData }; else customers.unshift(custData);
             if (supabaseClient) { try { await supabaseClient.from('customers').upsert([custData]); } catch (e) {} }
-            window.saveLocalStorageData(); renderCustomersTable(); window.filterCartCustomerDropdown(''); closeCustomerModal(); window.showNotification("Member disimpan!", "success");
+            window.saveLocalStorageData(); window.renderCustomersTable(); window.filterCartCustomerDropdown(''); window.closeCustomerModal(); window.showNotification("Member disimpan!", "success");
         };
 
         window.deleteCustomer = async function(id) {
             customers = customers.filter(c => c.id !== id);
             if (supabaseClient) { try { await supabaseClient.from('customers').delete().eq('id', id); } catch (e) {} }
-            window.saveLocalStorageData(); renderCustomersTable(); window.filterCartCustomerDropdown(''); window.showNotification("Member dihapus", "info");
+            window.saveLocalStorageData(); window.renderCustomersTable(); window.filterCartCustomerDropdown(''); window.showNotification("Member dihapus", "info");
         };
 
-        function renderVouchersTable() {
+        window.renderVouchersTable = function() {
             const tbody = document.getElementById('vouchers-tbody');
             if (!tbody) return;
             const q = (document.getElementById('voucher-search-input')?.value || '').toLowerCase();
@@ -2141,12 +2281,12 @@
                     <td class="p-3 text-center text-xs">Rp ${Number(v.min_purchase || 0).toLocaleString('id-ID')}</td>
                     <td class="p-3 text-center"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${v.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100'}">${v.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
                     <td class="p-3 text-center">
-                        <button onclick="openVoucherModal('${v.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteVoucher('${v.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="window.openVoucherModal('${v.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="window.deleteVoucher('${v.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
             }).join('');
-        }
+        };
 
         window.populateVoucherTargetDropdowns = function(selected = {}) {
             const categories = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
@@ -2196,9 +2336,10 @@
                 selectedCriteria = { category: 'Semua', brand: 'Semua', family: 'Semua', promo: 'Semua' };
             }
             window.populateVoucherTargetDropdowns(selectedCriteria);
-            toggleVoucherTypeUI();
+            window.toggleVoucherTypeUI();
             document.getElementById('voucher-modal')?.classList.remove('hidden');
         };
+
         window.closeVoucherModal = function() { document.getElementById('voucher-modal')?.classList.add('hidden'); };
 
         window.toggleVoucherTypeUI = function() {
@@ -2246,19 +2387,19 @@
             if (idx >= 0) vouchers[idx] = vouchData; else vouchers.unshift(vouchData);
             if (supabaseClient) { try { await supabaseClient.from('vouchers').upsert([vouchData]); } catch (e) {} }
             window.saveLocalStorageData();
-            renderVouchersTable();
-            renderCartVoucherDropdown();
-            closeVoucherModal();
+            window.renderVouchersTable();
+            window.renderCartVoucherDropdown();
+            window.closeVoucherModal();
             window.showNotification("Pengaturan promo disimpan!", "success");
         };
 
         window.deleteVoucher = async function(id) {
             vouchers = vouchers.filter(v => v.id !== id);
             if (supabaseClient) { try { await supabaseClient.from('vouchers').delete().eq('id', id); } catch (e) {} }
-            window.saveLocalStorageData(); renderVouchersTable(); renderCartVoucherDropdown(); window.showNotification("Promo dihapus", "info");
+            window.saveLocalStorageData(); window.renderVouchersTable(); window.renderCartVoucherDropdown(); window.showNotification("Promo dihapus", "info");
         };
 
-        function renderHistoryTable() {
+        window.renderHistoryTable = function() {
             const tbody = document.getElementById('history-tbody');
             if (!tbody) return;
             document.getElementById('history-count').innerText = `${transactions.length} Transaksi`;
@@ -2269,27 +2410,27 @@
                 <td class="p-3 font-semibold">${tx.customer_name || 'Pelanggan Umum'}</td>
                 <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-[10px]">${tx.payment_method || 'Tunai'}</span></td>
                 <td class="p-3 text-right font-black">Rp ${(Number(tx.total) || 0).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center"><button onclick="viewTransactionReceipt('${tx.id}')" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold text-[11px]"><i class="fa-solid fa-receipt mr-1"></i> Struk</button></td>
+                <td class="p-3 text-center"><button onclick="window.viewTransactionReceipt('${tx.id}')" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold text-[11px]"><i class="fa-solid fa-receipt mr-1"></i> Struk</button></td>
             </tr>`).join('');
-        }
+        };
 
-        function exportTransactionsCSV() {
+        window.exportTransactionsCSV = function() {
             if (transactions.length === 0) { window.showNotification("Tidak ada data transaksi!", "warning"); return; }
             let csv = 'No. Nota,Tanggal,Kasir,Pelanggan,Metode,Subtotal,Diskon,Total,Bayar,Kembali\n';
             transactions.forEach(t => { csv += `"${t.id}","${t.created_at}","${t.cashier_name}","${t.customer_name}","${t.payment_method}",${t.subtotal},${t.discount},${t.total},${t.cash_paid},${t.change}\n`; });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `Laporan_${new Date().toISOString().split('T')[0]}.csv`; a.click();
-        }
+        };
 
-        function openBarcodeSheetModal() {
+        window.openBarcodeSheetModal = function() {
             const select = document.getElementById('barcode-prod-select');
             if (select) select.innerHTML = (products || []).map(p => `<option value="${p.id}">${p.name} (${p.barcode || p.sku || 'No Barcode'})</option>`).join('');
             document.getElementById('barcode-sheet-modal')?.classList.remove('hidden');
-        }
-        function closeBarcodeSheetModal() { document.getElementById('barcode-sheet-modal')?.classList.add('hidden'); }
+        };
+        window.closeBarcodeSheetModal = function() { document.getElementById('barcode-sheet-modal')?.classList.add('hidden'); };
 
-        function generateBarcodeSheetPreview() {
+        window.generateBarcodeSheetPreview = function() {
             const select = document.getElementById('barcode-prod-select');
             const qty = Number(document.getElementById('barcode-label-qty').value) || 9;
             const container = document.getElementById('printable-barcode-sheet');
@@ -2305,61 +2446,56 @@
                 container.appendChild(box);
                 try { JsBarcode(`#barcode-svg-${i}`, barcodeVal, { format: "CODE128", width: 1.2, height: 35, displayValue: true, fontSize: 10, margin: 2 }); } catch (e) {}
             }
-        }
+        };
 
-        function openCameraScanner() {
+        window.openCameraScanner = function() {
             document.getElementById('camera-modal')?.classList.remove('hidden');
             if (typeof Html5QrcodeScanner !== 'undefined') {
                 html5QrScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 220, height: 120 } });
                 html5QrScanner.render(decodedText => {
                     const prod = products.find(p => p.barcode === decodedText || p.sku === decodedText);
-                    if (prod) { addToCart(prod.id); closeCameraScanner(); }
+                    if (prod) { window.addToCart(prod.id); window.closeCameraScanner(); }
                     else window.showNotification(`Barang (${decodedText}) tidak ditemukan!`, "error");
                 }, err => {});
             }
-        }
-        function closeCameraScanner() { try { html5QrScanner?.clear(); } catch(e){} document.getElementById('camera-modal')?.classList.add('hidden'); }
+        };
+        window.closeCameraScanner = function() { try { html5QrScanner?.clear(); } catch(e){} document.getElementById('camera-modal')?.classList.add('hidden'); };
 
         window.initAuthSystem = function() {
-            populateLoginDropdown();
+            window.populateLoginDropdown();
             activeUser = userAccounts[0];
             currentRole = activeUser.role;
-            updateUserDisplayUI();
+            window.updateUserDisplayUI();
         };
 
-        function populateLoginDropdown() {
+        window.populateLoginDropdown = function() {
             const select = document.getElementById('login-username');
             if (!select) return;
             select.innerHTML = (userAccounts || []).map(u => `<option value="${u.username}">${u.name} (${u.role === 'admin' ? 'Owner' : 'Kasir Staff'})</option>`).join('');
-        }
+        };
 
-        function openLoginModal() { populateLoginDropdown(); document.getElementById('login-pin').value = ''; document.getElementById('login-error-msg')?.classList.add('hidden'); document.getElementById('login-modal')?.classList.remove('hidden'); }
-        window.openLoginModal = openLoginModal;
-        function closeLoginModal() { document.getElementById('login-modal')?.classList.add('hidden'); }
+        window.openLoginModal = function() { window.populateLoginDropdown(); document.getElementById('login-pin').value = ''; document.getElementById('login-error-msg')?.classList.add('hidden'); document.getElementById('login-modal')?.classList.remove('hidden'); };
+        window.closeLoginModal = function() { document.getElementById('login-modal')?.classList.add('hidden'); };
 
-        function appendPin(num) { const inp = document.getElementById('login-pin'); if (inp && inp.value.length < 6) inp.value += num; }
-        window.appendPin = appendPin;
-        function clearPin() { const inp = document.getElementById('login-pin'); if (inp) inp.value = ''; }
-        window.clearPin = clearPin;
-        function deletePin() { const inp = document.getElementById('login-pin'); if (inp) inp.value = inp.value.slice(0, -1); }
-        window.deletePin = deletePin;
+        window.appendPin = function(num) { const inp = document.getElementById('login-pin'); if (inp && inp.value.length < 6) inp.value += num; };
+        window.clearPin = function() { const inp = document.getElementById('login-pin'); if (inp) inp.value = ''; };
+        window.deletePin = function() { const inp = document.getElementById('login-pin'); if (inp) inp.value = inp.value.slice(0, -1); };
 
-        function handleLoginSubmit(e) {
+        window.handleLoginSubmit = function(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value;
             const pin = document.getElementById('login-pin').value;
             const user = userAccounts.find(u => u.username === username && u.pin === pin);
             if (user) {
                 activeUser = user; currentRole = user.role;
-                updateUserDisplayUI(); closeLoginModal();
+                window.updateUserDisplayUI(); window.closeLoginModal();
                 window.showNotification(`Selamat datang, ${user.name}!`, "success");
             } else {
                 document.getElementById('login-error-msg')?.classList.remove('hidden');
             }
-        }
-        window.handleLoginSubmit = handleLoginSubmit;
+        };
 
-        function updateUserDisplayUI() {
+        window.updateUserDisplayUI = function() {
             document.getElementById('user-display-name').innerText = activeUser ? activeUser.name : 'Admin';
             document.getElementById('user-display-role').innerText = currentRole === 'admin' ? 'Owner / Admin' : 'Kasir Staff';
             document.querySelectorAll('.nav-admin-only').forEach(nav => {
@@ -2367,14 +2503,14 @@
                 else nav.classList.add('hidden');
             });
             if (currentRole !== 'admin') window.location.hash = '#pos';
-        }
-
-        window.setupHashNavigation = function() {
-            window.addEventListener('hashchange', handleNavigation);
-            handleNavigation();
         };
 
-        function handleNavigation() {
+        window.setupHashNavigation = function() {
+            window.addEventListener('hashchange', window.handleNavigation);
+            window.handleNavigation();
+        };
+
+        window.handleNavigation = function() {
             const hash = window.location.hash || '#pos';
             if (currentRole !== 'admin' && hash !== '#pos') { window.location.hash = '#pos'; window.showNotification("Akses Terbatas untuk Kasir!", "warning"); return; }
             document.querySelectorAll('.view-page').forEach(p => p.classList.add('hidden'));
@@ -2383,7 +2519,7 @@
             document.querySelectorAll('nav a, div.lg\\:hidden a').forEach(a => { a.classList.remove('bg-blue-600', 'text-white'); a.classList.add('text-slate-400'); });
             const activeLink = document.getElementById(`nav-link-${hash.replace('#', '')}`);
             if (activeLink) { activeLink.classList.remove('text-slate-400'); activeLink.classList.add('bg-blue-600', 'text-white'); }
-        }
+        };
 
         window.openStoreModal = function() { if (currentRole !== 'admin') { window.showNotification("Khusus Owner / Admin!", "warning"); return; } window.location.hash = '#settings'; };
         window.changeBranch = function() { window.showNotification(`Cabang diubah ke: ${document.getElementById('branch-select').value}`, "info"); };
@@ -2408,12 +2544,12 @@
             try { window.initAuthSystem(); } catch(e){}
 
             try { window.filterCartCustomerDropdown(''); } catch(e){}
-            try { renderCartVoucherDropdown(); } catch(e){}
-            try { renderAdminProductsTable(); } catch(e){}
-            try { renderCustomersTable(); } catch(e){}
-            try { renderVouchersTable(); } catch(e){}
-            try { renderHistoryTable(); } catch(e){}
-            try { renderProductGrid(); } catch(e){}
+            try { window.renderCartVoucherDropdown(); } catch(e){}
+            try { window.renderAdminProductsTable(); } catch(e){}
+            try { window.renderCustomersTable(); } catch(e){}
+            try { window.renderVouchersTable(); } catch(e){}
+            try { window.renderHistoryTable(); } catch(e){}
+            try { window.renderProductGrid(); } catch(e){}
             try { window.initCharts(); } catch(e){}
             try { if (supabaseClient) window.syncWithSupabase(); } catch(e){}
         });
