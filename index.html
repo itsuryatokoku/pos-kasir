@@ -2620,11 +2620,30 @@
         window.updateUserDisplayUI = function() {
             document.getElementById('user-display-name').innerText = activeUser ? activeUser.name : 'Belum Login';
             document.getElementById('user-display-role').innerText = activeUser ? (currentRole === 'admin' ? 'Owner / Admin' : 'Kasir Staff') : 'Sistem Terkunci';
-            document.querySelectorAll('.nav-admin-only').forEach(nav => {
-                if (currentRole === 'admin') nav.classList.remove('hidden');
-                else nav.classList.add('hidden');
-            });
-            if (!activeUser || currentRole !== 'admin') window.location.hash = '#pos';
+
+            const perms = (activeUser && activeUser.permissions) || {};
+            const isAdmin = currentRole === 'admin';
+
+            // Helper to toggle visibility for desktop and mobile nav items based on user permissions
+            const toggleNav = (idDesktop, idMobile, hasAccess) => {
+                const elDesk = document.getElementById(idDesktop);
+                const elMob = document.getElementById(idMobile);
+                if (hasAccess) {
+                    elDesk?.classList.remove('hidden');
+                    elMob?.classList.remove('hidden');
+                } else {
+                    elDesk?.classList.add('hidden');
+                    elMob?.classList.add('hidden');
+                }
+            };
+
+            toggleNav('nav-link-products', 'mobile-nav-products', isAdmin || perms.products);
+            toggleNav('nav-link-customers', 'mobile-nav-customers', isAdmin || perms.customers);
+            toggleNav('nav-link-vouchers', 'mobile-nav-vouchers', isAdmin || perms.vouchers);
+            toggleNav('nav-link-history', 'mobile-nav-history', isAdmin || perms.history);
+            toggleNav('nav-link-settings', 'mobile-nav-settings', isAdmin);
+
+            window.handleNavigation();
         };
 
         window.setupHashNavigation = function() {
@@ -2634,13 +2653,35 @@
 
         window.handleNavigation = function() {
             const hash = window.location.hash || '#pos';
-            if (currentRole !== 'admin' && hash !== '#pos') { window.location.hash = '#pos'; window.showNotification("Akses Terbatas untuk Kasir!", "warning"); return; }
-            document.querySelectorAll('.view-page').forEach(p => p.classList.add('hidden'));
-            document.getElementById('view-' + hash.replace('#', ''))?.classList.remove('hidden');
+            const page = hash.replace('#', '');
+            const perms = (activeUser && activeUser.permissions) || {};
+            const isAdmin = currentRole === 'admin';
 
-            document.querySelectorAll('nav a, div.lg\\:hidden a').forEach(a => { a.classList.remove('bg-blue-600', 'text-white'); a.classList.add('text-slate-400'); });
-            const activeLink = document.getElementById('nav-link-' + hash.replace('#', ''));
+            let canAccess = false;
+            if (page === 'pos') canAccess = true;
+            else if (page === 'products') canAccess = isAdmin || !!perms.products;
+            else if (page === 'customers') canAccess = isAdmin || !!perms.customers;
+            else if (page === 'vouchers') canAccess = isAdmin || !!perms.vouchers;
+            else if (page === 'history') canAccess = isAdmin || !!perms.history;
+            else if (page === 'settings') canAccess = isAdmin;
+
+            if (!canAccess) {
+                window.location.hash = '#pos';
+                window.showNotification("Akses menu " + page + " terbatas untuk akun Anda!", "warning");
+                return;
+            }
+
+            document.querySelectorAll('.view-page').forEach(p => p.classList.add('hidden'));
+            document.getElementById('view-' + page)?.classList.remove('hidden');
+
+            document.querySelectorAll('nav a, div.lg\\:hidden a').forEach(a => { 
+                a.classList.remove('bg-blue-600', 'text-white'); 
+                a.classList.add('text-slate-400'); 
+            });
+            const activeLink = document.getElementById('nav-link-' + page);
+            const activeMobLink = document.getElementById('mobile-nav-' + page);
             if (activeLink) { activeLink.classList.remove('text-slate-400'); activeLink.classList.add('bg-blue-600', 'text-white'); }
+            if (activeMobLink) { activeMobLink.classList.remove('text-slate-400'); activeMobLink.classList.add('bg-blue-600', 'text-white'); }
         };
 
         window.openStoreModal = function() { if (currentRole !== 'admin') { window.showNotification("Khusus Owner / Admin!", "warning"); return; } window.location.hash = '#settings'; };
