@@ -2431,39 +2431,62 @@
 
         window.handleVoucherSubmit = async function(e) {
             e.preventDefault();
-            const id = document.getElementById('vouch-id').value || 'vouch-' + Date.now();
+            const rawId = document.getElementById('vouch-id').value;
+            const id = rawId ? rawId : window.generateUUID();
             const pType = document.getElementById('vouch-promo-type').value;
             const benefitType = pType === 'bogo' ? 'bogo' : 'discount';
+            const validUntilVal = document.getElementById('vouch-valid-until').value;
 
             const vouchData = {
-                id,
+                id: id,
                 promo_type: pType,
-                code: document.getElementById('vouch-code').value.toUpperCase() || ('PROMO-' + Date.now().toString().slice(-4)),
-                title: document.getElementById('vouch-title').value,
+                code: (document.getElementById('vouch-code').value || ('PROMO' + Date.now().toString().slice(-4))).toUpperCase().trim(),
+                title: document.getElementById('vouch-title').value.trim(),
                 benefit_type: benefitType,
                 type: document.getElementById('vouch-type').value,
                 value: Number(document.getElementById('vouch-value').value) || 0,
                 max_discount: Number(document.getElementById('vouch-max-discount').value) || 0,
-                buy_qty: Number(document.getElementById('vouch-buy-qty').value) || 2,
+                buy_qty: Number(document.getElementById('vouch-buy-qty').value) || 1,
                 get_qty: Number(document.getElementById('vouch-get-qty').value) || 1,
                 target_category: document.getElementById('vouch-target-category').value || 'Semua',
                 target_brand: document.getElementById('vouch-target-brand').value || 'Semua',
                 target_family: document.getElementById('vouch-target-family').value || 'Semua',
                 target_promo: document.getElementById('vouch-target-promo').value || 'Semua',
                 min_purchase: Number(document.getElementById('vouch-min-purchase').value) || 0,
-                min_purchase_scope: document.getElementById('vouch-min-purchase-scope').value,
-                valid_until: document.getElementById('vouch-valid-until').value,
+                min_purchase_scope: document.getElementById('vouch-min-purchase-scope').value || 'total',
+                valid_until: validUntilVal ? validUntilVal : null,
                 usage_limit: Number(document.getElementById('vouch-usage-limit').value) || 0,
                 is_active: true
             };
-            const idx = vouchers.findIndex(v => v.id === id);
-            if (idx >= 0) vouchers[idx] = vouchData; else vouchers.unshift(vouchData);
-            if (supabaseClient) { try { await supabaseClient.from('vouchers').upsert([vouchData]); } catch (e) {} }
+
+            const idx = vouchers.findIndex(v => v.id === id || v.code === vouchData.code);
+            if (idx >= 0) {
+                vouchers[idx] = { ...vouchers[idx], ...vouchData };
+            } else {
+                vouchers.unshift(vouchData);
+            }
+
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from('vouchers').upsert([vouchData]);
+                    if (error) {
+                        console.error("Supabase Voucher Save Error:", error);
+                        window.showNotification("Simpan lokal berhasil (Cloud Warning: " + error.message + ")", "warning");
+                    }
+                } catch (err) {
+                    console.error("Cloud error:", err);
+                }
+            }
+
             window.saveLocalStorageData();
             window.renderVouchersTable();
             window.renderCartVoucherDropdown();
+            window.renderProductGrid();
+            if (typeof window.calculateCartTotals === 'function') {
+                window.calculateCartTotals();
+            }
             window.closeVoucherModal();
-            window.showNotification("Pengaturan promo disimpan!", "success");
+            window.showNotification("Pengaturan promo berhasil disimpan!", "success");
         };
 
         window.deleteVoucher = async function(id) {
