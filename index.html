@@ -95,41 +95,11 @@
             </a>
         </nav>
 
-        <div class="flex items-center space-x-1.5 sm:space-x-3">
-            <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700/60 rounded-xl p-1 text-xs">
-                <i class="fa-solid fa-store text-amber-400 ml-1.5 mr-1 text-xs"></i>
-                <select id="branch-select" onchange="window.changeBranch()" class="bg-transparent text-white font-bold text-[11px] focus:outline-none cursor-pointer pr-1">
-                    <option value="Pusat Utama" class="bg-slate-800 text-white">Cabang: Pusat</option>
-                    <option value="Cabang Susukanlebak" class="bg-slate-800 text-white">Cabang: Susukanlebak</option>
-                    <option value="Cabang Cirebon" class="bg-slate-800 text-white">Cabang: Cirebon</option>
-                </select>
-            </div>
-
-            <button onclick="window.checkCloudStatusOrPrompt()" id="cloud-status-badge" title="Status Koneksi Database Cloud Supabase" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2 py-1 rounded-xl text-[10px] sm:text-xs font-bold transition">
-                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span id="cloud-status-text" class="text-emerald-300">Cloud Online</span>
-            </button>
-
-            <div class="flex items-center gap-1.5 bg-slate-800 border border-slate-700/60 rounded-xl px-2 py-1 text-xs">
-                <i class="fa-solid fa-user-circle text-blue-400 text-sm"></i>
-                <div class="hidden sm:flex flex-col text-left">
-                    <span id="user-display-name" class="font-bold text-white text-[11px] leading-tight">Admin</span>
-                    <span id="user-display-role" class="text-[9px] text-blue-300 font-semibold uppercase">Owner/Admin</span>
-                </div>
-                <button onclick="window.openLoginModal()" title="Ganti Akun / Logout" class="ml-1 text-slate-400 hover:text-red-400 transition p-1">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-
-            <button onclick="window.connectBluetoothPrinter()" id="bt-printer-btn" title="Koneksi Printer Bluetooth Thermal" class="hidden sm:flex items-center gap-1.5 bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white transition shadow">
-                <i class="fa-solid fa-print"></i>
-                <span class="hidden xl:inline" id="bt-printer-status">BT Printer</span>
-            </button>
-
-            <button onclick="window.syncWithSupabase()" id="sync-btn" title="Sinkronkan Data dengan Supabase Cloud" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 transition text-slate-300 relative">
-                <i class="fa-solid fa-rotate" id="sync-icon"></i>
-                <span class="hidden lg:inline">Sync</span>
-            </button>
+        <div class="flex items-center space-x-2">
+            <a href="#settings" title="Pengaturan System & Perangkat" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 border border-slate-700 transition">
+                <i class="fa-solid fa-gear text-blue-400"></i>
+                <span class="hidden sm:inline">Pengaturan</span>
+            </a>
         </div>
     </header>
 
@@ -156,6 +126,7 @@
             </div>
 
             <div class="flex-1 flex flex-col md:flex-row overflow-hidden w-full h-full min-h-0">
+                <!-- Catalog Section -->
                 <section id="pos-catalog-section" class="flex flex-1 p-3 sm:p-4 flex-col gap-2.5 overflow-hidden bg-white border-r border-slate-200 w-full h-full min-h-0">
                     <div class="flex gap-2 shrink-0">
                         <div class="relative flex-1">
@@ -180,6 +151,7 @@
                     <div id="product-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 p-1 min-h-0"></div>
                 </section>
 
+                <!-- Cart Section -->
                 <section id="pos-cart-section" class="hidden md:flex w-full md:w-80 lg:w-96 bg-slate-50 flex-col h-full border-t md:border-t-0 md:border-l border-slate-200 shrink-0 min-h-0">
                     <div class="p-3 bg-slate-800 text-white flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-2">
@@ -444,8 +416,70 @@
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center flex-wrap gap-2">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir & Hak Akses</h2>
-                    <p class="text-xs text-slate-500">Kelola profil toko, kustomisasi struk, manajemen akun kasir, & koneksi database cloud Supabase.</p>
+                    <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir & Perangkat</h2>
+                    <p class="text-xs text-slate-500">Kelola status cloud, printer Bluetooth, cabang, profil toko, kustomisasi struk, & akun kasir.</p>
+                </div>
+            </div>
+
+            <!-- Operational Devices & Status Dashboard Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="font-bold text-sm text-slate-800 border-b pb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-600"></i> Status Operasional, Perangkat & Cabang
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <!-- Status Cloud Supabase & Sync -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">Status Cloud Supabase</span>
+                        <div class="flex items-center justify-between gap-1">
+                            <button onclick="window.checkCloudStatusOrPrompt()" id="cloud-status-badge" title="Status Koneksi Database Cloud Supabase" class="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-2 py-1 rounded-xl text-xs font-bold shrink-0">
+                                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="cloud-status-text" class="text-emerald-300">Cloud Online</span>
+                            </button>
+                            <button onclick="window.syncWithSupabase()" id="sync-btn" title="Sinkronkan Data dengan Supabase Cloud" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-xl text-xs font-bold shadow transition shrink-0">
+                                <i class="fa-solid fa-rotate" id="sync-icon"></i>
+                                <span>Sync</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Koneksi Printer Thermal -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">Printer Thermal Bluetooth</span>
+                        <button onclick="window.connectBluetoothPrinter()" id="bt-printer-btn" title="Koneksi Printer Bluetooth Thermal" class="flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-600 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition shadow w-full">
+                            <i class="fa-solid fa-print"></i>
+                            <span id="bt-printer-status">BT Printer</span>
+                        </button>
+                    </div>
+
+                    <!-- Pilih Cabang Aktif -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">Cabang Toko Aktif</span>
+                        <div class="flex items-center bg-white border border-slate-300 rounded-xl px-2 py-1 text-xs">
+                            <i class="fa-solid fa-store text-amber-500 mr-2"></i>
+                            <select id="branch-select" onchange="window.changeBranch()" class="bg-transparent text-slate-800 font-bold text-xs focus:outline-none cursor-pointer w-full">
+                                <option value="Pusat Utama">Cabang: Pusat</option>
+                                <option value="Cabang Susukanlebak">Cabang: Susukanlebak</option>
+                                <option value="Cabang Cirebon">Cabang: Cirebon</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Akun User Terhubung & Logout -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">Akun Terhubung</span>
+                        <div class="flex items-center justify-between bg-white border border-slate-300 rounded-xl px-2 py-1">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <i class="fa-solid fa-user-circle text-blue-500 text-base shrink-0"></i>
+                                <div class="flex flex-col text-left truncate">
+                                    <span id="user-display-name" class="font-bold text-slate-800 text-xs truncate">Admin</span>
+                                    <span id="user-display-role" class="text-[9px] text-blue-600 font-bold uppercase truncate">Owner/Admin</span>
+                                </div>
+                            </div>
+                            <button onclick="window.openLoginModal()" title="Ganti Akun / Logout" class="text-slate-400 hover:text-red-500 p-1 font-bold shrink-0">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -932,7 +966,7 @@
                 </div>
                 <div class="text-[11px] space-y-0.5">
                     <div class="flex justify-between items-baseline"><span>No. Nota:</span><span id="rec-id" class="font-bold text-right ml-auto">TRX-001</span></div>
-                    <div class="flex justify-between items-baseline"><span>Tanggal:</span><span id="rec-date" class="text-right ml-auto">2026-09-24</span></div>
+                    <div class="flex justify-between items-baseline"><span>Tanggal:</span><span id="rec-date" class="text-right ml-auto">2026-09-25</span></div>
                     <div class="flex justify-between items-baseline"><span>Kasir:</span><span id="rec-cashier" class="text-right ml-auto">Admin</span></div>
                     <div class="flex justify-between items-baseline"><span>Pelanggan:</span><span id="rec-customer" class="text-right ml-auto">Pelanggan Umum</span></div>
                 </div>
@@ -1084,7 +1118,7 @@
 
         const defaultCustomers = [
             { id: 'cust-1', member_number: 'MBR-001', name: 'Ahmad Dahlan', phone: '081234567890', address: 'Jl. Pemuda No. 12', birth_date: '1990-05-15', type: 'VIP', points: 150, total_tx: 550000 },
-            { id: 'cust-2', member_number: 'MBR-002', name: 'Siti Nurhaliza', phone: '085678901234', address: 'Jl. Merdeka No. 45', birth_date: '1995-09-24', type: 'Regular', points: 40, total_tx: 180000 }
+            { id: 'cust-2', member_number: 'MBR-002', name: 'Siti Nurhaliza', phone: '085678901234', address: 'Jl. Merdeka No. 45', birth_date: '1995-09-25', type: 'Regular', points: 40, total_tx: 180000 }
         ];
 
         const defaultVouchers = [
@@ -1129,8 +1163,8 @@
             if (!container) return;
             const toast = document.createElement('div');
             const colors = { success: 'bg-emerald-600 text-white', error: 'bg-red-600 text-white', warning: 'bg-amber-500 text-white', info: 'bg-blue-600 text-white' };
-            toast.className = `px-4 py-2.5 rounded-xl shadow-lg text-xs font-bold transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 ${colors[type] || colors.info}`;
-            toast.innerHTML = `<span>${message}</span>`;
+            toast.className = 'px-4 py-2.5 rounded-xl shadow-lg text-xs font-bold transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 ' + (colors[type] || colors.info);
+            toast.innerHTML = '<span>' + message + '</span>';
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
             setTimeout(() => {
@@ -1224,11 +1258,11 @@
             if (customer) {
                 if (badge) {
                     badge.className = 'bg-blue-50 border border-blue-200 rounded-xl p-2 text-xs flex justify-between items-center mt-1';
-                    badge.innerHTML = `<div>
-                        <div class="font-bold text-blue-900">${customer.name} <span class="text-[10px] bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded font-semibold ml-1">${customer.type || 'Regular'}</span></div>
-                        <div class="text-[10px] text-blue-600 font-mono">${customer.member_number || '-'} • ${customer.phone || '-'} • <strong class="text-emerald-600">${customer.points || 0} Pts</strong></div>
-                    </div>
-                    <button onclick="window.clearSelectedCartCustomer()" class="text-slate-400 hover:text-red-500 font-bold px-1.5 py-0.5 text-xs" title="Lepas Member"><i class="fa-solid fa-xmark"></i></button>`;
+                    badge.innerHTML = '<div>' +
+                        '<div class="font-bold text-blue-900">' + customer.name + ' <span class="text-[10px] bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded font-semibold ml-1">' + (customer.type || 'Regular') + '</span></div>' +
+                        '<div class="text-[10px] text-blue-600 font-mono">' + (customer.member_number || '-') + ' • ' + (customer.phone || '-') + ' • <strong class="text-emerald-600">' + (customer.points || 0) + ' Pts</strong></div>' +
+                    '</div>' +
+                    '<button onclick="window.clearSelectedCartCustomer()" class="text-slate-400 hover:text-red-500 font-bold px-1.5 py-0.5 text-xs" title="Lepas Member"><i class="fa-solid fa-xmark"></i></button>';
                 }
                 if (birthdayBanner && customer.birth_date) {
                     const today = new Date();
@@ -1262,7 +1296,7 @@
             filtered.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.id || c.member_number;
-                opt.textContent = `${c.member_number || 'MBR'} | ${c.name} | ${c.phone || '-'}`;
+                opt.textContent = (c.member_number || 'MBR') + ' | ' + c.name + ' | ' + (c.phone || '-');
                 select.appendChild(opt);
             });
             if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
@@ -1433,17 +1467,28 @@
                 if (perms.vouchers) permLabels.push('Voucher');
                 if (perms.history) permLabels.push('Laporan');
 
-                return `<tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="p-2.5 font-mono font-bold text-blue-600">${u.username}</td>
-                    <td class="p-2.5 font-bold text-slate-800">${u.name}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${u.role === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700'}">${u.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff'}</span></td>
-                    <td class="p-2.5 text-center font-mono font-bold tracking-widest text-slate-600">••••</td>
-                    <td class="p-2.5">${u.role === 'admin' ? '<span class="text-emerald-600 font-bold text-[10px]">Akses Penuh</span>' : (permLabels.length > 0 ? permLabels.map(l => `<span class="inline-block bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-semibold mr-1">${l}</span>`).join('') : '<span class="text-slate-400 text-[10px]">Hanya Kasir (POS)</span>')}</td>
-                    <td class="p-2.5 text-center">
-                        <button onclick="window.openUserModal('${u.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                        ${u.username !== 'admin' ? `<button onclick="window.deleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-1 ml-1"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    </td>
-                </tr>`;
+                let permHTML = '';
+                if (u.role === 'admin') {
+                    permHTML = '<span class="text-emerald-600 font-bold text-[10px]">Akses Penuh</span>';
+                } else if (permLabels.length > 0) {
+                    permHTML = permLabels.map(l => '<span class="inline-block bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-semibold mr-1">' + l + '</span>').join('');
+                } else {
+                    permHTML = '<span class="text-slate-400 text-[10px]">Hanya Kasir (POS)</span>';
+                }
+
+                const deleteBtn = u.username !== 'admin' ? '<button onclick="window.deleteUser(\'' + u.id + '\')" class="text-red-500 hover:text-red-700 p-1 ml-1"><i class="fa-solid fa-trash"></i></button>' : '';
+
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-2.5 font-mono font-bold text-blue-600">' + u.username + '</td>' +
+                    '<td class="p-2.5 font-bold text-slate-800">' + u.name + '</td>' +
+                    '<td class="p-2.5"><span class="px-2 py-0.5 rounded font-bold text-[10px] ' + (u.role === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700') + '">' + (u.role === 'admin' ? 'Owner / Admin' : 'Kasir Staff') + '</span></td>' +
+                    '<td class="p-2.5 text-center font-mono font-bold tracking-widest text-slate-600">••••</td>' +
+                    '<td class="p-2.5">' + permHTML + '</td>' +
+                    '<td class="p-2.5 text-center">' +
+                        '<button onclick="window.openUserModal(\'' + u.id + '\')" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                        deleteBtn +
+                    '</td>' +
+                '</tr>';
             }).join('');
         };
 
@@ -1510,7 +1555,7 @@
             window.saveLocalStorageData();
             window.renderUsersTable();
             window.closeUserModal();
-            window.showNotification(`Akun ${username} disimpan!`, "success");
+            window.showNotification("Akun " + username + " disimpan!", "success");
         };
 
         window.deleteUser = async function(id) {
@@ -1561,7 +1606,7 @@
             const url = window.sanitizeSupabaseUrl(document.getElementById('setting-supabase-url').value);
             const key = document.getElementById('setting-supabase-key').value.trim();
             if (!url || !key) { window.showNotification("Isi URL & Key Supabase terlebih dahulu!", "warning"); return; }
-            const link = `${window.location.origin}${window.location.pathname}?supa_url=${encodeURIComponent(url)}&supa_key=${encodeURIComponent(key)}`;
+            const link = window.location.origin + window.location.pathname + '?supa_url=' + encodeURIComponent(url) + '&supa_key=' + encodeURIComponent(key);
             if (navigator.clipboard) { navigator.clipboard.writeText(link); window.showNotification("Link koneksi HP disalin ke Clipboard!", "success"); }
             else prompt("Salin Link Koneksi HP:", link);
         };
@@ -1576,11 +1621,11 @@
                 return matchCat && matchQuery;
             });
             const countEl = document.getElementById('product-count');
-            if (countEl) countEl.innerText = `${filtered.length} Produk`;
+            if (countEl) countEl.innerText = filtered.length + ' Produk';
             window.renderCategoryPills();
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 space-y-2"><i class="fa-solid fa-box-open text-4xl"></i><p class="text-xs">Produk tidak ditemukan</p></div>`;
+                grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 space-y-2"><i class="fa-solid fa-box-open text-4xl"></i><p class="text-xs">Produk tidak ditemukan</p></div>';
                 return;
             }
             grid.innerHTML = filtered.map(p => {
@@ -1590,7 +1635,6 @@
 
                 const badges = [];
 
-                // 1. Check Product's own promo string (Diskon Otomatis dari Tag Produk)
                 if (p.promo && p.promo !== 'Standard') {
                     if (p.promo.includes('Potongan')) {
                         const match = p.promo.match(/(\d+[\d\.]*)/);
@@ -1602,7 +1646,6 @@
                     badges.push({ type: 'discount', text: p.promo, icon: 'fa-tag', bg: 'bg-red-600' });
                 }
 
-                // 2. Check active promos matching this product (HANYA BOGO & DISKON OTOMATIS)
                 (vouchers || []).filter(v => v.is_active).forEach(v => {
                     const matchCat = !v.target_category || v.target_category === 'Semua' || (p.category || '').toLowerCase() === (v.target_category || '').toLowerCase();
                     const matchBrand = !v.target_brand || v.target_brand === 'Semua' || (p.brand || '').toLowerCase() === (v.target_brand || '').toLowerCase();
@@ -1615,7 +1658,7 @@
                             const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
                             badges.push({ 
                                 type: 'bogo', 
-                                text: `BOGO: Beli ${buyQ} Gratis ${getQ}`, 
+                                text: 'BOGO: Beli ' + buyQ + ' Gratis ' + getQ, 
                                 icon: 'fa-gift', 
                                 bg: 'bg-amber-500' 
                             });
@@ -1624,7 +1667,7 @@
                             if (v.max_discount && dVal > v.max_discount) dVal = v.max_discount;
                             displayPrice = Math.max(0, originalPrice - dVal);
                             
-                            const label = v.type === 'percentage' ? `Diskon ${v.value}%` : `Potongan Rp ${Number(v.value).toLocaleString('id-ID')}`;
+                            const label = v.type === 'percentage' ? ('Diskon ' + v.value + '%') : ('Potongan Rp ' + Number(v.value).toLocaleString('id-ID'));
                             if (!badges.some(b => b.text === label || b.text === p.promo)) {
                                 badges.push({ type: 'discount', text: label, icon: 'fa-tag', bg: 'bg-red-600' });
                             }
@@ -1635,29 +1678,36 @@
                 const uniqueBadges = Array.from(new Map(badges.map(b => [b.text, b])).values());
                 const hasDiscount = displayPrice < originalPrice;
 
-                return `<div onclick="window.addToCart('${p.id}')" class="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer relative group min-h-[175px]">
-                    ${uniqueBadges.length > 0 ? `
-                        <div class="absolute top-0 right-0 flex flex-col items-end gap-0.5 z-10 max-w-[80%]">
-                            ${uniqueBadges.map((b, idx) => `
-                                <span class="${b.bg} text-white text-[9px] font-black px-2 py-0.5 ${idx === 0 ? 'rounded-tr-2xl rounded-bl-xl' : 'rounded-l-lg'} shadow-sm truncate w-fit max-w-full">
-                                    <i class="fa-solid ${b.icon} mr-1"></i>${b.text}
-                                </span>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    <div class="space-y-1 pt-2 pr-2">
-                        <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md inline-block max-w-full truncate">${p.category || 'Umum'}</span>
-                        <h3 class="font-extrabold text-xs text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition">${p.name}</h3>
-                        <p class="text-[10px] font-mono text-slate-400 truncate">${p.barcode || p.sku || '-'}</p>
-                    </div>
-                    <div class="pt-2 border-t border-slate-100 flex items-end justify-between mt-2 gap-1 shrink-0">
-                        <div>
-                            <span class="text-xs sm:text-sm font-black text-blue-600 truncate block">Rp ${displayPrice.toLocaleString('id-ID')}</span>
-                            ${hasDiscount ? `<span class="text-[9px] text-slate-400 line-through">Rp ${originalPrice.toLocaleString('id-ID')}</span>` : ''}
-                        </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${stock > 10 ? 'bg-emerald-50 text-emerald-700' : (stock > 0 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600')}">Stok: ${stock}</span>
-                    </div>
-                </div>`;
+                let badgesHTML = '';
+                if (uniqueBadges.length > 0) {
+                    badgesHTML = '<div class="absolute top-0 right-0 flex flex-col items-end gap-0.5 z-10 max-w-[80%]">' +
+                        uniqueBadges.map((b, idx) => {
+                            const cornerClass = idx === 0 ? 'rounded-tr-2xl rounded-bl-xl' : 'rounded-l-lg';
+                            return '<span class="' + b.bg + ' text-white text-[9px] font-black px-2 py-0.5 ' + cornerClass + ' shadow-sm truncate w-fit max-w-full">' +
+                                '<i class="fa-solid ' + b.icon + ' mr-1"></i>' + b.text +
+                            '</span>';
+                        }).join('') +
+                    '</div>';
+                }
+
+                const priceStrikethrough = hasDiscount ? '<span class="text-[9px] text-slate-400 line-through">Rp ' + originalPrice.toLocaleString('id-ID') + '</span>' : '';
+                const stockBadgeClass = stock > 10 ? 'bg-emerald-50 text-emerald-700' : (stock > 0 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600');
+
+                return '<div onclick="window.addToCart(\'' + p.id + '\')" class="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer relative group min-h-[175px]">' +
+                    badgesHTML +
+                    '<div class="space-y-1 pt-2 pr-2">' +
+                        '<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md inline-block max-w-full truncate">' + (p.category || 'Umum') + '</span>' +
+                        '<h3 class="font-extrabold text-xs text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition">' + p.name + '</h3>' +
+                        '<p class="text-[10px] font-mono text-slate-400 truncate">' + (p.barcode || p.sku || '-') + '</p>' +
+                    '</div>' +
+                    '<div class="pt-2 border-t border-slate-100 flex items-end justify-between mt-2 gap-1 shrink-0">' +
+                        '<div>' +
+                            '<span class="text-xs sm:text-sm font-black text-blue-600 truncate block">Rp ' + displayPrice.toLocaleString('id-ID') + '</span>' +
+                            priceStrikethrough +
+                        '</div>' +
+                        '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ' + stockBadgeClass + '">Stok: ' + stock + '</span>' +
+                    '</div>' +
+                '</div>';
             }).join('');
         };
 
@@ -1665,7 +1715,10 @@
             const container = document.getElementById('category-pills');
             if (!container) return;
             const categories = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
-            container.innerHTML = categories.map(cat => `<button onclick="window.filterByCategory('${cat}')" class="px-3 py-1 rounded-xl font-bold transition shrink-0 text-xs ${cat === selectedCategory ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${cat}</button>`).join('');
+            container.innerHTML = categories.map(cat => {
+                const activeClass = cat === selectedCategory ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
+                return '<button onclick="window.filterByCategory(\'' + cat + '\')" class="px-3 py-1 rounded-xl font-bold transition shrink-0 text-xs ' + activeClass + '">' + cat + '</button>';
+            }).join('');
         };
 
         window.filterByCategory = function(cat) { selectedCategory = cat; window.renderProductGrid(); };
@@ -1805,7 +1858,7 @@
             }
             window.renderCartItems();
             window.calculateCartTotals();
-            window.showNotification(`+ ${product.name}`, "success");
+            window.showNotification("+ " + product.name, "success");
         };
 
         window.renderCartItems = function() {
@@ -1816,11 +1869,10 @@
             if (!container) return;
 
             if (cart.length === 0) {
-                container.innerHTML = `<div class="py-12 text-center text-slate-400 space-y-1"><i class="fa-solid fa-cart-flatbed text-3xl"></i><p class="text-xs">Keranjang belanja kosong</p></div>`;
+                container.innerHTML = '<div class="py-12 text-center text-slate-400 space-y-1"><i class="fa-solid fa-cart-flatbed text-3xl"></i><p class="text-xs">Keranjang belanja kosong</p></div>';
                 return;
             }
 
-            // Kombinasi voucher terpasang dan promo BOGO otomatis yang aktif
             const activeBogoPromos = [
                 ...(appliedVouchers || []),
                 ...(vouchers || []).filter(v => v.is_active && v.promo_type === 'automatic' && (v.benefit_type === 'bogo' || v.promo_type === 'bogo'))
@@ -1830,7 +1882,6 @@
                 let bogoDiscountForItem = 0;
                 let bogoBadgeHTML = '';
 
-                // Deduplikasi promo BOGO berdasarkan ID
                 const uniqueBogoPromos = Array.from(new Map(activeBogoPromos.map(v => [v.id, v])).values());
 
                 uniqueBogoPromos.forEach(v => {
@@ -1851,7 +1902,9 @@
                             const itemDiscVal = freeQty * item.price;
                             bogoDiscountForItem += itemDiscVal;
 
-                            bogoBadgeHTML += `<div class="text-[10px] text-amber-700 font-semibold bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded flex items-center gap-1 w-fit mt-0.5"><i class="fa-solid fa-gift text-amber-500"></i> <span>BOGO: Beli ${buyQ} Gratis ${getQ} (${freeQty}x Gratis -Rp ${itemDiscVal.toLocaleString('id-ID')})</span></div>`;
+                            bogoBadgeHTML += '<div class="text-[10px] text-amber-700 font-semibold bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded flex items-center gap-1 w-fit mt-0.5">' +
+                                '<i class="fa-solid fa-gift text-amber-500"></i> <span>BOGO: Beli ' + buyQ + ' Gratis ' + getQ + ' (' + freeQty + 'x Gratis -Rp ' + itemDiscVal.toLocaleString('id-ID') + ')</span>' +
+                            '</div>';
                         }
                     }
                 });
@@ -1860,26 +1913,34 @@
                 const totalItemDisc = (item.autoDiscount || 0) * item.qty;
                 const lineNetTotal = Math.max(0, (item.price * item.qty) - bogoDiscountForItem);
 
-                return `<div class="py-2.5 flex flex-col gap-1 border-b border-slate-100 text-xs">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-slate-800 truncate">${item.name}</h4>
-                            <div class="text-[10px] text-slate-500">Rp ${item.price.toLocaleString('id-ID')} x ${item.qty}</div>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="window.updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">-</button>
-                            <span class="w-6 text-center font-extrabold">${item.qty}</span>
-                            <button onclick="window.updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">+</button>
-                        </div>
-                        <div class="text-right min-w-[85px]">
-                            <div class="font-black text-slate-900 text-xs sm:text-sm">Rp ${lineNetTotal.toLocaleString('id-ID')}</div>
-                            ${(totalItemDisc > 0 || bogoDiscountForItem > 0) ? `<div class="text-[9px] text-slate-400 line-through">Rp ${lineGrossTotal.toLocaleString('id-ID')}</div>` : ''}
-                        </div>
-                        <button onclick="window.removeFromCart('${item.id}')" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    ${item.promoDesc ? `<div class="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded flex items-center gap-1 w-fit"><i class="fa-solid fa-tag"></i> <span>${item.promoDesc} ${totalItemDisc > 0 ? `(-Rp ${totalItemDisc.toLocaleString('id-ID')})` : ''}</span></div>` : ''}
-                    ${bogoBadgeHTML}
-                </div>`;
+                let promoBadgeHTML = '';
+                if (item.promoDesc) {
+                    const discText = totalItemDisc > 0 ? ' (-Rp ' + totalItemDisc.toLocaleString('id-ID') + ')' : '';
+                    promoBadgeHTML = '<div class="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded flex items-center gap-1 w-fit"><i class="fa-solid fa-tag"></i> <span>' + item.promoDesc + discText + '</span></div>';
+                }
+
+                const lineGrossDisplay = (totalItemDisc > 0 || bogoDiscountForItem > 0) ? '<div class="text-[9px] text-slate-400 line-through">Rp ' + lineGrossTotal.toLocaleString('id-ID') + '</div>' : '';
+
+                return '<div class="py-2.5 flex flex-col gap-1 border-b border-slate-100 text-xs">' +
+                    '<div class="flex items-center justify-between gap-2">' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<h4 class="font-bold text-slate-800 truncate">' + item.name + '</h4>' +
+                            '<div class="text-[10px] text-slate-500">Rp ' + item.price.toLocaleString('id-ID') + ' x ' + item.qty + '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-1.5 shrink-0">' +
+                            '<button onclick="window.updateCartQty(\'' + item.id + '\', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">-</button>' +
+                            '<span class="w-6 text-center font-extrabold">' + item.qty + '</span>' +
+                            '<button onclick="window.updateCartQty(\'' + item.id + '\', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">+</button>' +
+                        '</div>' +
+                        '<div class="text-right min-w-[85px]">' +
+                            '<div class="font-black text-slate-900 text-xs sm:text-sm">Rp ' + lineNetTotal.toLocaleString('id-ID') + '</div>' +
+                            lineGrossDisplay +
+                        '</div>' +
+                        '<button onclick="window.removeFromCart(\'' + item.id + '\')" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-xmark"></i></button>' +
+                    '</div>' +
+                    promoBadgeHTML +
+                    bogoBadgeHTML +
+                '</div>';
             }).join('');
         };
 
@@ -1927,15 +1988,15 @@
             const totalDiscount = manualDiscount + vipDiscount + voucherDiscount;
             const grandTotal = Math.max(0, netSubtotal - totalDiscount);
 
-            document.getElementById('cart-subtotal').innerText = `Rp ${grossSubtotal.toLocaleString('id-ID')}`;
-            document.getElementById('cart-grand-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+            document.getElementById('cart-subtotal').innerText = 'Rp ' + grossSubtotal.toLocaleString('id-ID');
+            document.getElementById('cart-grand-total').innerText = 'Rp ' + grandTotal.toLocaleString('id-ID');
             document.getElementById('btn-checkout').disabled = cart.length === 0;
 
             const toggleRow = (id, amt, amountId) => {
                 const row = document.getElementById(id);
                 if (amt > 0) {
                     row?.classList.remove('hidden');
-                    if (amountId) document.getElementById(amountId).innerText = `- Rp ${amt.toLocaleString('id-ID')}`;
+                    if (amountId) document.getElementById(amountId).innerText = '- Rp ' + amt.toLocaleString('id-ID');
                 } else {
                     row?.classList.add('hidden');
                 }
@@ -1959,7 +2020,7 @@
             const eligibleVouchers = (vouchers || []).filter(v => v.is_active && (v.promo_type === 'voucher' || v.promo_type === 'bogo') && window.isVoucherEligible(v, cart) && !appliedVouchers.some(av => av.id === v.id));
 
             if (countBadge) {
-                countBadge.innerText = `${eligibleVouchers.length} tersedia`;
+                countBadge.innerText = eligibleVouchers.length + ' tersedia';
                 if (eligibleVouchers.length > 0) {
                     countBadge.className = "bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full text-[9px] font-bold";
                 } else {
@@ -1976,10 +2037,10 @@
                 eligibleVouchers.forEach(v => {
                     const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
                     const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
-                    const labelStr = (v.promo_type === 'bogo' || v.benefit_type === 'bogo') ? `Beli ${buyQ} Gratis ${getQ}` : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'));
+                    const labelStr = (v.promo_type === 'bogo' || v.benefit_type === 'bogo') ? ('Beli ' + buyQ + ' Gratis ' + getQ) : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'));
                     const opt = document.createElement('option');
                     opt.value = v.id;
-                    opt.textContent = `${v.code} - ${v.title} (${labelStr})`;
+                    opt.textContent = v.code + ' - ' + v.title + ' (' + labelStr + ')';
                     select.appendChild(opt);
                 });
             }
@@ -2001,7 +2062,7 @@
             window.renderCartItems();
             window.calculateCartTotals();
             selectEl.value = "";
-            window.showNotification(`Voucher ${voucher.code} dipasang!`, "success");
+            window.showNotification("Voucher " + voucher.code + " dipasang!", "success");
         };
 
         window.renderAppliedVouchersUI = function() {
@@ -2009,10 +2070,13 @@
             if (!container) return;
             if (appliedVouchers.length === 0) { container.classList.add('hidden'); return; }
             container.classList.remove('hidden');
-            container.innerHTML = appliedVouchers.map(v => `<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-1.5 flex justify-between items-center text-xs">
-                <span class="font-bold text-indigo-900">${v.code} (${v.promo_type === 'bogo' ? 'BOGO' : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value)})</span>
-                <button onclick="window.removeVoucher('${v.id}')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>
-            </div>`).join('');
+            container.innerHTML = appliedVouchers.map(v => {
+                const labelStr = v.promo_type === 'bogo' ? 'BOGO' : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value);
+                return '<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-1.5 flex justify-between items-center text-xs">' +
+                    '<span class="font-bold text-indigo-900">' + v.code + ' (' + labelStr + ')</span>' +
+                    '<button onclick="window.removeVoucher(\'' + v.id + '\')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>' +
+                '</div>';
+            }).join('');
         };
 
         window.removeVoucher = function(id) { 
@@ -2021,19 +2085,6 @@
             window.renderCartItems();
             window.calculateCartTotals(); 
         };
-
-        window.renderAppliedVouchersUI = function() {
-            const container = document.getElementById('applied-vouchers-container');
-            if (!container) return;
-            if (appliedVouchers.length === 0) { container.classList.add('hidden'); return; }
-            container.classList.remove('hidden');
-            container.innerHTML = appliedVouchers.map(v => `<div class="bg-indigo-50 border border-indigo-200 rounded-lg p-1.5 flex justify-between items-center text-xs">
-                <span class="font-bold text-indigo-900">${v.code} (${v.promo_type === 'bogo' ? 'BOGO' : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + v.value)})</span>
-                <button onclick="window.removeVoucher('${v.id}')" class="text-slate-400 hover:text-red-500 font-bold px-1"><i class="fa-solid fa-xmark"></i></button>
-            </div>`).join('');
-        };
-
-        window.removeVoucher = function(id) { appliedVouchers = appliedVouchers.filter(v => v.id !== id); window.renderAppliedVouchersUI(); window.calculateCartTotals(); };
 
         window.openPaymentModal = function() {
             if (cart.length === 0) return;
@@ -2055,7 +2106,7 @@
         window.calculateChange = function() {
             const total = Number(document.getElementById('pay-modal-total').innerText.replace(/[^0-9]/g, '')) || 0;
             const cash = Number(document.getElementById('pay-cash-amount').value) || 0;
-            document.getElementById('pay-change-amount').innerText = `Rp ${Math.max(0, cash - total).toLocaleString('id-ID')}`;
+            document.getElementById('pay-change-amount').innerText = 'Rp ' + Math.max(0, cash - total).toLocaleString('id-ID');
         };
 
         window.processTransaction = async function() {
@@ -2126,11 +2177,14 @@
             document.getElementById('rec-cashier').innerText = tx.cashier_name || 'Admin';
             document.getElementById('rec-customer').innerText = tx.customer_name || 'Pelanggan Umum';
 
-            document.getElementById('rec-items-list').innerHTML = (tx.items || []).map(i => `<div class="flex justify-between items-baseline"><span>${i.qty}x ${i.name}</span><span class="font-bold text-right ml-auto">Rp ${(i.qty * i.price).toLocaleString('id-ID')}</span></div>`).join('');
-            document.getElementById('rec-subtotal').innerText = `Rp ${(tx.subtotal || 0).toLocaleString('id-ID')}`;
-            document.getElementById('rec-total').innerText = `Rp ${(tx.total || 0).toLocaleString('id-ID')}`;
-            document.getElementById('rec-paid').innerText = `Rp ${(tx.cash_paid || 0).toLocaleString('id-ID')}`;
-            document.getElementById('rec-change').innerText = `Rp ${(tx.change || 0).toLocaleString('id-ID')}`;
+            document.getElementById('rec-items-list').innerHTML = (tx.items || []).map(i => {
+                return '<div class="flex justify-between items-baseline"><span>' + i.qty + 'x ' + i.name + '</span><span class="font-bold text-right ml-auto">Rp ' + (i.qty * i.price).toLocaleString('id-ID') + '</span></div>';
+            }).join('');
+
+            document.getElementById('rec-subtotal').innerText = 'Rp ' + (tx.subtotal || 0).toLocaleString('id-ID');
+            document.getElementById('rec-total').innerText = 'Rp ' + (tx.total || 0).toLocaleString('id-ID');
+            document.getElementById('rec-paid').innerText = 'Rp ' + (tx.cash_paid || 0).toLocaleString('id-ID');
+            document.getElementById('rec-change').innerText = 'Rp ' + (tx.change || 0).toLocaleString('id-ID');
             document.getElementById('receipt-modal')?.classList.remove('hidden');
         };
 
@@ -2139,7 +2193,7 @@
 
         window.handleThermalPrintAction = function() { window.print(); };
         window.sendWhatsAppReceipt = function() {
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Terima kasih telah berbelanja di MY KSR!")}`, '_blank');
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent("Terima kasih telah berbelanja di MY KSR!"), '_blank');
         };
 
         window.renderAdminProductsTable = function() {
@@ -2148,25 +2202,28 @@
             const filterCat = document.getElementById('admin-category-filter');
             if (filterCat && filterCat.options.length === 0) {
                 const cats = ['Semua', ...new Set((products || []).map(p => p.category).filter(Boolean))];
-                filterCat.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+                filterCat.innerHTML = cats.map(c => '<option value="' + c + '">' + c + '</option>').join('');
             }
             const q = (document.getElementById('admin-search-input')?.value || '').toLowerCase();
             const cat = filterCat ? filterCat.value : 'Semua';
             const filtered = (products || []).filter(p => (cat === 'Semua' || p.category === cat) && (!q || p.name.toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q)));
-            tbody.innerHTML = filtered.map(p => `<tr class="border-b border-slate-100 hover:bg-slate-50">
-                <td class="p-3 font-mono font-bold">${p.sku || '-'}</td>
-                <td class="p-3 font-mono text-slate-500">${p.barcode || '-'}</td>
-                <td class="p-3 font-bold">${p.name}</td>
-                <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-[10px]">${p.category || '-'}</span></td>
-                <td class="p-3">${p.brand || '-'} / ${p.family || '-'}</td>
-                <td class="p-3"><span class="bg-red-50 text-red-600 px-2 py-0.5 rounded font-bold text-[10px]">${p.promo || 'Standard'}</span></td>
-                <td class="p-3 text-right font-extrabold text-blue-600">Rp ${(Number(p.selling_price) || 0).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center font-bold">${p.stock}</td>
-                <td class="p-3 text-center">
-                    <button onclick="window.openProductModal('${p.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="window.deleteProduct('${p.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>`).join('');
+            
+            tbody.innerHTML = filtered.map(p => {
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3 font-mono font-bold">' + (p.sku || '-') + '</td>' +
+                    '<td class="p-3 font-mono text-slate-500">' + (p.barcode || '-') + '</td>' +
+                    '<td class="p-3 font-bold">' + p.name + '</td>' +
+                    '<td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-[10px]">' + (p.category || '-') + '</span></td>' +
+                    '<td class="p-3">' + (p.brand || '-') + ' / ' + (p.family || '-') + '</td>' +
+                    '<td class="p-3"><span class="bg-red-50 text-red-600 px-2 py-0.5 rounded font-bold text-[10px]">' + (p.promo || 'Standard') + '</span></td>' +
+                    '<td class="p-3 text-right font-extrabold text-blue-600">Rp ' + (Number(p.selling_price) || 0).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3 text-center font-bold">' + p.stock + '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="window.openProductModal(\'' + p.id + '\')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button onclick="window.deleteProduct(\'' + p.id + '\')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
         };
 
         window.openProductModal = function(id = null) {
@@ -2191,6 +2248,7 @@
             }
             document.getElementById('product-modal')?.classList.remove('hidden');
         };
+
         window.closeProductModal = function() { document.getElementById('product-modal')?.classList.add('hidden'); };
 
         window.handleProductSubmit = async function(e) {
@@ -2216,19 +2274,21 @@
             if (!tbody) return;
             const q = (document.getElementById('customer-search-input')?.value || '').toLowerCase();
             const filtered = (customers || []).filter(c => !q || c.name.toLowerCase().includes(q) || (c.phone || '').includes(q));
-            tbody.innerHTML = filtered.map(c => `<tr class="border-b border-slate-100 hover:bg-slate-50">
-                <td class="p-3 font-mono font-bold text-blue-600">${c.member_number || '-'}</td>
-                <td class="p-3 font-bold">${c.name}</td>
-                <td class="p-3">${c.phone || '-'}</td>
-                <td class="p-3"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${c.type === 'VIP' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100'}">${c.type || 'Regular'}</span></td>
-                <td class="p-3 text-center">${c.birth_date || '-'}</td>
-                <td class="p-3 text-right font-bold text-emerald-600">${c.points || 0} Pts</td>
-                <td class="p-3 text-right font-extrabold">Rp ${(Number(c.total_tx) || 0).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center">
-                    <button onclick="window.openCustomerModal('${c.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="window.deleteCustomer('${c.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>`).join('');
+            tbody.innerHTML = filtered.map(c => {
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3 font-mono font-bold text-blue-600">' + (c.member_number || '-') + '</td>' +
+                    '<td class="p-3 font-bold">' + c.name + '</td>' +
+                    '<td class="p-3">' + (c.phone || '-') + '</td>' +
+                    '<td class="p-3"><span class="px-2 py-0.5 rounded font-bold text-[10px] ' + (c.type === 'VIP' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100') + '">' + (c.type || 'Regular') + '</span></td>' +
+                    '<td class="p-3 text-center">' + (c.birth_date || '-') + '</td>' +
+                    '<td class="p-3 text-right font-bold text-emerald-600">' + (c.points || 0) + ' Pts</td>' +
+                    '<td class="p-3 text-right font-extrabold">Rp ' + (Number(c.total_tx) || 0).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="window.openCustomerModal(\'' + c.id + '\')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button onclick="window.deleteCustomer(\'' + c.id + '\')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
         };
 
         window.openCustomerModal = function(id = null) {
@@ -2250,6 +2310,7 @@
             }
             document.getElementById('customer-modal')?.classList.remove('hidden');
         };
+
         window.closeCustomerModal = function() { document.getElementById('customer-modal')?.classList.add('hidden'); };
 
         window.handleCustomerSubmit = async function(e) {
@@ -2281,18 +2342,22 @@
                 const buyQ = (v.buy_qty !== undefined && v.buy_qty !== null) ? Number(v.buy_qty) : 2;
                 const getQ = (v.get_qty !== undefined && v.get_qty !== null) ? Number(v.get_qty) : 1;
 
-                return `<tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="p-3"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${v.promo_type === 'voucher' ? 'bg-indigo-100 text-indigo-700' : (v.promo_type === 'bogo' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700')}">${pTypeLabel}</span></td>
-                    <td class="p-3 font-mono font-bold">${v.code} <div class="text-[10px] text-slate-500 font-sans font-normal">${v.title}</div></td>
-                    <td class="p-3 text-slate-500">${v.target_category || 'Semua'} / ${v.target_brand || 'Semua'}</td>
-                    <td class="p-3 font-bold text-emerald-600">${(v.promo_type === 'bogo' || v.benefit_type === 'bogo') ? `Beli ${buyQ} Gratis ${getQ}` : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'))}</td>
-                    <td class="p-3 text-center text-xs">Rp ${Number(v.min_purchase || 0).toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${v.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100'}">${v.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
-                    <td class="p-3 text-center">
-                        <button onclick="window.openVoucherModal('${v.id}')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="window.deleteVoucher('${v.id}')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>`;
+                const badgeBg = v.promo_type === 'voucher' ? 'bg-indigo-100 text-indigo-700' : (v.promo_type === 'bogo' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700');
+                const benefitStr = (v.promo_type === 'bogo' || v.benefit_type === 'bogo') ? ('Beli ' + buyQ + ' Gratis ' + getQ) : (v.type === 'percentage' ? v.value + '%' : 'Rp ' + Number(v.value).toLocaleString('id-ID'));
+                const activeBadge = v.is_active ? '<span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">Aktif</span>' : '<span class="px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100">Nonaktif</span>';
+
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3"><span class="px-2 py-0.5 rounded font-bold text-[10px] ' + badgeBg + '">' + pTypeLabel + '</span></td>' +
+                    '<td class="p-3 font-mono font-bold">' + v.code + ' <div class="text-[10px] text-slate-500 font-sans font-normal">' + v.title + '</div></td>' +
+                    '<td class="p-3 text-slate-500">' + (v.target_category || 'Semua') + ' / ' + (v.target_brand || 'Semua') + '</td>' +
+                    '<td class="p-3 font-bold text-emerald-600">' + benefitStr + '</td>' +
+                    '<td class="p-3 text-center text-xs">Rp ' + Number(v.min_purchase || 0).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3 text-center">' + activeBadge + '</td>' +
+                    '<td class="p-3 text-center">' +
+                        '<button onclick="window.openVoucherModal(\'' + v.id + '\')" class="text-blue-600 px-1.5"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button onclick="window.deleteVoucher(\'' + v.id + '\')" class="text-red-500 px-1.5"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
             }).join('');
         };
 
@@ -2307,10 +2372,10 @@
             const familySel = document.getElementById('vouch-target-family');
             const promoSel = document.getElementById('vouch-target-promo');
 
-            if (catSel) catSel.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-            if (brandSel) brandSel.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
-            if (familySel) familySel.innerHTML = families.map(f => `<option value="${f}">${f}</option>`).join('');
-            if (promoSel) promoSel.innerHTML = promos.map(pr => `<option value="${pr}">${pr}</option>`).join('');
+            if (catSel) catSel.innerHTML = categories.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+            if (brandSel) brandSel.innerHTML = brands.map(b => '<option value="' + b + '">' + b + '</option>').join('');
+            if (familySel) familySel.innerHTML = families.map(f => '<option value="' + f + '">' + f + '</option>').join('');
+            if (promoSel) promoSel.innerHTML = promos.map(pr => '<option value="' + pr + '">' + pr + '</option>').join('');
 
             if (catSel && selected.category) catSel.value = selected.category;
             if (brandSel && selected.brand) brandSel.value = selected.brand;
@@ -2410,30 +2475,34 @@
         window.renderHistoryTable = function() {
             const tbody = document.getElementById('history-tbody');
             if (!tbody) return;
-            document.getElementById('history-count').innerText = `${transactions.length} Transaksi`;
-            tbody.innerHTML = (transactions || []).map(tx => `<tr class="border-b border-slate-100 hover:bg-slate-50">
-                <td class="p-3 font-mono font-bold text-blue-600">${tx.id}</td>
-                <td class="p-3 text-slate-500">${new Date(tx.created_at).toLocaleString('id-ID')}</td>
-                <td class="p-3">${tx.cashier_name || 'Admin'}</td>
-                <td class="p-3 font-semibold">${tx.customer_name || 'Pelanggan Umum'}</td>
-                <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-[10px]">${tx.payment_method || 'Tunai'}</span></td>
-                <td class="p-3 text-right font-black">Rp ${(Number(tx.total) || 0).toLocaleString('id-ID')}</td>
-                <td class="p-3 text-center"><button onclick="window.viewTransactionReceipt('${tx.id}')" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold text-[11px]"><i class="fa-solid fa-receipt mr-1"></i> Struk</button></td>
-            </tr>`).join('');
+            document.getElementById('history-count').innerText = transactions.length + ' Transaksi';
+            tbody.innerHTML = (transactions || []).map(tx => {
+                return '<tr class="border-b border-slate-100 hover:bg-slate-50">' +
+                    '<td class="p-3 font-mono font-bold text-blue-600">' + tx.id + '</td>' +
+                    '<td class="p-3 text-slate-500">' + new Date(tx.created_at).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3">' + (tx.cashier_name || 'Admin') + '</td>' +
+                    '<td class="p-3 font-semibold">' + (tx.customer_name || 'Pelanggan Umum') + '</td>' +
+                    '<td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-[10px]">' + (tx.payment_method || 'Tunai') + '</span></td>' +
+                    '<td class="p-3 text-right font-black">Rp ' + (Number(tx.total) || 0).toLocaleString('id-ID') + '</td>' +
+                    '<td class="p-3 text-center"><button onclick="window.viewTransactionReceipt(\'' + tx.id + '\')" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold text-[11px]"><i class="fa-solid fa-receipt mr-1"></i> Struk</button></td>' +
+                '</tr>';
+            }).join('');
         };
 
         window.exportTransactionsCSV = function() {
             if (transactions.length === 0) { window.showNotification("Tidak ada data transaksi!", "warning"); return; }
             let csv = 'No. Nota,Tanggal,Kasir,Pelanggan,Metode,Subtotal,Diskon,Total,Bayar,Kembali\n';
-            transactions.forEach(t => { csv += `"${t.id}","${t.created_at}","${t.cashier_name}","${t.customer_name}","${t.payment_method}",${t.subtotal},${t.discount},${t.total},${t.cash_paid},${t.change}\n`; });
+            transactions.forEach(t => { 
+                csv += '"' + t.id + '","' + t.created_at + '","' + t.cashier_name + '","' + t.customer_name + '","' + t.payment_method + '",' + t.subtotal + ',' + t.discount + ',' + t.total + ',' + t.cash_paid + ',' + t.change + '\n'; 
+            });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `Laporan_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = 'Laporan_' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
         };
 
         window.openBarcodeSheetModal = function() {
             const select = document.getElementById('barcode-prod-select');
-            if (select) select.innerHTML = (products || []).map(p => `<option value="${p.id}">${p.name} (${p.barcode || p.sku || 'No Barcode'})</option>`).join('');
+            if (select) select.innerHTML = (products || []).map(p => '<option value="' + p.id + '">' + p.name + ' (' + (p.barcode || p.sku || 'No Barcode') + ')</option>').join('');
             document.getElementById('barcode-sheet-modal')?.classList.remove('hidden');
         };
         window.closeBarcodeSheetModal = function() { document.getElementById('barcode-sheet-modal')?.classList.add('hidden'); };
@@ -2450,9 +2519,9 @@
             for (let i = 0; i < qty; i++) {
                 const box = document.createElement('div');
                 box.className = "border border-slate-300 p-2 rounded-xl text-center flex flex-col items-center justify-between bg-white shadow-sm space-y-1";
-                box.innerHTML = `<span class="font-extrabold text-[10px] truncate w-full">${product.name}</span><svg id="barcode-svg-${i}" class="w-full h-12"></svg><span class="font-extrabold text-xs text-blue-600">Rp ${Number(product.selling_price).toLocaleString('id-ID')}</span>`;
+                box.innerHTML = '<span class="font-extrabold text-[10px] truncate w-full">' + product.name + '</span><svg id="barcode-svg-' + i + '" class="w-full h-12"></svg><span class="font-extrabold text-xs text-blue-600">Rp ' + Number(product.selling_price).toLocaleString('id-ID') + '</span>';
                 container.appendChild(box);
-                try { JsBarcode(`#barcode-svg-${i}`, barcodeVal, { format: "CODE128", width: 1.2, height: 35, displayValue: true, fontSize: 10, margin: 2 }); } catch (e) {}
+                try { JsBarcode('#barcode-svg-' + i, barcodeVal, { format: "CODE128", width: 1.2, height: 35, displayValue: true, fontSize: 10, margin: 2 }); } catch (e) {}
             }
         };
 
@@ -2463,7 +2532,7 @@
                 html5QrScanner.render(decodedText => {
                     const prod = products.find(p => p.barcode === decodedText || p.sku === decodedText);
                     if (prod) { window.addToCart(prod.id); window.closeCameraScanner(); }
-                    else window.showNotification(`Barang (${decodedText}) tidak ditemukan!`, "error");
+                    else window.showNotification("Barang (" + decodedText + ") tidak ditemukan!", "error");
                 }, err => {});
             }
         };
@@ -2479,7 +2548,9 @@
         window.populateLoginDropdown = function() {
             const select = document.getElementById('login-username');
             if (!select) return;
-            select.innerHTML = (userAccounts || []).map(u => `<option value="${u.username}">${u.name} (${u.role === 'admin' ? 'Owner' : 'Kasir Staff'})</option>`).join('');
+            select.innerHTML = (userAccounts || []).map(u => {
+                return '<option value="' + u.username + '">' + u.name + ' (' + (u.role === 'admin' ? 'Owner' : 'Kasir Staff') + ')</option>';
+            }).join('');
         };
 
         window.openLoginModal = function() { window.populateLoginDropdown(); document.getElementById('login-pin').value = ''; document.getElementById('login-error-msg')?.classList.add('hidden'); document.getElementById('login-modal')?.classList.remove('hidden'); };
@@ -2497,7 +2568,7 @@
             if (user) {
                 activeUser = user; currentRole = user.role;
                 window.updateUserDisplayUI(); window.closeLoginModal();
-                window.showNotification(`Selamat datang, ${user.name}!`, "success");
+                window.showNotification("Selamat datang, " + user.name + "!", "success");
             } else {
                 document.getElementById('login-error-msg')?.classList.remove('hidden');
             }
@@ -2522,15 +2593,15 @@
             const hash = window.location.hash || '#pos';
             if (currentRole !== 'admin' && hash !== '#pos') { window.location.hash = '#pos'; window.showNotification("Akses Terbatas untuk Kasir!", "warning"); return; }
             document.querySelectorAll('.view-page').forEach(p => p.classList.add('hidden'));
-            document.getElementById(`view-${hash.replace('#', '')}`)?.classList.remove('hidden');
+            document.getElementById('view-' + hash.replace('#', ''))?.classList.remove('hidden');
 
             document.querySelectorAll('nav a, div.lg\\:hidden a').forEach(a => { a.classList.remove('bg-blue-600', 'text-white'); a.classList.add('text-slate-400'); });
-            const activeLink = document.getElementById(`nav-link-${hash.replace('#', '')}`);
+            const activeLink = document.getElementById('nav-link-' + hash.replace('#', ''));
             if (activeLink) { activeLink.classList.remove('text-slate-400'); activeLink.classList.add('bg-blue-600', 'text-white'); }
         };
 
         window.openStoreModal = function() { if (currentRole !== 'admin') { window.showNotification("Khusus Owner / Admin!", "warning"); return; } window.location.hash = '#settings'; };
-        window.changeBranch = function() { window.showNotification(`Cabang diubah ke: ${document.getElementById('branch-select').value}`, "info"); };
+        window.changeBranch = function() { window.showNotification("Cabang diubah ke: " + document.getElementById('branch-select').value, "info"); };
         window.checkCloudStatusOrPrompt = function() { if (supabaseClient) window.showNotification("Cloud Online!", "success"); else { window.location.hash = '#settings'; window.showNotification("Masukkan Supabase Key di Pengaturan", "info"); } };
 
         window.connectBluetoothPrinter = async function() {
@@ -2539,7 +2610,7 @@
                 bluetoothDevice = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb'] });
                 bluetoothServer = await bluetoothDevice.gatt.connect();
                 document.getElementById('bt-printer-status').innerText = 'BT Terhubung';
-                window.showNotification(`Printer (${bluetoothDevice.name}) terhubung!`, "success");
+                window.showNotification("Printer (" + bluetoothDevice.name + ") terhubung!", "success");
             } catch (err) { window.showNotification("Batal menghubungkan printer.", "warning"); }
         };
 
