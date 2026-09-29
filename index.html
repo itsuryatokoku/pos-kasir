@@ -100,7 +100,6 @@
         <a href="#settings" id="mobile-nav-settings" class="px-3 py-1 font-semibold rounded-lg text-center text-slate-400 bg-slate-800 shrink-0">Pengaturan</a>
     </div>
 
-    <!-- MAIN APP VIEWS CONTAINER -->
     <main class="flex-1 flex overflow-hidden relative min-h-0">
         
         <!-- POS VIEW -->
@@ -257,7 +256,7 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member</h2>
-                    <p class="text-xs text-slate-500">Kelola database pelanggan, status member VIP, tanggal ulang tahun, dan poin loyalty.</p>
+                    <p class="text-xs text-slate-500">Daftar pelanggan lengkap dengan Nama Member dan No. HP.</p>
                 </div>
                 <button onclick="window.openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
                     <i class="fa-solid fa-user-plus"></i><span>Tambah Member Baru</span>
@@ -265,18 +264,20 @@
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-3 border-b border-slate-100 bg-slate-50">
-                    <input type="text" id="customer-search-input" onkeyup="window.renderCustomersTable()" placeholder="Cari nama, nomor HP, atau No. Member..." class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
+                    <div class="relative flex-1 sm:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="customer-search-input" onkeyup="window.renderCustomersTable()" placeholder="Cari nama member, nomor HP, atau no. member..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
                                 <th class="p-3">No. Member</th>
-                                <th class="p-3">Nama</th>
-                                <th class="p-3">Telepon</th>
-                                <th class="p-3">Tipe</th>
-                                <th class="p-3 text-center">Ultah</th>
+                                <th class="p-3">Nama Member</th>
+                                <th class="p-3">No. HP / Kontak</th>
+                                <th class="p-3">Tier</th>
                                 <th class="p-3 text-right">Poin</th>
                                 <th class="p-3 text-right">Total Belanja</th>
                                 <th class="p-3 text-center">Aksi</th>
@@ -529,7 +530,7 @@
                                     <label class="text-[11px] font-semibold text-indigo-900">String Payload QRIS Statis Toko</label>
                                     <span class="text-[10px] text-slate-500 italic">Payload QRIS GoPay Anda</span>
                                 </div>
-                                <textarea id="setting-qris-payload" rows="2" placeholder="Tempel teks string QRIS statis Anda di sini..." class="w-full px-2.5 py-1.5 text-[10px] border rounded-lg font-mono">00020101021126610014COM.GO-JEK.WWW01189360091437264958070210G7264958070303UMI51440014ID.CO.QRIS.WWW0215ID10265815995070303UMI5204899953033605802ID5925ASEP GUNAWAN, Digital & K6006BREBES61055225562140703A0111036216304B1AC</textarea>
+                                <textarea id="setting-qris-payload" rows="2" class="w-full px-2.5 py-1.5 text-[10px] border rounded-lg font-mono">00020101021126610014COM.GO-JEK.WWW01189360091437264958070210G7264958070303UMI51440014ID.CO.QRIS.WWW0215ID10265815995070303UMI5204899953033605802ID5925ASEP GUNAWAN, Digital & K6006BREBES61055225562140703A0111036216304B1AC</textarea>
                             </div>
                         </div>
                     </div>
@@ -669,7 +670,7 @@
 
     <!-- CUSTOMER MODAL -->
     <div id="customer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-2">
                 <h3 id="customer-modal-title" class="font-bold text-slate-800 text-sm">Tambah Pelanggan / Member</h3>
                 <button onclick="window.closeCustomerModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
@@ -687,8 +688,37 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Nama Lengkap</label>
+                    <label class="block font-semibold text-slate-600 mb-1">Nama Member</label>
                     <input type="text" id="cust-form-name" required class="w-full px-2.5 py-1.5 border rounded-lg">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Email</label>
+                        <input type="email" id="cust-form-email" placeholder="email@domain.com" class="w-full px-2.5 py-1.5 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Tier / Level Member</label>
+                        <select id="cust-form-tier" class="w-full px-2.5 py-1.5 border rounded-lg font-bold bg-white">
+                            <option value="Reguler">Reguler</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Gold">Gold</option>
+                            <option value="VIP">VIP</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Alamat Lengkap</label>
+                    <textarea id="cust-form-address" rows="2" placeholder="Alamat domisili pelanggan..." class="w-full px-2.5 py-1.5 border rounded-lg"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Tanggal Lahir (Ultah)</label>
+                        <input type="text" id="cust-form-birthday" placeholder="17 Agustus" class="w-full px-2.5 py-1.5 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Poin Loyalitas Awal</label>
+                        <input type="number" id="cust-form-points" value="0" min="0" class="w-full px-2.5 py-1.5 border rounded-lg font-bold">
+                    </div>
                 </div>
                 <div class="pt-2 flex justify-end gap-2">
                     <button type="button" onclick="window.closeCustomerModal()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-700 font-semibold">Batal</button>
@@ -858,7 +888,7 @@
         ];
 
         let customers = [
-            { id: 'c1', member_no: 'MB-001', name: 'Pelanggan Umum', phone: '-', birthday: '', is_vip: false, points: 0, total_tx: 0 }
+            { id: 'c1', member_no: 'MB-001', name: 'Pelanggan Umum', phone: '-', email: '-', address: '-', tier: 'Reguler', birthday: '-', is_vip: false, points: 0, total_tx: 0 }
         ];
 
         let vouchers = [
@@ -1471,35 +1501,45 @@
             window.showNotification("Produk berhasil dihapus!", "success");
         };
 
-        // CUSTOMERS TABLE
+        // CUSTOMERS TABLE (Streamlined: Nama Member, No. HP)
         window.renderCustomersTable = function() {
             const tbody = document.getElementById('customers-tbody');
             if (!tbody) return;
             const searchVal = document.getElementById('customer-search-input')?.value.toLowerCase().trim() || '';
-            let filtered = customers.filter(c => !searchVal || (c.name && c.name.toLowerCase().includes(searchVal)) || (c.phone && c.phone.includes(searchVal)) || (c.member_no && c.member_no.toLowerCase().includes(searchVal)));
+            let filtered = customers.filter(c => !searchVal || 
+                (c.name && c.name.toLowerCase().includes(searchVal)) || 
+                (c.phone && c.phone.toLowerCase().includes(searchVal)) || 
+                (c.member_no && c.member_no.toLowerCase().includes(searchVal))
+            );
 
-            tbody.innerHTML = filtered.map(c => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-3 font-mono font-bold text-slate-700">${c.member_no || '-'}</td>
-                    <td class="p-3 font-bold text-slate-800">${c.name || '-'}</td>
-                    <td class="p-3 text-slate-600">${c.phone || '-'}</td>
-                    <td class="p-3">${c.is_vip ? '<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md text-[10px]">VIP Member</span>' : '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-[10px]">Reguler</span>'}</td>
-                    <td class="p-3 text-center text-slate-500">${c.birthday || '-'}</td>
-                    <td class="p-3 text-right font-bold text-indigo-600">${c.points || 0} Poin</td>
-                    <td class="p-3 text-right font-bold text-slate-800">Rp ${new Intl.NumberFormat('id-ID').format(c.total_tx || 0)}</td>
-                    <td class="p-3 text-center space-x-1">
-                        <button onclick="window.editCustomer('${c.id}')" class="bg-blue-50 text-blue-600 p-1.5 rounded-lg hover:bg-blue-100 transition"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="window.deleteCustomer('${c.id}')" class="bg-red-50 text-red-600 p-1.5 rounded-lg hover:bg-red-100 transition"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = filtered.map(c => {
+                let tierBadge = '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-[10px] font-bold">Reguler</span>';
+                if (c.tier === 'Silver') tierBadge = '<span class="bg-slate-200 text-slate-800 px-2 py-0.5 rounded-md text-[10px] font-bold">Silver</span>';
+                else if (c.tier === 'Gold') tierBadge = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-md text-[10px] font-bold">Gold</span>';
+                else if (c.tier === 'VIP' || c.is_vip) tierBadge = '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-md text-[10px] font-bold">VIP Member</span>';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-3 font-mono font-bold text-slate-700">${c.member_no || '-'}</td>
+                        <td class="p-3 font-bold text-slate-800">${c.name || '-'}</td>
+                        <td class="p-3 font-mono text-slate-700">${c.phone || '-'}</td>
+                        <td class="p-3">${tierBadge}</td>
+                        <td class="p-3 text-right font-bold text-indigo-600">${c.points || 0} Poin</td>
+                        <td class="p-3 text-right font-bold text-slate-800">Rp ${new Intl.NumberFormat('id-ID').format(c.total_tx || 0)}</td>
+                        <td class="p-3 text-center space-x-1">
+                            <button onclick="window.editCustomer('${c.id}')" class="bg-blue-50 text-blue-600 p-1.5 rounded-lg hover:bg-blue-100 transition"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="window.deleteCustomer('${c.id}')" class="bg-red-50 text-red-600 p-1.5 rounded-lg hover:bg-red-100 transition"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
             window.renderCartCustomerDropdown();
         };
 
         window.renderCartCustomerDropdown = function() {
             const select = document.getElementById('cart-customer-select');
             if (!select) return;
-            select.innerHTML = customers.map(c => `<option value="${c.id}">${c.name || 'Member'} (${c.member_no || '-'})</option>`).join('');
+            select.innerHTML = customers.map(c => `<option value="${c.id}">${c.name || 'Member'} (${c.phone || '-'})</option>`).join('');
         };
 
         window.onSelectCustomerForCart = function() {
@@ -1513,16 +1553,26 @@
             if (id) {
                 const c = customers.find(item => item.id === id);
                 if (c) {
-                    document.getElementById('customer-modal-title').innerText = "Edit Member";
+                    document.getElementById('customer-modal-title').innerText = "Edit Member Pelanggan";
                     document.getElementById('cust-form-member-no').value = c.member_no || '';
                     document.getElementById('cust-form-name').value = c.name || '';
                     document.getElementById('cust-form-phone').value = c.phone || '';
+                    document.getElementById('cust-form-email').value = c.email || '';
+                    document.getElementById('cust-form-address').value = c.address || '';
+                    document.getElementById('cust-form-tier').value = c.tier || (c.is_vip ? 'VIP' : 'Reguler');
+                    document.getElementById('cust-form-birthday').value = c.birthday || '';
+                    document.getElementById('cust-form-points').value = c.points || 0;
                 }
             } else {
-                document.getElementById('customer-modal-title').innerText = "Tambah Member Baru";
+                document.getElementById('customer-modal-title').innerText = "Tambah Pelanggan / Member Baru";
                 document.getElementById('cust-form-member-no').value = `MB-${Math.floor(100 + Math.random() * 900)}`;
                 document.getElementById('cust-form-name').value = '';
                 document.getElementById('cust-form-phone').value = '';
+                document.getElementById('cust-form-email').value = '';
+                document.getElementById('cust-form-address').value = '';
+                document.getElementById('cust-form-tier').value = 'Reguler';
+                document.getElementById('cust-form-birthday').value = '';
+                document.getElementById('cust-form-points').value = 0;
             }
             document.getElementById('customer-modal').classList.remove('hidden');
         };
@@ -1532,18 +1582,22 @@
         window.saveCustomer = async function(e) {
             e.preventDefault();
             const id = document.getElementById('cust-form-id').value || (crypto.randomUUID ? crypto.randomUUID() : 'c_' + Date.now());
+            const tierVal = document.getElementById('cust-form-tier').value;
             const custObj = {
                 id: id,
                 member_no: document.getElementById('cust-form-member-no').value,
                 name: document.getElementById('cust-form-name').value,
                 phone: document.getElementById('cust-form-phone').value,
-                birthday: '',
-                is_vip: false,
-                points: 0,
+                email: document.getElementById('cust-form-email').value,
+                address: document.getElementById('cust-form-address').value,
+                tier: tierVal,
+                is_vip: tierVal === 'VIP',
+                birthday: document.getElementById('cust-form-birthday').value,
+                points: parseInt(document.getElementById('cust-form-points').value) || 0,
                 total_tx: 0
             };
             const idx = customers.findIndex(c => c.id === id);
-            if (idx >= 0) customers[idx] = custObj;
+            if (idx >= 0) customers[idx] = { ...customers[idx], ...custObj };
             else customers.push(custObj);
 
             if (supabaseClient) {
@@ -1551,19 +1605,19 @@
             }
             window.closeCustomerModal();
             window.renderCustomersTable();
-            window.showNotification("Member berhasil disimpan!", "success");
+            window.showNotification("Data member pelanggan berhasil disimpan!", "success");
         };
 
         window.editCustomer = function(id) { window.openCustomerModal(id); };
 
         window.deleteCustomer = async function(id) {
-            if (!confirm("Hapus member ini?")) return;
+            if (!confirm("Hapus member pelanggan ini?")) return;
             customers = customers.filter(c => c.id !== id);
             if (supabaseClient) {
                 try { await supabaseClient.from('customers').delete().eq('id', id); } catch (err) { console.error(err); }
             }
             window.renderCustomersTable();
-            window.showNotification("Member berhasil dihapus!", "success");
+            window.showNotification("Member pelanggan berhasil dihapus!", "success");
         };
 
         // VOUCHERS TABLE
@@ -1670,15 +1724,21 @@
         function generateDynamicQRIS(staticQR, amount) {
             if (!staticQR || staticQR.length < 10) return staticQR;
             let qris = staticQR.trim();
-            qris = qris.slice(0, -4);
+            if (qris.endsWith('6304') || qris.length > 4) {
+                qris = qris.slice(0, -4);
+            }
             let payloadWithoutCRC = qris.replace('010211', '010212');
             let amountStr = Math.round(amount).toString();
             let tag54 = '54' + (amountStr.length < 10 ? '0' + amountStr.length : amountStr.length) + amountStr;
+            
             let merchantIndex = payloadWithoutCRC.indexOf('5802ID');
             if (merchantIndex === -1) merchantIndex = payloadWithoutCRC.indexOf('59');
+            if (merchantIndex === -1) merchantIndex = payloadWithoutCRC.indexOf('6006');
+            
             let finalPayload = merchantIndex !== -1 ? 
                 payloadWithoutCRC.slice(0, merchantIndex) + tag54 + payloadWithoutCRC.slice(merchantIndex) : 
                 payloadWithoutCRC + tag54;
+            
             finalPayload += '6304';
             let crc = calculateCRC16(finalPayload);
             return finalPayload + crc;
@@ -1792,6 +1852,14 @@
                 }
             });
 
+            if (selectedCustomer && selectedCustomer.id) {
+                selectedCustomer.total_tx = (selectedCustomer.total_tx || 0) + totalNum;
+                selectedCustomer.points = (selectedCustomer.points || 0) + Math.floor(totalNum / 10000);
+                if (supabaseClient) {
+                    try { await supabaseClient.from('customers').update({ total_tx: selectedCustomer.total_tx, points: selectedCustomer.points }).eq('id', selectedCustomer.id); } catch (e) { console.error(e); }
+                }
+            }
+
             if (supabaseClient) {
                 try { await supabaseClient.from('transactions').insert([txObj]); } catch (err) { console.error(err); }
             }
@@ -1801,6 +1869,7 @@
             window.closePaymentModal();
             window.renderProductGrid();
             window.renderHistoryTable();
+            window.renderCustomersTable();
             window.initCharts();
         };
 
