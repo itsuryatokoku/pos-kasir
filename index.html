@@ -39,6 +39,32 @@
 
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- LOGIN SCREEN OVERLAY -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="bg-blue-600 text-white font-black p-3 rounded-xl inline-block text-xl shadow-lg">POS</div>
+                <h2 class="text-xl font-bold text-slate-800">Login MY KSR</h2>
+                <p class="text-xs text-slate-500">Sistem Kasir Cloud Enterprise</p>
+            </div>
+            <form onsubmit="window.handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Username</label>
+                    <input type="text" id="login-username" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 font-medium text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                    <input type="password" id="login-password" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 font-medium text-sm">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow transition mt-2">Login Masuk</button>
+            </form>
+            <div class="text-[10px] text-center text-slate-400 bg-slate-50 p-2 rounded-lg">
+                Demo Admin: <b>admin</b> / <b>123</b><br>
+                Demo Kasir: <b>kasir</b> / <b>123</b>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER TOPBAR -->
     <header class="bg-slate-900 text-white px-3 sm:px-4 py-2.5 shadow-md flex items-center justify-between z-10 shrink-0 border-b border-slate-800">
         <div class="flex items-center space-x-2 sm:space-x-3">
@@ -80,7 +106,7 @@
                 <i class="fa-solid fa-rotate" id="sync-icon-header"></i>
                 <span class="hidden sm:inline">Sync</span>
             </button>
-            <a href="#settings" title="Pengaturan System & Perangkat" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 border border-slate-700 transition">
+            <a href="#settings" id="topbar-settings-btn" title="Pengaturan System & Perangkat" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 border border-slate-700 transition">
                 <i class="fa-solid fa-gear text-blue-400"></i>
                 <span class="hidden sm:inline">Pengaturan</span>
             </a>
@@ -478,26 +504,6 @@
                                 <input type="text" id="setting-bank-account-name" value="a.n. ASEP GUNAWAN" class="w-full px-2.5 py-1.5 text-xs border rounded-lg">
                             </div>
                         </div>
-
-                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-qrcode text-indigo-600"></i> Informasi QRIS Dinamis Otomatis
-                                </span>
-                                <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">GoPay / BCA / All e-Wallet</span>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Merchant QRIS</label>
-                                <input type="text" id="setting-qris-merchant" value="ASEP GUNAWAN, Digital & K" class="w-full px-2.5 py-1.5 text-xs border rounded-lg font-bold">
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-1">
-                                    <label class="text-[11px] font-semibold text-indigo-900">String Payload QRIS Statis Toko</label>
-                                    <span class="text-[10px] text-slate-500 italic">Payload QRIS GoPay Anda</span>
-                                </div>
-                                <textarea id="setting-qris-payload" rows="2" class="w-full px-2.5 py-1.5 text-[10px] border rounded-lg font-mono">00020101021126610014COM.GO-JEK.WWW01189360091437264958070210G7264958070303UMI51440014ID.CO.QRIS.WWW0215ID10265815995070303UMI5204899953033605802ID5925ASEP GUNAWAN, Digital & K6006BREBES61055225562140703A0111036216304B1AC</textarea>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="flex justify-end pt-1">
@@ -527,6 +533,60 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- USER MANAGEMENT (ADMIN ONLY) -->
+                <div id="setting-user-management" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 lg:col-span-2 hidden">
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-users-gear text-orange-500"></i> Manajemen Akses & Karyawan
+                        </h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-1 bg-slate-50 p-3 rounded-xl border">
+                            <h4 class="font-bold text-xs text-slate-700 mb-2">Tambah / Edit Karyawan</h4>
+                            <form onsubmit="window.saveUser(event)" class="space-y-2 text-xs">
+                                <input type="hidden" id="user-form-id">
+                                <div>
+                                    <label class="block font-semibold text-slate-600 mb-1">Nama Karyawan</label>
+                                    <input type="text" id="user-form-name" required class="w-full px-2 py-1.5 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-600 mb-1">Username</label>
+                                    <input type="text" id="user-form-username" required class="w-full px-2 py-1.5 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-600 mb-1">Password</label>
+                                    <input type="text" id="user-form-password" required class="w-full px-2 py-1.5 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-600 mb-1">Hak Akses (Role)</label>
+                                    <select id="user-form-role" class="w-full px-2 py-1.5 border rounded-lg bg-white">
+                                        <option value="kasir">Kasir (Hanya POS & Laporan)</option>
+                                        <option value="admin">Administrator (Akses Penuh)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-1.5 rounded-lg shadow transition mt-1">Simpan User</button>
+                            </form>
+                        </div>
+                        <div class="md:col-span-2">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-100 text-slate-600 font-semibold border-b">
+                                            <th class="p-2">Nama</th>
+                                            <th class="p-2">Username</th>
+                                            <th class="p-2">Password</th>
+                                            <th class="p-2">Role</th>
+                                            <th class="p-2 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-tbody" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -548,7 +608,7 @@
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Metode Pembayaran</label>
                     <select id="pay-method" onchange="window.onPaymentMethodChange()" class="w-full px-3 py-2 text-xs border rounded-xl font-bold bg-white focus:ring-2 focus:ring-blue-500">
                         <option value="Tunai">Tunai / Cash</option>
-                        <option value="QRIS">QRIS Dinamis (GoPay / BCA / All e-Wallet)</option>
+                        <option value="QRIS">QRIS (Statis Toko)</option>
                         <option value="Transfer">Transfer Bank</option>
                         <option value="Debit/Kredit">Kartu Debit / Kredit</option>
                     </select>
@@ -930,9 +990,17 @@
             { id: 'v1', promo_type: 'bogo', code: 'PROMO-SOSRO', title: 'Beli 2 Gratis 1 Sosro', target_category: 'Minuman', target_brand: 'Sosro', target_family: 'Semua', target_promo: 'Semua', type: 'percentage', value: 0, buy_qty: 2, get_qty: 1, min_purchase: 0, is_active: true }
         ];
 
+        // DATA USERS & LOGIN STATE (DATABASE SYNCED)
+        let users = [
+            { id: 'u1', username: 'admin', password: '123', role: 'admin', name: 'Administrator' },
+            { id: 'u2', username: 'kasir', password: '123', role: 'kasir', name: 'Kasir Utama' }
+        ];
+        let currentUser = null;
+
         let transactions = [];
         let cart = [];
         let appliedVouchers = [];
+        window.storeProfile = { id: 'default_store', store_name: 'MY KSR', store_sub: 'Sistem Kasir Cloud', store_address: '', receipt_footer: 'Terima kasih telah berbelanja!', receipt_paper: '58mm' };
         let selectedCategory = 'Semua';
         let searchQuery = '';
         let selectedCustomer = customers[0];
@@ -990,6 +1058,41 @@
                 const { data: tData } = await supabaseClient.from('transactions').select('*');
                 if (tData && tData.length > 0) transactions = tData;
 
+                const { data: uData } = await supabaseClient.from('users').select('*');
+                if (uData && uData.length > 0) {
+                    users = uData;
+                } else if (supabaseClient) {
+                    // Seed initial users if table is empty
+                    for (let u of users) {
+                        await supabaseClient.from('users').upsert([u]);
+                    }
+                }
+
+                // Sinkronisasi Pengaturan Profil Toko & Struk
+                const { data: sData } = await supabaseClient.from('store_settings').select('*').eq('id', 'default_store').single();
+                if (sData) {
+                    window.storeProfile = { ...window.storeProfile, ...sData };
+                    const hName = document.getElementById('header-store-name');
+                    if (hName) hName.innerText = window.storeProfile.store_name || 'MY KSR';
+                    
+                    const setStoreName = document.getElementById('setting-store-name');
+                    if (setStoreName) setStoreName.value = window.storeProfile.store_name || '';
+                    
+                    const setStoreSub = document.getElementById('setting-store-sub');
+                    if (setStoreSub) setStoreSub.value = window.storeProfile.store_sub || '';
+                    
+                    const setStoreAddr = document.getElementById('setting-store-address');
+                    if (setStoreAddr) setStoreAddr.value = window.storeProfile.store_address || '';
+                    
+                    const setReceiptFooter = document.getElementById('setting-receipt-footer');
+                    if (setReceiptFooter) setReceiptFooter.value = window.storeProfile.receipt_footer || '';
+                    
+                    const setReceiptPaper = document.getElementById('setting-receipt-paper');
+                    if (setReceiptPaper) setReceiptPaper.value = window.storeProfile.receipt_paper || '58mm';
+                } else if (supabaseClient) {
+                     await supabaseClient.from('store_settings').upsert([window.storeProfile]);
+                }
+
                 window.renderCategoryPills();
                 window.renderProductGrid();
                 window.renderAdminProductsTable();
@@ -999,6 +1102,7 @@
                 window.renderCartVoucherDropdown();
                 window.renderHistoryTable();
                 window.initCharts();
+                if (currentUser && currentUser.role === 'admin') window.renderUsersTable();
 
                 if (icon1) icon1.classList.remove('fa-spin');
                 if (icon2) icon2.classList.remove('fa-spin');
@@ -1022,6 +1126,31 @@
             window.initSupabase();
             window.syncWithSupabase();
             window.showNotification("Koneksi Supabase Cloud Berhasil Disimpan & Dihubungkan!", "success");
+        };
+
+        window.saveStoreSettings = async function() {
+            if (!window.storeProfile) window.storeProfile = { id: 'default_store' };
+            
+            window.storeProfile.store_name = document.getElementById('setting-store-name')?.value || 'MY KSR';
+            window.storeProfile.store_sub = document.getElementById('setting-store-sub')?.value || '';
+            window.storeProfile.store_address = document.getElementById('setting-store-address')?.value || '';
+            window.storeProfile.receipt_footer = document.getElementById('setting-receipt-footer')?.value || '';
+            window.storeProfile.receipt_paper = document.getElementById('setting-receipt-paper')?.value || '58mm';
+
+            const hName = document.getElementById('header-store-name');
+            if (hName) hName.innerText = window.storeProfile.store_name;
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('store_settings').upsert([window.storeProfile]);
+                    window.showNotification("Pengaturan Profil Toko berhasil disimpan ke Supabase!", "success");
+                } catch (err) {
+                    console.error("Gagal simpan pengaturan:", err);
+                    window.showNotification("Gagal simpan ke cloud: " + err.message, "error");
+                }
+            } else {
+                window.showNotification("Pengaturan disimpan lokal (Belum terhubung ke Cloud)", "info");
+            }
         };
 
         window.connectBluetoothPrinter = function() {
@@ -1791,26 +1920,61 @@
                 points: parseInt(document.getElementById('cust-form-points').value) || 0,
                 total_tx: 0
             };
+            
+            if (supabaseClient) {
+                try { 
+                    // Mencegah error PGRST204: Hapus kolom yang mungkin belum ada di tabel Supabase Anda
+                    let dbPayload = { ...custObj };
+                    delete dbPayload.birthday; 
+                    delete dbPayload.email;
+                    delete dbPayload.is_vip;
+                    delete dbPayload.member_no;
+                    delete dbPayload.tier;
+                    delete dbPayload.points;
+                    
+                    const { error } = await supabaseClient.from('customers').upsert([dbPayload]); 
+                    if (error) {
+                        console.error("Supabase Error:", error);
+                        window.showNotification("Gagal simpan ke Supabase: " + error.message, "error");
+                        return; // Hentikan penyimpanan jika ditolak database
+                    }
+                } catch (err) { 
+                    console.error("Network Error:", err); 
+                    window.showNotification("Terjadi kesalahan jaringan!", "error");
+                    return;
+                }
+            }
+
             const idx = customers.findIndex(c => c.id === id);
             if (idx >= 0) customers[idx] = { ...customers[idx], ...custObj };
             else customers.push(custObj);
 
-            if (supabaseClient) {
-                try { await supabaseClient.from('customers').upsert([custObj]); } catch (err) { console.error(err); }
-            }
             window.closeCustomerModal();
             window.renderCustomersTable();
-            window.showNotification("Data member pelanggan berhasil disimpan!", "success");
+            window.showNotification("Data member pelanggan berhasil disimpan ke database!", "success");
         };
 
         window.editCustomer = function(id) { window.openCustomerModal(id); };
 
         window.deleteCustomer = async function(id) {
             if (!confirm("Hapus member pelanggan ini?")) return;
-            customers = customers.filter(c => c.id !== id);
+            
             if (supabaseClient) {
-                try { await supabaseClient.from('customers').delete().eq('id', id); } catch (err) { console.error(err); }
+                try { 
+                    const { error } = await supabaseClient.from('customers').delete().eq('id', id); 
+                    if (error) {
+                        console.error("Supabase Error:", error);
+                        window.showNotification("Gagal hapus dari Supabase: " + error.message, "error");
+                        return;
+                    }
+                } catch (err) { 
+                    console.error("Network Error:", err); 
+                    window.showNotification("Terjadi kesalahan jaringan!", "error");
+                    return;
+                }
             }
+            
+            customers = customers.filter(c => c.id !== id);
             window.renderCustomersTable();
             window.showNotification("Member pelanggan berhasil dihapus!", "success");
         };
@@ -1976,25 +2140,7 @@
             } else if (method === 'QRIS') {
                 cashSec.classList.add('hidden');
                 infoBox.classList.remove('hidden');
-                infoBox.innerHTML = `
-                    <div class="text-center p-2">
-                        <div class="font-bold text-slate-700 mb-1">QRIS Dinamis Otomatis (GoPay / All e-Wallet)</div>
-                        <canvas id="pay-qris-canvas" class="mx-auto my-2 border p-1 rounded-lg"></canvas>
-                        <p class="text-[10px] text-slate-500">Scan QRIS menggunakan GoPay, ShopeePay, DANA, OVO, atau M-Banking. Nominal terisi otomatis.</p>
-                    </div>
-                `;
-                setTimeout(() => {
-                    const canvas = document.getElementById('pay-qris-canvas');
-                    const staticPayload = document.getElementById('setting-qris-payload')?.value.trim() || '00020101021126610014COM.GO-JEK.WWW01189360091437264958070210G7264958070303UMI51440014ID.CO.QRIS.WWW0215ID10265815995070303UMI5204899953033605802ID5925ASEP GUNAWAN, Digital & K6006BREBES61055225562140703A0111036216304B1AC';
-                    const dynamicPayload = generateDynamicQRIS(staticPayload, totalNum);
-                    if (canvas) {
-                        new QRious({
-                            element: canvas,
-                            value: dynamicPayload,
-                            size: 160
-                        });
-                    }
-                }, 100);
+                infoBox.innerHTML = `<div class="p-2 text-center text-slate-600 font-semibold">Silakan minta pelanggan melakukan scan pada QRIS Statis (Acrylic) toko Anda, lalu selesaikan transaksi di sini jika dana sudah masuk.</div>`;
             } else {
                 cashSec.classList.add('hidden');
                 infoBox.classList.remove('hidden');
@@ -2256,8 +2402,235 @@
             }
         };
 
+        // ====== LOGIN & ROLE MANAGEMENT ======
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            const un = document.getElementById('login-username').value.trim();
+            const pw = document.getElementById('login-password').value.trim();
+            
+            let foundUser = null;
+            
+            if (supabaseClient) {
+                try {
+                    // Cari berdasarkan username dulu di tabel users
+                    const { data, error } = await supabaseClient.from('users').select('*').eq('username', un);
+                    if (data && data.length > 0) {
+                        const dbUser = data[0];
+                        // Deteksi nama kolom password (mendukung 'password', 'pin', atau 'pink' jika terjadi typo di Supabase)
+                        const validPassword = dbUser.password || dbUser.pin || dbUser.pink;
+                        
+                        // Pengecekan murni/ketat dengan database (konversi ke teks untuk mencegah error tipe Integer vs String)
+                        if (String(validPassword) === String(pw)) {
+                            foundUser = dbUser;
+                        }
+                    }
+                } catch (err) {
+                    console.error("Supabase login query error:", err);
+                }
+            }
+
+            if (!foundUser) {
+                // Fallback ke array lokal jika offline, dan cek password murni
+                const localUser = users.find(u => u.username === un);
+                if (localUser) {
+                    const localValidPass = localUser.password || localUser.pin || localUser.pink;
+                    if (String(localValidPass) === String(pw)) foundUser = localUser;
+                }
+            }
+
+            if (foundUser) {
+                currentUser = foundUser;
+                const loginScreen = document.getElementById('login-screen');
+                if (loginScreen) loginScreen.classList.add('hidden');
+                
+                const userBoxInput1 = document.getElementById('login-username');
+                const userBoxInput2 = document.getElementById('login-password');
+                if (userBoxInput1) userBoxInput1.value = '';
+                if (userBoxInput2) userBoxInput2.value = '';
+                
+                const subHeader = document.getElementById('header-store-sub');
+                if (subHeader) subHeader.innerText = `Kasir Aktif: ${foundUser.name} (${foundUser.role.toUpperCase()})`;
+
+                window.applyRoleRestrictions();
+                window.location.hash = '#pos';
+                window.navigate();
+                window.showNotification(`Selamat datang, ${foundUser.name}!`, "success");
+            } else {
+                window.showNotification("Username atau Password salah / tidak sesuai database!", "error");
+            }
+        };
+
+        window.logoutUser = function() { 
+            currentUser = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+            const subHeader = document.getElementById('header-store-sub');
+            if (subHeader) subHeader.innerText = `Sistem Kasir Cloud & QRIS Dinamis Otomatis`;
+            window.showNotification("Anda telah logout", "info"); 
+        };
+
+        window.applyRoleRestrictions = function() {
+            if (!currentUser) return;
+            
+            // Standarisasi role (menghindari error jika di database tertulis 'KASIR', 'Kasir ', dsb)
+            const userRole = String(currentUser.role).toLowerCase().trim();
+            
+            const restrictedNavIds = ['nav-link-products', 'nav-link-customers', 'nav-link-vouchers', 'nav-link-settings', 
+                                   'mobile-nav-products', 'mobile-nav-customers', 'mobile-nav-vouchers', 'mobile-nav-settings',
+                                   'topbar-settings-btn'];
+            
+            restrictedNavIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (userRole === 'kasir') {
+                        // Memaksa elemen untuk hilang 100% tanpa peduli bentrok CSS
+                        el.style.display = 'none';
+                    } else {
+                        el.style.display = ''; // Kembalikan ke normal
+                    }
+                }
+            });
+
+            const umSection = document.getElementById('setting-user-management');
+            if (umSection) {
+                if (userRole === 'admin') {
+                    umSection.classList.remove('hidden');
+                    window.renderUsersTable();
+                } else {
+                    umSection.classList.add('hidden');
+                }
+            }
+        };
+
+        window.renderUsersTable = function() {
+            const tbody = document.getElementById('users-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = users.map(u => {
+                // Menyesuaikan tampilan agar kolom pin / pink tetap terbaca di tabel admin
+                const passDisplay = u.password || u.pin || u.pink || '-';
+                return `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="p-2 font-bold">${u.name}</td>
+                        <td class="p-2 text-slate-600">${u.username}</td>
+                        <td class="p-2 font-mono text-slate-500">${passDisplay}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${u.role.toUpperCase()}</span></td>
+                        <td class="p-2 text-center">
+                            <button onclick="window.editUser('${u.id}')" class="text-blue-500 hover:text-blue-700 mr-2" title="Edit Karyawan"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="window.deleteUser('${u.id}')" class="text-red-500 hover:text-red-700" title="Hapus Karyawan"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        window.saveUser = async function(e) {
+            e.preventDefault();
+            const formId = document.getElementById('user-form-id').value;
+            const isEdit = formId !== '';
+
+            const newU = {
+                id: isEdit ? formId : (crypto.randomUUID ? crypto.randomUUID() : 'u_' + Date.now()),
+                name: document.getElementById('user-form-name').value,
+                username: document.getElementById('user-form-username').value,
+                password: document.getElementById('user-form-password').value,
+                role: document.getElementById('user-form-role').value
+            };
+            
+            const existingUser = users.find(u => u.username === newU.username);
+            if (existingUser && existingUser.id !== newU.id) {
+                window.showNotification("Username sudah dipakai oleh user lain!", "error");
+                return;
+            }
+            
+            if (isEdit) {
+                const idx = users.findIndex(u => u.id === newU.id);
+                if (idx >= 0) users[idx] = { ...users[idx], ...newU };
+            } else {
+                users.push(newU);
+            }
+
+            if (supabaseClient) {
+                try {
+                    // Deteksi nama kolom password di database Supabase (pink / pin / password)
+                    let passCol = 'password';
+                    if (users.length > 0) {
+                        if ('pink' in users[0]) passCol = 'pink';
+                        else if ('pin' in users[0]) passCol = 'pin';
+                    }
+                    
+                    // Bangun struktur data (payload) yang 100% cocok dengan struktur tabel Supabase Anda
+                    let dbPayload = {
+                        id: newU.id,
+                        name: newU.name,
+                        username: newU.username,
+                        role: newU.role
+                    };
+                    // Masukkan nilai password ke kolom yang tepat (contoh: dbPayload.pink = '123')
+                    dbPayload[passCol] = document.getElementById('user-form-password').value;
+
+                    const { error } = await supabaseClient.from('users').upsert([dbPayload]);
+                    
+                    if (error) {
+                        console.error("Supabase Error:", error);
+                        window.showNotification("Gagal simpan ke Supabase: " + error.message, "error");
+                        return; // Hentikan jika gagal
+                    }
+                } catch (err) {
+                    console.error("Failed saving user to DB:", err);
+                    window.showNotification("Terjadi kesalahan jaringan saat sinkronisasi!", "error");
+                    return;
+                }
+            }
+
+            window.renderUsersTable();
+            window.showNotification(isEdit ? "Data Karyawan & Akses berhasil diupdate!" : "Karyawan baru ditambahkan ke database!", "success");
+            e.target.reset();
+            document.getElementById('user-form-id').value = '';
+        };
+
+        window.editUser = function(id) {
+            const u = users.find(user => user.id === id);
+            if (!u) return;
+            document.getElementById('user-form-id').value = u.id;
+            document.getElementById('user-form-name').value = u.name || '';
+            document.getElementById('user-form-username').value = u.username || '';
+            document.getElementById('user-form-password').value = u.password || u.pin || u.pink || '';
+            document.getElementById('user-form-role').value = u.role || 'kasir';
+            window.showNotification("Silakan edit data di form", "info");
+        };
+
+        window.deleteUser = async function(id) {
+            if (users.length <= 1) {
+                window.showNotification("Minimal harus ada 1 user tersisa di sistem!", "error");
+                return;
+            }
+            if (!confirm("Hapus user ini?")) return;
+            users = users.filter(u => u.id !== id);
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('users').delete().eq('id', id);
+                } catch (err) {
+                    console.error("Failed deleting user from DB:", err);
+                }
+            }
+            window.renderUsersTable();
+            window.showNotification("User berhasil dihapus!", "success");
+        };
+
         window.navigate = function() {
             const hash = window.location.hash || '#pos';
+
+            // Cek otorisasi: Kasir ditolak mengakses menu admin
+            if (currentUser) {
+                const userRole = String(currentUser.role).toLowerCase().trim();
+                if (userRole === 'kasir') {
+                    if (['#products', '#customers', '#vouchers', '#settings'].includes(hash)) {
+                        window.showNotification("Akses Ditolak! Fitur ini khusus Administrator.", "error");
+                        window.location.hash = '#pos';
+                        return;
+                    }
+                }
+            }
+
             document.querySelectorAll('.view-page').forEach(page => page.classList.add('hidden'));
             const activeView = document.getElementById(`view-${hash.replace('#', '')}`);
             if (activeView) activeView.classList.remove('hidden');
@@ -2275,13 +2648,17 @@
             if (hash === '#history') { window.renderHistoryTable(); window.initCharts(); }
         };
 
-        window.logoutUser = function() { window.showNotification("Anda telah logout", "info"); };
-
         window.addEventListener('hashchange', window.navigate);
         window.addEventListener('DOMContentLoaded', () => {
             window.initSupabase();
             window.syncWithSupabase();
-            window.navigate();
+            
+            // Periksa login
+            if (!currentUser) {
+                document.getElementById('login-screen').classList.remove('hidden');
+            } else {
+                window.navigate();
+            }
         });
     </script>
 </body>
