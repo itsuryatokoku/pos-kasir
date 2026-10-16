@@ -18,6 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
@@ -210,9 +211,12 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Produk & Stok Barcode</h2>
-                    <p class="text-xs text-slate-500">Kelola katalog barang beserta barcode lengkap, brand, family, dan promo tag.</p>
+                    <p class="text-xs text-slate-500">Kelola katalog barang, HPP, harga jual, barcode, brand, & impor massal.</p>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="window.openImportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow transition">
+                        <i class="fa-solid fa-file-excel"></i><span>Impor Excel (.xlsx)</span>
+                    </button>
                     <button onclick="window.openBarcodeSheetModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow transition">
                         <i class="fa-solid fa-barcode"></i><span>Cetak Label Barcode</span>
                     </button>
@@ -239,7 +243,7 @@
                                 <th class="p-3">Nama Produk</th>
                                 <th class="p-3">Kategori</th>
                                 <th class="p-3">Brand / Family</th>
-                                <th class="p-3 text-right">Harga Beli</th>
+                                <th class="p-3 text-right">HPP (Beli)</th>
                                 <th class="p-3 text-right">Harga Jual</th>
                                 <th class="p-3 text-center">Stok</th>
                                 <th class="p-3 text-center">Aksi</th>
@@ -258,16 +262,21 @@
                     <h2 class="text-lg font-bold text-slate-800">Manajemen Pelanggan & Member</h2>
                     <p class="text-xs text-slate-500">Daftar pelanggan lengkap dengan Nama Member dan No. HP.</p>
                 </div>
-                <button onclick="window.openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
-                    <i class="fa-solid fa-user-plus"></i><span>Tambah Member Baru</span>
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="window.openImportCustomerModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow transition">
+                        <i class="fa-solid fa-file-excel"></i><span>Impor Excel (.xlsx)</span>
+                    </button>
+                    <button onclick="window.openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                        <i class="fa-solid fa-user-plus"></i><span>Tambah Member Baru</span>
+                    </button>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
-                    <div class="relative flex-1 sm:w-80">
+                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div class="relative w-full sm:w-72">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="customer-search-input" onkeyup="window.renderCustomersTable()" placeholder="Cari nama member, nomor HP, atau no. member..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                        <input type="text" id="customer-search-input" onkeyup="window.renderCustomersTable()" placeholder="Cari nama atau no. hp member..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -276,7 +285,7 @@
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
                                 <th class="p-3">No. Member</th>
                                 <th class="p-3">Nama Member</th>
-                                <th class="p-3">No. HP / Kontak</th>
+                                <th class="p-3">No. HP</th>
                                 <th class="p-3">Tier</th>
                                 <th class="p-3 text-right">Poin</th>
                                 <th class="p-3 text-right">Total Belanja</th>
@@ -293,27 +302,30 @@
         <div id="view-vouchers" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen Diskon, Voucher & BOGO</h2>
-                    <p class="text-xs text-slate-500">Atur Promo Otomatis, Voucher Bersyarat, dan Promo BOGO (Buy X Get Y).</p>
+                    <h2 class="text-lg font-bold text-slate-800">Manajemen Diskon & Voucher</h2>
+                    <p class="text-xs text-slate-500">Buat promo BOGO, diskon persen, atau potongan nominal khusus.</p>
                 </div>
-                <button onclick="window.openVoucherModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
-                    <i class="fa-solid fa-plus"></i><span>Tambah Promo / Voucher</span>
+                <button onclick="window.openVoucherModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
+                    <i class="fa-solid fa-plus"></i><span>Buat Promo Baru</span>
                 </button>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-3 border-b border-slate-100 bg-slate-50">
-                    <input type="text" id="voucher-search-input" onkeyup="window.renderVouchersTable()" placeholder="Cari judul promo, kode, atau jenis..." class="w-full sm:w-80 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="voucher-search-input" onkeyup="window.renderVouchersTable()" placeholder="Cari kode atau nama promo..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
-                                <th class="p-3">Jenis Promo</th>
-                                <th class="p-3">Kode / Judul</th>
-                                <th class="p-3">Target Kriteria</th>
-                                <th class="p-3">Nilai / BOGO</th>
-                                <th class="p-3 text-center">Min. Belanja</th>
+                                <th class="p-3">Tipe</th>
+                                <th class="p-3">Promo & Kode</th>
+                                <th class="p-3">Target</th>
+                                <th class="p-3">Benefit</th>
+                                <th class="p-3 text-center">Min. Beli</th>
                                 <th class="p-3 text-center">Status</th>
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
@@ -328,40 +340,38 @@
         <div id="view-history" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Laporan Penjualan & Analytics</h2>
-                    <p class="text-xs text-slate-500">Ringkasan grafik omset, riwayat nota transaksi, dan ekspor laporan Excel CSV.</p>
+                    <h2 class="text-lg font-bold text-slate-800">Laporan Penjualan & Riwayat Transaksi</h2>
+                    <p class="text-xs text-slate-500">Pantau performa kasir dan riwayat struk pembayaran.</p>
                 </div>
-                <button onclick="window.exportTransactionsCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow transition">
-                    <i class="fa-solid fa-file-excel"></i><span>Ekspor CSV</span>
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="lg:col-span-2 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="font-bold text-sm text-slate-700 mb-3">Tren Penjualan Harian</h3>
-                    <div class="h-56 relative"><canvas id="salesChart"></canvas></div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="font-bold text-sm text-slate-700 mb-3">Metode Pembayaran</h3>
-                    <div class="h-56 relative flex items-center justify-center"><canvas id="paymentChart"></canvas></div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase ml-1">Periode:</span>
+                        <input type="date" id="history-start-date" onchange="window.renderHistoryTable()" class="text-xs bg-white border border-slate-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
+                        <span class="text-slate-400 text-xs font-bold">-</span>
+                        <input type="date" id="history-end-date" onchange="window.renderHistoryTable()" class="text-xs bg-white border border-slate-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
+                    </div>
+                    <button onclick="window.exportTransactionsExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
+                        <i class="fa-solid fa-file-excel"></i> Download Excel
+                    </button>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                    <h3 class="font-bold text-xs uppercase text-slate-700">Daftar Riwayat Transaksi</h3>
-                    <span id="history-count" class="text-[11px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">0 Transaksi</span>
+            <!-- TABEL RIWAYAT TRANSAKSI -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-0" style="height: calc(100vh - 160px);">
+                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
+                    <h3 class="font-bold text-sm text-slate-700">Data Transaksi</h3>
+                    <span id="history-count" class="text-[11px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">0 Transaksi</span>
                 </div>
-                <div class="overflow-x-auto">
+                <div class="overflow-y-auto custom-scrollbar flex-1 p-0">
                     <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-600 font-semibold uppercase border-b border-slate-200">
-                                <th class="p-3">No. Nota</th>
-                                <th class="p-3">Waktu</th>
+                        <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm">
+                            <tr class="text-slate-600 font-semibold uppercase border-b border-slate-200">
+                                <th class="p-3">No. Invoice</th>
+                                <th class="p-3">Waktu Transaksi</th>
                                 <th class="p-3">Kasir</th>
                                 <th class="p-3">Pelanggan</th>
                                 <th class="p-3">Metode</th>
-                                <th class="p-3 text-right">Total</th>
+                                <th class="p-3 text-right">Total (Rp)</th>
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -373,66 +383,10 @@
 
         <!-- SETTINGS VIEW -->
         <div id="view-settings" class="view-page hidden flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar space-y-5 w-full min-h-0">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center flex-wrap gap-2">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem Kasir & Perangkat</h2>
-                    <p class="text-xs text-slate-500">Kelola status cloud, printer Bluetooth, QRIS dinamis, cabang, profil toko, & kustomisasi struk.</p>
-                </div>
-            </div>
-
-            <!-- Operational Devices & Status Dashboard Card -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h3 class="font-bold text-sm text-slate-800 border-b pb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-indigo-600"></i> Status Operasional, Perangkat & Cabang
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Status Cloud Supabase</span>
-                        <div class="flex items-center justify-between gap-1">
-                            <button onclick="window.checkCloudStatusOrPrompt()" id="cloud-status-badge" class="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-2 py-1 rounded-xl text-xs font-bold shrink-0">
-                                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span id="cloud-status-text" class="text-emerald-300">Cloud Online</span>
-                            </button>
-                            <button onclick="window.syncWithSupabase()" id="sync-btn" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-xl text-xs font-bold shadow transition shrink-0">
-                                <i class="fa-solid fa-rotate" id="sync-icon"></i><span>Sync</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Printer Thermal Bluetooth</span>
-                        <button onclick="window.connectBluetoothPrinter()" id="bt-printer-btn" class="flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-600 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition shadow w-full">
-                            <i class="fa-solid fa-print"></i><span id="bt-printer-status">BT Printer</span>
-                        </button>
-                    </div>
-
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Cabang Toko Aktif</span>
-                        <div class="flex items-center bg-white border border-slate-300 rounded-xl px-2 py-1 text-xs">
-                            <i class="fa-solid fa-store text-amber-500 mr-2"></i>
-                            <select id="branch-select" onchange="window.changeBranch()" class="bg-transparent text-slate-800 font-bold text-xs focus:outline-none cursor-pointer w-full">
-                                <option value="Pusat Utama">Cabang: Pusat</option>
-                                <option value="Cabang Susukanlebak">Cabang: Susukanlebak</option>
-                                <option value="Cabang Cirebon">Cabang: Cirebon</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Akun Terhubung</span>
-                        <div class="flex items-center justify-between bg-white border border-slate-300 rounded-xl p-1.5">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <i class="fa-solid fa-user-circle text-blue-500 text-base shrink-0"></i>
-                                <div class="flex flex-col text-left truncate">
-                                    <span id="user-display-name" class="font-bold text-slate-800 text-xs truncate">Admin</span>
-                                    <span id="user-display-role" class="text-[9px] text-blue-600 font-bold uppercase truncate">Owner</span>
-                                </div>
-                            </div>
-                            <button onclick="window.logoutUser()" class="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg text-xs font-bold transition shrink-0 border border-red-200">
-                                <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
-                            </button>
-                        </div>
-                    </div>
+                    <h2 class="text-lg font-bold text-slate-800">Pengaturan Toko & Sistem</h2>
+                    <p class="text-xs text-slate-500">Konfigurasi profil toko, struk kasir, metode pembayaran, dan koneksi cloud.</p>
                 </div>
             </div>
 
@@ -481,6 +435,17 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-xs text-slate-700 block">Koneksi Printer Bluetooth</span>
+                            <span id="bt-printer-status" class="text-[10px] text-slate-500">Belum Terhubung</span>
+                        </div>
+                        <button onclick="window.connectBluetoothPrinter()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                            <i class="fa-brands fa-bluetooth text-blue-600"></i> Hubungkan
+                        </button>
+                    </div>
+
                     <button onclick="window.saveStoreSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Struk
                     </button>
@@ -648,7 +613,7 @@
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Harga Beli</label>
+                        <label class="block font-semibold text-slate-600 mb-1">HPP (Beli)</label>
                         <input type="number" id="prod-form-purchase-price" value="0" min="0" class="w-full px-2.5 py-1.5 border rounded-lg">
                     </div>
                     <div>
@@ -665,6 +630,76 @@
                     <button type="submit" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow">Simpan Produk</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- IMPORT PRODUCTS EXCEL MODAL -->
+    <div id="import-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-file-excel text-emerald-600 mr-1.5"></i> Impor Produk Massal (Excel)</h3>
+                <button onclick="window.closeImportModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-emerald-900 space-y-1.5">
+                    <span class="font-bold block"><i class="fa-solid fa-circle-info mr-1"></i> Format Kolom Excel (Baris 1 Wajib Header):</span>
+                    <ol class="list-decimal pl-5 space-y-0.5 text-emerald-800 font-medium">
+                        <li>SKU (A)</li>
+                        <li>Barcode (B)</li>
+                        <li>Nama Produk (C)</li>
+                        <li>Kategori (D)</li>
+                        <li>Brand (E)</li>
+                        <li>HPP / Harga Beli (F)</li>
+                        <li>Harga Jual (G)</li>
+                        <li>Stok Awal (H)</li>
+                    </ol>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Pilih File Excel (.xlsx / .xls)</label>
+                    <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer border rounded-xl p-2">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button onclick="window.closeImportModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl">Batal</button>
+                    <button onclick="window.processExcelImport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-upload"></i><span>Unggah & Impor Produk</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORT CUSTOMERS EXCEL MODAL -->
+    <div id="import-customer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-file-excel text-emerald-600 mr-1.5"></i> Impor Pelanggan Massal (Excel)</h3>
+                <button onclick="window.closeImportCustomerModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-emerald-900 space-y-1.5">
+                    <span class="font-bold block"><i class="fa-solid fa-circle-info mr-1"></i> Format Kolom Excel (Baris 1 Wajib Header):</span>
+                    <ol class="list-decimal pl-5 space-y-0.5 text-emerald-800 font-medium">
+                        <li>No. Member (A)</li>
+                        <li>Nama Lengkap (B)</li>
+                        <li>No. HP / WA (C)</li>
+                        <li>Email (D)</li>
+                        <li>Tier (Reguler/Silver/Gold/VIP) (E)</li>
+                        <li>Alamat (F)</li>
+                        <li>Tanggal Lahir (G)</li>
+                        <li>Poin Awal (H)</li>
+                    </ol>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Pilih File Excel (.xlsx / .xls)</label>
+                    <input type="file" id="excel-customer-input" accept=".xlsx, .xls" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer border rounded-xl p-2">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button onclick="window.closeImportCustomerModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl">Batal</button>
+                    <button onclick="window.processExcelCustomerImport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-upload"></i><span>Unggah & Impor Pelanggan</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1236,6 +1271,166 @@
             }
         };
 
+        // EXCEL CSV IMPORT PRODUCTS (HPP, Harga Jual, Stok, dll)
+        window.openImportModal = function() {
+            document.getElementById('import-modal').classList.remove('hidden');
+        };
+
+        window.closeImportModal = function() {
+            document.getElementById('import-modal').classList.add('hidden');
+        };
+
+        window.processExcelImport = function() {
+            const fileInput = document.getElementById('excel-file-input');
+            if (!fileInput || !fileInput.files[0]) {
+                window.showNotification("Pilih file Excel terlebih dahulu!", "error");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1}); 
+
+                    if (jsonData.length < 2) {
+                        window.showNotification("File Excel kosong atau format tidak valid!", "error");
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row || row.length === 0) continue;
+
+                        const sku = row[0]?.toString() || '';
+                        const barcode = row[1]?.toString() || '';
+                        const name = row[2]?.toString() || '';
+                        const category = row[3]?.toString() || '';
+                        const brand = row[4]?.toString() || '';
+                        const purchase_price = parseFloat(row[5]) || 0;
+                        const selling_price = parseFloat(row[6]) || 0;
+                        const stock = parseInt(row[7]) || 0;
+
+                        if (!name) continue; // Skip jika nama produk kosong
+
+                        const newProd = {
+                            id: crypto.randomUUID ? crypto.randomUUID() : 'p_' + Date.now() + '_' + i,
+                            sku: sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`,
+                            barcode: barcode || `899${Math.floor(100000000 + Math.random() * 900000000)}`,
+                            name: name || 'Produk Impor',
+                            category: category || 'Umum',
+                            brand: brand || 'No Brand',
+                            purchase_price: purchase_price,
+                            selling_price: selling_price,
+                            stock: stock
+                        };
+
+                        products.push(newProd);
+                        importedCount++;
+
+                        if (supabaseClient) {
+                            try { await supabaseClient.from('products').upsert([newProd]); } catch (err) { console.error(err); }
+                        }
+                    }
+
+                    window.closeImportModal();
+                    window.renderCategoryPills();
+                    window.renderProductGrid();
+                    window.renderAdminProductsTable();
+                    window.showNotification(`Berhasil mengimpor ${importedCount} produk & HPP dari Excel!`, "success");
+                } catch (error) {
+                    console.error(error);
+                    window.showNotification("Gagal membaca file Excel! Pastikan file tidak rusak.", "error");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        };
+
+        // EXCEL IMPORT CUSTOMERS
+        window.openImportCustomerModal = function() {
+            document.getElementById('import-customer-modal').classList.remove('hidden');
+        };
+
+        window.closeImportCustomerModal = function() {
+            document.getElementById('import-customer-modal').classList.add('hidden');
+        };
+
+        window.processExcelCustomerImport = function() {
+            const fileInput = document.getElementById('excel-customer-input');
+            if (!fileInput || !fileInput.files[0]) {
+                window.showNotification("Pilih file Excel terlebih dahulu!", "error");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1}); 
+
+                    if (jsonData.length < 2) {
+                        window.showNotification("File Excel kosong atau format tidak valid!", "error");
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row || row.length === 0) continue;
+
+                        const member_no = row[0]?.toString() || '';
+                        const name = row[1]?.toString() || '';
+                        const phone = row[2]?.toString() || '';
+                        const email = row[3]?.toString() || '';
+                        const tier = row[4]?.toString() || 'Reguler';
+                        const address = row[5]?.toString() || '';
+                        const birthday = row[6]?.toString() || '';
+                        const points = parseInt(row[7]) || 0;
+
+                        if (!name) continue; // Skip jika nama kosong
+
+                        const newCust = {
+                            id: crypto.randomUUID ? crypto.randomUUID() : 'c_' + Date.now() + '_' + i,
+                            member_no: member_no || `MB-${Math.floor(100 + Math.random() * 900)}`,
+                            name: name,
+                            phone: phone || '-',
+                            email: email || '-',
+                            address: address || '-',
+                            tier: tier,
+                            is_vip: tier.toLowerCase() === 'vip',
+                            birthday: birthday || '-',
+                            points: points,
+                            total_tx: 0
+                        };
+
+                        customers.push(newCust);
+                        importedCount++;
+
+                        if (supabaseClient) {
+                            try { await supabaseClient.from('customers').upsert([newCust]); } catch (err) { console.error(err); }
+                        }
+                    }
+
+                    window.closeImportCustomerModal();
+                    window.renderCustomersTable();
+                    window.showNotification(`Berhasil mengimpor ${importedCount} pelanggan dari Excel!`, "success");
+                } catch (error) {
+                    console.error(error);
+                    window.showNotification("Gagal membaca file Excel pelanggan! Pastikan format sesuai.", "error");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        };
+
         // BARCODE SHEET LABEL FUNCTIONS WITH EXPLICIT PREVIEW GENERATION (3 COLUMNS)
         window.openBarcodeSheetModal = function() {
             window.renderBarcodeItemsList();
@@ -1484,7 +1679,7 @@
             window.renderCategoryPills();
             window.renderProductGrid();
             window.renderAdminProductsTable();
-            window.showNotification("Produk berhasil disimpan!", "success");
+            window.showNotification("Produk berhasil disimpan dan disinkronkan!", "success");
         };
 
         window.editProduct = function(id) { window.openProductModal(id); };
@@ -1829,10 +2024,18 @@
             let cashPaid = parseFloat(document.getElementById('pay-cash-amount').value) || totalNum;
             let change = Math.max(0, cashPaid - totalNum);
 
+            // Generate Professional Invoice Number (INV-YYMMDD-XXXX)
+            const now = new Date();
+            const dateCode = now.getFullYear().toString().slice(-2) + 
+                             String(now.getMonth() + 1).padStart(2, '0') + 
+                             String(now.getDate()).padStart(2, '0');
+            const randomCode = Math.floor(1000 + Math.random() * 9000);
+            const newInvoiceNo = `INV-${dateCode}-${randomCode}`;
+
             const txObj = {
                 id: crypto.randomUUID ? crypto.randomUUID() : 'tx_' + Date.now(),
-                invoice_no: `INV-${Date.now().toString().slice(-6)}`,
-                created_at: new Date().toISOString(),
+                invoice_no: newInvoiceNo,
+                created_at: now.toISOString(),
                 cashier_name: 'Admin',
                 customer_name: selectedCustomer ? selectedCustomer.name : 'Pelanggan Umum',
                 payment_method: document.getElementById('pay-method').value,
@@ -1873,13 +2076,44 @@
             window.initCharts();
         };
 
+        window.getFilteredTransactions = function() {
+            const startDate = document.getElementById('history-start-date')?.value;
+            const endDate = document.getElementById('history-end-date')?.value;
+            
+            if (!startDate && !endDate) return transactions;
+
+            return transactions.filter(t => {
+                if (!t.created_at) return false;
+                const txDate = new Date(t.created_at);
+                
+                let isAfterStart = true;
+                let isBeforeEnd = true;
+                
+                if (startDate) {
+                    const start = new Date(startDate);
+                    start.setHours(0, 0, 0, 0); // Mulai dari 00:00:00
+                    isAfterStart = txDate >= start;
+                }
+                
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999); // Sampai 23:59:59
+                    isBeforeEnd = txDate <= end;
+                }
+
+                return isAfterStart && isBeforeEnd;
+            });
+        };
+
         window.renderHistoryTable = function() {
             const tbody = document.getElementById('history-tbody');
             const countBadge = document.getElementById('history-count');
             if (!tbody) return;
-            if (countBadge) countBadge.innerText = `${transactions.length} Transaksi`;
+            
+            let filteredTransactions = window.getFilteredTransactions();
+            if (countBadge) countBadge.innerText = `${filteredTransactions.length} Transaksi`;
 
-            tbody.innerHTML = transactions.map(t => `
+            tbody.innerHTML = filteredTransactions.map(t => `
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                     <td class="p-3 font-mono font-bold text-blue-600">${t.invoice_no || '-'}</td>
                     <td class="p-3 text-slate-500">${t.created_at ? new Date(t.created_at).toLocaleString('id-ID') : '-'}</td>
@@ -1915,15 +2149,66 @@
             }
         };
 
-        window.exportTransactionsCSV = function() {
-            let csv = "Invoice,Waktu,Kasir,Pelanggan,Metode,Total\n";
-            transactions.forEach(t => { csv += `"${t.invoice_no || ''}","${t.created_at || ''}","${t.cashier_name || ''}","${t.customer_name || ''}","${t.payment_method || ''}",${t.total || 0}\n`; });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `Laporan_Penjualan_${Date.now()}.csv`);
-            a.click();
+        window.exportTransactionsExcel = function() {
+            let filteredTransactions = window.getFilteredTransactions ? window.getFilteredTransactions() : transactions;
+
+            if (filteredTransactions.length === 0) {
+                window.showNotification("Tidak ada data transaksi untuk diekspor pada filter ini!", "error");
+                return;
+            }
+
+            let exportData = [];
+            
+            filteredTransactions.forEach(t => {
+                let transactionDiscount = (t.subtotal || 0) - (t.total || 0);
+                if (transactionDiscount < 0) transactionDiscount = 0;
+
+                if (t.items && t.items.length > 0) {
+                    t.items.forEach(item => {
+                        exportData.push({
+                            "No. Invoice": t.invoice_no || '-',
+                            "Waktu Transaksi": t.created_at ? new Date(t.created_at).toLocaleString('id-ID') : '-',
+                            "Pelanggan / Member": t.customer_name || 'Pelanggan Umum',
+                            "Kode Item (SKU)": item.sku || '-',
+                            "Kode Barcode": item.barcode || '-',
+                            "Nama Produk": item.name || '-',
+                            "Qty": item.qty || 0,
+                            "HPP (Harga Beli)": item.purchase_price || 0,
+                            "Harga Jual Satuan (Rp)": item.selling_price || 0,
+                            "Subtotal Item (Rp)": (item.selling_price * item.qty) || 0,
+                            "Total Diskon Nota (Rp)": transactionDiscount,
+                            "Total Akhir Nota (Rp)": t.total || 0,
+                            "Metode Pembayaran": t.payment_method || 'Tunai',
+                            "Nama Kasir": t.cashier_name || 'Admin'
+                        });
+                    });
+                } else {
+                    // Fallback jika tidak ada item di transaksi
+                    exportData.push({
+                        "No. Invoice": t.invoice_no || '-',
+                        "Waktu Transaksi": t.created_at ? new Date(t.created_at).toLocaleString('id-ID') : '-',
+                        "Pelanggan / Member": t.customer_name || 'Pelanggan Umum',
+                        "Kode Item (SKU)": '-',
+                        "Kode Barcode": '-',
+                        "Nama Produk": 'Tidak ada detail item',
+                        "Qty": 0,
+                        "HPP (Harga Beli)": 0,
+                        "Harga Jual Satuan (Rp)": 0,
+                        "Subtotal Item (Rp)": 0,
+                        "Total Diskon Nota (Rp)": transactionDiscount,
+                        "Total Akhir Nota (Rp)": t.total || 0,
+                        "Metode Pembayaran": t.payment_method || 'Tunai',
+                        "Nama Kasir": t.cashier_name || 'Admin'
+                    });
+                }
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Detail Penjualan");
+
+            XLSX.writeFile(workbook, `Laporan_Detail_Penjualan_MYKSR_${Date.now()}.xlsx`);
+            window.showNotification("Laporan detail per item berhasil diekspor!", "success");
         };
 
         // CAMERA SCANNER
